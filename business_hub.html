@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Business Hub</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg2:#0d1830;
+      --card:rgba(255,255,255,.08);
+      --card-2:rgba(255,255,255,.12);
+      --line:rgba(255,255,255,.12);
+      --text:#eef4ff;
+      --muted:#9fb0d2;
+      --violet:#9b8cff;
+      --cyan:#64e6ff;
+      --pink:#ff7ad9;
+      --green:#44e1a6;
+      --yellow:#ffd166;
+      --red:#ff7f7f;
+      --shadow:0 18px 60px rgba(0,0,0,.35);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:radial-gradient(circle at top left,#14213d 0%,#0a1222 38%,#070d17 100%);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;min-height:100%}
+    body{padding:18px 18px 96px}
+    .shell{max-width:1120px;margin:0 auto;display:grid;gap:16px}
+    .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(155,140,255,.22),rgba(100,230,255,.12),rgba(255,122,217,.18));border:1px solid var(--line);border-radius:32px;padding:24px;box-shadow:var(--shadow)}
+    .hero::after,.hero::before{content:"";position:absolute;border-radius:999px;filter:blur(18px);opacity:.55}
+    .hero::before{width:180px;height:180px;right:-30px;top:-30px;background:rgba(100,230,255,.22)}
+    .hero::after{width:220px;height:220px;left:-50px;bottom:-80px;background:rgba(255,122,217,.18)}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#dfe7ff;background:rgba(255,255,255,.08);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12)}
+    .hero h1{margin:14px 0 8px;font-size:clamp(28px,6vw,42px);line-height:1.02}
+    .hero p{margin:0;color:var(--muted);max-width:730px;font-size:15px}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+    .stat{background:rgba(6,11,24,.28);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:22px;padding:16px}
+    .stat .num{font-size:28px;font-weight:800;letter-spacing:-.04em}
+    .stat .lab{font-size:12px;color:var(--muted);margin-top:4px}
+    .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .tab{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:18px;padding:12px 14px;font-weight:700;cursor:pointer;backdrop-filter:blur(14px)}
+    .tab.on{color:#fff;background:linear-gradient(135deg,rgba(155,140,255,.28),rgba(100,230,255,.18));box-shadow:0 12px 40px rgba(0,0,0,.18)}
+    .page{display:none;gap:14px}
+    .page.on{display:grid}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap}
+    .search{flex:1;min-width:220px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;color:var(--text);outline:none}
+    .btn{appearance:none;border:none;border-radius:18px;padding:14px 16px;background:linear-gradient(135deg,var(--violet),#6fc5ff);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(95,86,255,.3)}
+    .ghost{background:var(--card);border:1px solid var(--line);color:var(--text);box-shadow:none}
+    .grid{display:grid;grid-template-columns:1.25fr .9fr;gap:14px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;backdrop-filter:blur(16px);box-shadow:var(--shadow)}
+    .panel h2{margin:0 0 12px;font-size:18px}
+    .list{display:grid;gap:12px}
+    .contact{padding:16px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));cursor:pointer;transition:.18s transform,.18s border-color}
+    .contact:hover{transform:translateY(-1px);border-color:rgba(155,140,255,.55)}
+    .contact.active{border-color:rgba(100,230,255,.65);box-shadow:0 0 0 1px rgba(100,230,255,.22) inset}
+    .row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .name{font-weight:800;font-size:15px}
+    .sub,.muted{font-size:12px;color:var(--muted)}
+    .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+    .snippet{margin-top:10px;color:#dfe6ff;font-size:13px;line-height:1.4}
+    .composer{display:grid;gap:10px}
+    .textarea,.input,.select{width:100%;background:rgba(3,7,18,.28);border:1px solid var(--line);border-radius:18px;padding:14px 16px;color:var(--text);outline:none}
+    .textarea{min-height:140px;resize:vertical}
+    .thread{display:grid;gap:10px;max-height:340px;overflow:auto;padding-right:4px}
+    .bubble{max-width:88%;padding:12px 14px;border-radius:18px;font-size:13px;line-height:1.45;border:1px solid var(--line)}
+    .bubble.in{background:rgba(255,255,255,.06);justify-self:start}
+    .bubble.out{background:linear-gradient(135deg,rgba(155,140,255,.28),rgba(100,230,255,.18));justify-self:end}
+    .bubble .time{display:block;margin-top:6px;font-size:11px;color:var(--muted)}
+    .task{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+    .tick{width:24px;height:24px;border-radius:999px;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;background:rgba(255,255,255,.06)}
+    .task.done .tick{background:rgba(68,225,166,.15);border-color:rgba(68,225,166,.55)}
+    .task.done .title{text-decoration:line-through;color:var(--muted)}
+    .title{font-weight:800}
+    .prio{font-size:11px;font-weight:800;border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.08);border:1px solid var(--line)}
+    .settings{display:grid;gap:12px}
+    .setting{padding:16px;border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+    .setting h3{margin:0 0 8px;font-size:14px}
+    .setting p{margin:0 0 12px;color:var(--muted);font-size:12px}
+    .empty{padding:24px;border:1px dashed rgba(255,255,255,.18);border-radius:24px;color:var(--muted);text-align:center}
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#101a2f;border:1px solid var(--line);color:#fff;padding:12px 14px;border-radius:14px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.2s}
+    .toast.on{opacity:1}
+    @media (max-width:900px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .grid{grid-template-columns:1fr}
+    }
+    @media (max-width:640px){
+      body{padding:14px 14px 92px}
+      .tabs{position:fixed;left:14px;right:14px;bottom:14px;background:rgba(7,14,27,.92);padding:8px;border-radius:22px;border:1px solid var(--line);backdrop-filter:blur(20px);z-index:20}
+      .hero{padding:20px}
+      .stats{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">⚡ Telegram Business Hub</div>
+      <h1>Нейросеть отвечает клиентам от имени вашего бизнес-аккаунта</h1>
+      <p>Панель показывает контакты, задачи и черновики. Важно: это snapshot, который бот передаёт в URL при открытии панели. Чтобы подтянуть самые свежие данные, откройте /inbox заново.</p>
+      <div class="stats">
+        <div class="stat"><div class="num" id="sContacts">0</div><div class="lab">Контакты</div></div>
+        <div class="stat"><div class="num" id="sUnread">0</div><div class="lab">Открытые</div></div>
+        <div class="stat"><div class="num" id="sTasks">0</div><div class="lab">Задачи</div></div>
+        <div class="stat"><div class="num" id="sAuto">—</div><div class="lab">Автоответ</div></div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab on" data-page="inbox">Inbox</button>
+      <button class="tab" data-page="tasks">Задачи</button>
+      <button class="tab" data-page="settings">Настройки</button>
+    </div>
+
+    <section class="page on" id="page-inbox">
+      <div class="toolbar">
+        <input id="search" class="search" placeholder="Поиск по имени, username, сообщению…" />
+        <button class="btn ghost" id="btnRefresh">Подсказка</button>
+      </div>
+      <div class="grid">
+        <div class="panel">
+          <h2>Клиенты</h2>
+          <div id="contacts" class="list"></div>
+        </div>
+        <div class="panel">
+          <div class="row" style="margin-bottom:12px">
+            <div>
+              <h2 id="detailName">Выберите контакт</h2>
+              <div class="sub" id="detailMeta">—</div>
+            </div>
+            <div class="badge" id="detailBadge">нет данных</div>
+          </div>
+          <div id="thread" class="thread"><div class="empty">Откройте контакт слева, чтобы увидеть переписку и отправить ответ.</div></div>
+          <div class="composer" style="margin-top:14px">
+            <textarea id="reply" class="textarea" placeholder="Здесь можно отправить ответ от имени бизнес-аккаунта…"></textarea>
+            <div class="row">
+              <button class="btn ghost" id="btnDraft">Вставить AI-черновик</button>
+              <button class="btn" id="btnSend">Отправить от имени бизнеса</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-tasks">
+      <div class="toolbar">
+        <input id="taskTitle" class="input" placeholder="Новая задача" />
+        <select id="taskPriority" class="select" style="max-width:180px">
+          <option value="low">🟢 Низкий</option>
+          <option value="medium" selected>🟡 Средний</option>
+          <option value="high">🔴 Высокий</option>
+        </select>
+        <button class="btn" id="btnTaskAdd">Создать</button>
+      </div>
+      <div class="panel"><div id="tasks" class="list"></div></div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <div class="panel settings" id="settings"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    const TAGS = {
+      NEW_LEAD:'🟢 Лид', QUESTION:'❓ Вопрос', COMPLAINT:'🔴 Жалоба',
+      FOLLOWUP:'🔄 Follow-up', PAYMENT:'💰 Оплата', SPAM:'🚫 Спам', OTHER:'⚪ Другое'
+    };
+
+    let state = { contacts: [], tasks: [], settings: {}, selectedId: null };
+
+    function toast(msg){
+      const el = document.getElementById('toast');
+      el.textContent = msg; el.classList.add('on');
+      setTimeout(()=>el.classList.remove('on'), 1800);
+    }
+
+    function decodeHash(){
+      const h = location.hash.slice(1);
+      if(!h) return null;
+      try{
+        let b = h.replace(/-/g,'+').replace(/_/g,'/');
+        while(b.length % 4) b += '=';
+        const json = decodeURIComponent(escape(atob(b)));
+        return JSON.parse(json);
+      }catch(err){
+        console.error(err);
+        return null;
+      }
+    }
+
+    function load(){
+      const data = decodeHash();
+      if(!data) return;
+      state.contacts = (data.c || []).map(x => ({
+        id:x.id, username:x.un || '', name:x.nm || '', tag:x.tg || 'OTHER', status:x.st || 'open',
+        urgency:x.ur || 'medium', sentiment:x.sn || 'neutral', lastMessage:x.lm || '', time:x.tm || '',
+        draft:x.dr || '', source:x.sr || 'telegram_business', context:x.cx || '',
+        businessConnectionId:x.bc || '', directTopicId:x.dm || 0,
+        messages:(x.ms || []).map(m => ({dir:m.d, text:m.t, time:m.w}))
+      }));
+      state.tasks = (data.t || []).map(x => ({
+        id:x.id, chat_id:x.ci || 0, title:x.ti || '', description:x.ds || '', priority:x.pr || 'medium', done:!!x.dn,
+        contact:x.cn || '', time:x.tm || ''
+      }));
+      state.settings = data.s || {};
+      if(state.contacts.length && !state.selectedId) state.selectedId = state.contacts[0].id;
+    }
+
+    function ago(iso){
+      if(!iso) return 'без даты';
+      const d = new Date(iso); if(Number.isNaN(d.getTime())) return iso;
+      const diff = Math.max(0, Date.now() - d.getTime());
+      const m = Math.floor(diff/60000), h = Math.floor(m/60), day = Math.floor(h/24);
+      if(day > 0) return `${day} дн. назад`; if(h > 0) return `${h} ч назад`; if(m > 0) return `${m} мин назад`; return 'только что';
+    }
+
+    function sendData(payload){
+      const raw = JSON.stringify(payload);
+      if(tg?.sendData){ tg.sendData(raw); toast('Отправлено боту'); }
+      else { console.log('WEBAPP DATA', payload); toast('Откройте панель из Telegram /inbox'); }
+    }
+
+    function updateStats(){
+      document.getElementById('sContacts').textContent = state.contacts.length;
+      document.getElementById('sUnread').textContent = state.contacts.filter(c => c.status !== 'closed').length;
+      document.getElementById('sTasks').textContent = state.tasks.filter(t => !t.done).length;
+      document.getElementById('sAuto').textContent = state.settings.auto_reply === false ? 'OFF' : 'ON';
+    }
+
+    function renderContacts(){
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const items = state.contacts.filter(c => {
+        const hay = `${c.name} ${c.username} ${c.lastMessage} ${c.context}`.toLowerCase();
+        return !q || hay.includes(q);
+      });
+      const wrap = document.getElementById('contacts');
+      if(!items.length){ wrap.innerHTML = '<div class="empty">Контактов пока нет. Они появятся после входящих сообщений в Telegram Business и нового открытия /inbox.</div>'; return; }
+      wrap.innerHTML = items.map(c => `
+        <div class="contact ${c.id===state.selectedId?'active':''}" data-id="${c.id}">
+          <div class="row">
+            <div>
+              <div class="name">${escapeHtml(c.name || '@'+c.username || String(c.id))}</div>
+              <div class="sub">${c.username ? '@'+escapeHtml(c.username) : 'chat '+c.id}</div>
+            </div>
+            <div class="badge">${TAGS[c.tag] || '⚪ Другое'}</div>
+          </div>
+          <div class="snippet">${escapeHtml(c.lastMessage || 'Без сообщений')}</div>
+          <div class="row" style="margin-top:10px">
+            <div class="muted">${escapeHtml(c.context || 'Контекст ещё не определён')}</div>
+            <div class="muted">${ago(c.time)}</div>
+          </div>
+        </div>
+      `).join('');
+      wrap.querySelectorAll('.contact').forEach(el => el.onclick = () => { state.selectedId = Number(el.dataset.id); renderContacts(); renderDetail(); });
+    }
+
+    function renderDetail(){
+      const c = state.contacts.find(x => x.id === state.selectedId);
+      const thread = document.getElementById('thread');
+      if(!c){
+        document.getElementById('detailName').textContent = 'Выберите контакт';
+        document.getElementById('detailMeta').textContent = '—';
+        document.getElementById('detailBadge').textContent = 'нет данных';
+        thread.innerHTML = '<div class="empty">Выберите контакт слева.</div>';
+        return;
+      }
+      document.getElementById('detailName').textContent = c.name || c.username || String(c.id);
+      document.getElementById('detailMeta').textContent = `${c.username ? '@'+c.username+' · ' : ''}${ago(c.time)} · ${c.source}`;
+      document.getElementById('detailBadge').textContent = TAGS[c.tag] || '⚪ Другое';
+      thread.innerHTML = c.messages.length ? c.messages.slice().reverse().map(m => `
+        <div class="bubble ${m.dir === 'out' ? 'out' : 'in'}">
+          ${escapeHtml(m.text || '')}
+          <span class="time">${ago(m.time)}</span>
+        </div>
+      `).join('') : '<div class="empty">История пока пустая.</div>';
+      document.getElementById('reply').value = c.draft || '';
+    }
+
+    function renderTasks(){
+      const wrap = document.getElementById('tasks');
+      if(!state.tasks.length){ wrap.innerHTML = '<div class="empty">Задач пока нет.</div>'; return; }
+      wrap.innerHTML = state.tasks.map(t => `
+        <div class="task ${t.done ? 'done' : ''}">
+          <div class="tick" data-id="${t.id}">${t.done ? '✓' : ''}</div>
+          <div>
+            <div class="title">${escapeHtml(t.title)}</div>
+            <div class="muted">${escapeHtml(t.contact || 'Без контакта')} · ${ago(t.time)}</div>
+            ${t.description ? `<div class="muted" style="margin-top:6px">${escapeHtml(t.description)}</div>` : ''}
+          </div>
+          <div class="prio">${t.priority}</div>
+        </div>
+      `).join('');
+      wrap.querySelectorAll('.tick').forEach(el => el.onclick = () => {
+        const id = Number(el.dataset.id);
+        const task = state.tasks.find(t => t.id === id);
+        if(task) task.done = !task.done;
+        renderTasks(); updateStats();
+        sendData({action:'toggle_task', id});
+      });
+    }
+
+    const SETTINGS_META = {
+      greeting:['Приветствие','Первое сообщение новым клиентам'],
+      ai_style:['Стиль AI','Как нейросеть формулирует ответы'],
+      business_context:['Контекст бизнеса','Услуги, цены, правила, FAQ'],
+      ai_disclaimer:['Дисклеймер','Подпись внизу AI-ответа'],
+      auto_reply:['Автоответ','Автоматически отправлять AI-ответ без ручного подтверждения']
+    };
+
+    function renderSettings(){
+      const wrap = document.getElementById('settings');
+      const keys = ['greeting','ai_style','business_context','ai_disclaimer'];
+      const blocks = keys.map(k => `
+        <div class="setting">
+          <h3>${SETTINGS_META[k][0]}</h3>
+          <p>${SETTINGS_META[k][1]}</p>
+          <textarea class="textarea" id="set-${k}" style="min-height:120px">${escapeHtml(state.settings[k] || '')}</textarea>
+          <div style="margin-top:10px"><button class="btn" data-save="${k}">Сохранить</button></div>
+        </div>
+      `).join('');
+      const auto = `
+        <div class="setting">
+          <h3>${SETTINGS_META.auto_reply[0]}</h3>
+          <p>${SETTINGS_META.auto_reply[1]}</p>
+          <button class="btn ${state.settings.auto_reply === false ? 'ghost' : ''}" id="toggleAuto">${state.settings.auto_reply === false ? 'Сейчас OFF — включить' : 'Сейчас ON — выключить'}</button>
+        </div>
+      `;
+      wrap.innerHTML = blocks + auto;
+      wrap.querySelectorAll('[data-save]').forEach(btn => btn.onclick = () => {
+        const key = btn.dataset.save;
+        const value = document.getElementById('set-'+key).value;
+        state.settings[key] = value;
+        sendData({action:'save_setting', key, value});
+        updateStats();
+      });
+      document.getElementById('toggleAuto').onclick = () => {
+        state.settings.auto_reply = !(state.settings.auto_reply !== false);
+        renderSettings(); updateStats();
+        sendData({action:'save_setting', key:'auto_reply', value:state.settings.auto_reply});
+      };
+    }
+
+    function escapeHtml(s){
+      return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+    }
+
+    function switchPage(page){
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.page === page));
+      document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === 'page-'+page));
+    }
+
+    document.querySelectorAll('.tab').forEach(btn => btn.onclick = () => switchPage(btn.dataset.page));
+    document.getElementById('search').addEventListener('input', renderContacts);
+    document.getElementById('btnRefresh').onclick = () => toast('Чтобы получить свежие данные, откройте /inbox заново в боте.');
+    document.getElementById('btnDraft').onclick = () => {
+      const c = state.contacts.find(x => x.id === state.selectedId); if(!c) return;
+      document.getElementById('reply').value = c.draft || '';
+      toast(c.draft ? 'Черновик вставлен' : 'Черновик пуст');
+    };
+    document.getElementById('btnSend').onclick = () => {
+      const c = state.contacts.find(x => x.id === state.selectedId);
+      if(!c){ toast('Сначала выберите контакт'); return; }
+      const text = document.getElementById('reply').value.trim();
+      if(!text){ toast('Введите текст ответа'); return; }
+      c.messages.push({dir:'out', text, time:new Date().toISOString()});
+      c.lastMessage = text; c.time = new Date().toISOString(); c.draft = '';
+      renderContacts(); renderDetail();
+      sendData({action:'send_reply', chat_id:c.id, text});
+    };
+    document.getElementById('btnTaskAdd').onclick = () => {
+      const title = document.getElementById('taskTitle').value.trim();
+      if(!title){ toast('Введите название задачи'); return; }
+      const priority = document.getElementById('taskPriority').value;
+      const selected = state.contacts.find(x => x.id === state.selectedId);
+      state.tasks.unshift({id:Date.now(), chat_id:selected?.id || 0, title, description:'', priority, done:false, contact:selected?.name || '', time:new Date().toISOString()});
+      document.getElementById('taskTitle').value = '';
+      renderTasks(); updateStats();
+      sendData({action:'add_task', chat_id:selected?.id || 0, title, description:'', priority});
+    };
+
+    load();
+    updateStats();
+    renderContacts();
+    renderDetail();
+    renderTasks();
+    renderSettings();
+  </script>
+</body>
+</html>
