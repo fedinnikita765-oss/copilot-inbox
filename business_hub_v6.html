@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Hub</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg2:#0d1728;
+      --glass:rgba(14,23,41,.78);
+      --glass2:rgba(12,19,34,.92);
+      --line:rgba(255,255,255,.08);
+      --soft:rgba(255,255,255,.06);
+      --text:#eff6ff;
+      --muted:#93a4c7;
+      --accent:#6d5efc;
+      --accent2:#18c2c8;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --radius:24px;
+      --shadow:0 22px 70px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);background:
+      radial-gradient(circle at 0% 0%, rgba(109,94,252,.18), transparent 28%),
+      radial-gradient(circle at 100% 0%, rgba(24,194,200,.16), transparent 22%),
+      linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%)}
+    body{min-height:100%;display:flex;justify-content:center}
+    button,input,textarea,select{font:inherit}
+    .app{width:min(1520px,100%);padding:18px 14px 28px}
+    .hero{display:grid;grid-template-columns:1.25fr .95fr;gap:16px;margin-bottom:16px}
+    .card{background:var(--glass);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-main{padding:24px;position:relative;overflow:hidden}
+    .hero-main:before{content:"";position:absolute;inset:auto -60px -60px auto;width:220px;height:220px;background:radial-gradient(circle, rgba(109,94,252,.24), transparent 70%)}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(34,197,94,.14);color:#9ff7b7;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:14px 0 10px;font-size:40px;line-height:1;letter-spacing:-.05em}
+    .lead{margin:0;max-width:740px;color:var(--muted);line-height:1.65;font-size:15px}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .btn{appearance:none;border:0;border-radius:16px;padding:12px 16px;color:var(--text);background:var(--soft);font-weight:700;cursor:pointer;transition:.18s transform,.18s opacity}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),#4338ca)}
+    .btn.cyan{background:linear-gradient(135deg,var(--accent2),#0ea5e9)}
+    .btn.green{background:linear-gradient(135deg,#16a34a,#22c55e)}
+    .btn.warn{background:linear-gradient(135deg,#d97706,#f59e0b)}
+    .hero-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:16px}
+    .metric{padding:18px;border-radius:22px;background:var(--glass2);border:1px solid var(--line)}
+    .metric .k{font-size:12px;color:var(--muted);margin-bottom:8px}
+    .metric .v{font-size:30px;font-weight:800;letter-spacing:-.05em}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0}
+    .seg{display:flex;gap:8px;padding:8px;background:var(--glass);border:1px solid var(--line);border-radius:18px}
+    .seg button{padding:10px 14px;border:0;border-radius:14px;background:transparent;color:var(--text);cursor:pointer;font-weight:700}
+    .seg button.active{background:linear-gradient(135deg,var(--accent),#4338ca)}
+    .search{flex:1;display:flex;align-items:center;gap:10px;min-width:240px;padding:0 14px;border-radius:18px;background:var(--glass);border:1px solid var(--line)}
+    .search input{width:100%;padding:13px 0;border:0;background:transparent;color:var(--text);outline:none}
+    .status-pill{display:flex;align-items:center;gap:10px;padding:0 14px;height:48px;border-radius:18px;background:var(--glass);border:1px solid var(--line);font-size:13px;color:var(--muted)}
+    .pulse{width:10px;height:10px;border-radius:999px;background:var(--ok);box-shadow:0 0 0 6px rgba(34,197,94,.12)}
+    .layout{display:grid;grid-template-columns:360px 1fr 360px;gap:16px}
+    .section-head{display:flex;justify-content:space-between;align-items:center;padding:18px 18px 8px}
+    .section-head h2{margin:0;font-size:18px;letter-spacing:-.03em}
+    .body{padding:0 14px 14px}
+    .list{display:flex;flex-direction:column;gap:10px;max-height:68vh;overflow:auto;padding:2px}
+    .contact{padding:14px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid var(--line);cursor:pointer;transition:.18s border-color,.18s transform,.18s background}
+    .contact:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.16)}
+    .contact.active{background:linear-gradient(180deg, rgba(109,94,252,.18), rgba(255,255,255,.04));border-color:rgba(109,94,252,.45)}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .name{font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .meta{font-size:12px;color:var(--muted)}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .chip.ok{background:rgba(34,197,94,.16);color:#9ff7b7}
+    .chip.warn{background:rgba(245,158,11,.16);color:#ffd68a}
+    .chip.stop{background:rgba(239,68,68,.16);color:#ffb3b3}
+    .chip.dim{background:rgba(255,255,255,.06);color:#cad7ef}
+    .detail{padding:20px}
+    .headline{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
+    .title{font-size:30px;font-weight:900;letter-spacing:-.05em}
+    .sub{font-size:13px;color:var(--muted)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:0 12px}
+    .field label{display:block;padding-top:10px;color:var(--muted);font-size:12px}
+    .field input,.field textarea,.field select{width:100%;padding:12px 2px;border:0;background:transparent;color:var(--text);outline:none}
+    .field textarea{min-height:88px;resize:vertical}
+    .cluster{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+    .messages{display:flex;flex-direction:column-reverse;gap:10px;max-height:36vh;overflow:auto;padding-right:4px;margin-top:14px}
+    .msg{max-width:88%;padding:12px 14px;border-radius:18px;line-height:1.45;font-size:14px}
+    .msg.in{align-self:flex-start;background:rgba(255,255,255,.07)}
+    .msg.out{align-self:flex-end;background:linear-gradient(135deg, rgba(109,94,252,.24), rgba(24,194,200,.18))}
+    .composer{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px}
+    .composer textarea{min-height:94px;resize:vertical;padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);outline:none}
+    .stack{display:flex;flex-direction:column;gap:10px}
+    .task{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+    .task.done{opacity:.58}
+    .task input{width:18px;height:18px;margin-top:3px}
+    .mutedline{font-size:12px;color:var(--muted);padding:0 4px 10px}
+    .empty{padding:22px;text-align:center;color:var(--muted)}
+    .modal-wrap{position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}
+    .modal-wrap.show{display:flex}
+    .modal{width:min(600px,100%);padding:18px}
+    .modal h3{margin:0 0 12px;font-size:22px;letter-spacing:-.04em}
+    @media (max-width:1200px){.layout{grid-template-columns:320px 1fr}.layout .right{grid-column:1/-1}.hero{grid-template-columns:1fr}}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}.hero-main h1{font-size:32px}.grid2{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">live sync · crm · ai</div>
+        <h1>Business Hub</h1>
+        <p class="lead">Живая панель для бизнес-переписки: контакты появляются после первого входящего сообщения, изменения сохраняются в базе, а Mini App заново поднимает состояние даже после закрытия.</p>
+        <div class="hero-actions">
+          <button class="btn primary" id="refreshBtn">Обновить</button>
+          <button class="btn" id="openAddContact">Добавить в контакты</button>
+          <button class="btn" id="openAddTask">Новая задача</button>
+          <button class="btn cyan" id="quickApproveBtn">Одобрить выбранный</button>
+        </div>
+      </div>
+      <div class="card hero-metrics">
+        <div class="metric"><div class="k">Контакты</div><div class="v" id="statContacts">0</div></div>
+        <div class="metric"><div class="k">Новые</div><div class="v" id="statPending">0</div></div>
+        <div class="metric"><div class="k">Открытые задачи</div><div class="v" id="statTasks">0</div></div>
+        <div class="metric"><div class="k">Последняя синхронизация</div><div class="v" id="statSync" style="font-size:18px">—</div></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="seg" id="tabs">
+        <button data-tab="contacts" class="active">Контакты</button>
+        <button data-tab="tasks">Задачи</button>
+        <button data-tab="settings">Настройки</button>
+      </div>
+      <div class="search">
+        <span>⌕</span>
+        <input id="searchInput" placeholder="Поиск по имени, username, тегу, заметкам">
+      </div>
+      <div class="status-pill"><span class="pulse"></span><span id="syncStatus">ожидание</span></div>
+    </div>
+
+    <main class="layout">
+      <aside class="card left" id="contactsPane">
+        <div class="section-head"><h2>Контакты</h2><span class="chip dim" id="contactsCountChip">0</span></div>
+        <div class="body">
+          <div class="mutedline">Новые клиенты должны появляться автоматически после первого сообщения.</div>
+          <div class="list" id="contactList"></div>
+        </div>
+      </aside>
+
+      <section class="card center">
+        <div class="detail" id="detailContent"></div>
+      </section>
+
+      <aside class="card right">
+        <div class="section-head"><h2 id="sideTitle">Задачи</h2><button class="btn" id="sideAction">Добавить</button></div>
+        <div class="body" id="sideContent"></div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-wrap" id="modalWrap">
+    <div class="modal card" id="modalCard"></div>
+  </div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const params = new URLSearchParams(location.search);
+const API_BASE = (params.get('api') || '').replace(/\/$/, '');
+const PANEL_TOKEN = params.get('token') || localStorage.getItem('bh.panelToken') || '';
+if (PANEL_TOKEN) localStorage.setItem('bh.panelToken', PANEL_TOKEN);
+
+const CACHE_KEY = 'bh.live.v6.cache';
+const UI_KEY = 'bh.live.v6.ui';
+
+const state = {
+  snapshot: loadCache(),
+  selectedChatId: loadUI().selectedChatId || null,
+  tab: loadUI().tab || 'contacts',
+  search: loadUI().search || '',
+  syncing: false,
+};
+
+const $ = (id) => document.getElementById(id);
+const els = {
+  contactList: $('contactList'),
+  detailContent: $('detailContent'),
+  sideContent: $('sideContent'),
+  sideTitle: $('sideTitle'),
+  sideAction: $('sideAction'),
+  modalWrap: $('modalWrap'),
+  modalCard: $('modalCard'),
+  searchInput: $('searchInput'),
+  syncStatus: $('syncStatus'),
+};
+
+els.searchInput.value = state.search;
+
+function loadCache(){
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null') || {contacts:[], tasks:[], settings:{}}; }
+  catch { return {contacts:[], tasks:[], settings:{}}; }
+}
+function saveCache(){ localStorage.setItem(CACHE_KEY, JSON.stringify(state.snapshot || {})); }
+function loadUI(){ try { return JSON.parse(localStorage.getItem(UI_KEY) || '{}'); } catch { return {}; } }
+function saveUI(){ localStorage.setItem(UI_KEY, JSON.stringify({ selectedChatId: state.selectedChatId, tab: state.tab, search: state.search })); }
+function escapeHtml(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function fmt(ts){ if(!ts) return '—'; try { return new Date(ts).toLocaleString('ru-RU'); } catch { return ts; } }
+function ago(ts){ if(!ts) return '—'; const sec = Math.max(0, Math.floor((Date.now() - new Date(ts))/1000)); if(sec < 60) return `${sec}с назад`; const min = Math.floor(sec/60); if(min < 60) return `${min}м назад`; const hr = Math.floor(min/60); if(hr < 24) return `${hr}ч назад`; return `${Math.floor(hr/24)}д назад`; }
+function settings(){ return state.snapshot.settings || {}; }
+function contacts(){ return state.snapshot.contacts || []; }
+function tasks(){ return state.snapshot.tasks || []; }
+function setSync(text){ els.syncStatus.textContent = text; }
+
+function selectedContact(){
+  const list = contacts();
+  if (!list.length) return null;
+  let found = list.find(c => String(c.chat_id) === String(state.selectedChatId));
+  if (!found) found = list[0];
+  state.selectedChatId = found.chat_id;
+  saveUI();
+  return found;
+}
+
+async function api(path, options = {}){
+  if (!API_BASE) throw new Error('Нет API_BASE_URL в ссылке Mini App');
+  if (!PANEL_TOKEN) throw new Error('Нет panel token в ссылке Mini App');
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Panel-Token': PANEL_TOKEN,
+      ...(options.headers || {})
+    }
+  });
+  const data = await response.json().catch(() => ({ ok: false, error: 'invalid_json' }));
+  if (!response.ok || data.ok === false) throw new Error(data.error || `HTTP ${response.status}`);
+  return data;
+}
+
+async function syncNow(silent = false){
+  try {
+    state.syncing = true;
+    if (!silent) setSync('синхронизация…');
+    const data = await api('/api/snapshot');
+    state.snapshot = data;
+    saveCache();
+    render();
+    setSync(`обновлено ${ago(data.server_time)}`);
+  } catch (e) {
+    console.error(e);
+    if (!silent) setSync(`ошибка: ${e.message}`);
+  } finally {
+    state.syncing = false;
+  }
+}
+
+function statusChip(contact){
+  if (contact.status === 'blocked') return '<span class="chip stop">blocked</span>';
+  if (contact.status === 'paused') return '<span class="chip warn">paused</span>';
+  if (Number(contact.approved)) return '<span class="chip ok">approved</span>';
+  return '<span class="chip warn">new</span>';
+}
+
+function modeLabel(contact){
+  return contact.ai_mode === 'every_message'
+    ? 'каждое сообщение'
+    : `1 ответ / ${contact.reply_window_minutes || 10} мин`;
+}
+
+function filteredContacts(){
+  const q = state.search.trim().toLowerCase();
+  if (!q) return contacts();
+  return contacts().filter(c => [c.display_name, c.username, c.notes, c.last_message, c.tag].join(' ').toLowerCase().includes(q));
+}
+
+function renderStats(){
+  $('statContacts').textContent = contacts().length;
+  $('statPending').textContent = contacts().filter(c => !Number(c.approved)).length;
+  $('statTasks').textContent = tasks().filter(t => !Number(t.done)).length;
+  $('statSync').textContent = state.snapshot.server_time ? new Date(state.snapshot.server_time).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '—';
+  $('contactsCountChip').textContent = filteredContacts().length;
+}
+
+function renderContacts(){
+  const list = filteredContacts();
+  if (!list.length) {
+    els.contactList.innerHTML = '<div class="empty">Контактов пока нет.</div>';
+    return;
+  }
+  els.contactList.innerHTML = list.map(c => `
+    <article class="contact ${String(c.chat_id) === String(state.selectedChatId) ? 'active' : ''}" data-chat="${c.chat_id}">
+      <div class="row"><div class="name">${escapeHtml(c.display_name || c.username || c.chat_id)}</div>${statusChip(c)}</div>
+      <div class="meta" style="margin-top:6px">@${escapeHtml(c.username || '—')} · ${c.reachable ? 'чат доступен' : 'ручной контакт'}</div>
+      <div class="meta" style="margin-top:6px">${escapeHtml(c.last_message || 'Сообщений пока нет')}</div>
+      <div class="row" style="margin-top:10px"><span class="chip dim">${escapeHtml(modeLabel(c))}</span><span class="meta">${ago(c.last_message_at)}</span></div>
+    </article>
+  `).join('');
+  [...els.contactList.querySelectorAll('.contact')].forEach(node => node.onclick = () => {
+    state.selectedChatId = node.dataset.chat;
+    saveUI();
+    render();
+  });
+}
+
+function renderDetail(){
+  const c = selectedContact();
+  if (!c) {
+    els.detailContent.innerHTML = '<div class="empty">Выбери контакт.</div>';
+    return;
+  }
+  const canSend = Number(c.chat_id) > 0;
+  const aiMode = c.ai_mode || 'once_10m';
+  els.detailContent.innerHTML = `
+    <div class="headline">
+      <div>
+        <div class="title">${escapeHtml(c.display_name || c.username || c.chat_id)}</div>
+        <div class="sub">@${escapeHtml(c.username || '—')} · ${c.source || 'telegram'} · ${fmt(c.first_seen_at)}</div>
+      </div>
+      <div class="chip dim">${escapeHtml(c.tag || 'NEW')}</div>
+    </div>
+
+    <div class="grid2">
+      <div class="field"><label>Имя</label><input id="fName" value="${escapeHtml(c.display_name || '')}"></div>
+      <div class="field"><label>Username</label><input id="fUsername" value="${escapeHtml(c.username || '')}"></div>
+      <div class="field"><label>Статус</label>
+        <select id="fStatus">
+          <option value="new" ${c.status==='new'?'selected':''}>new</option>
+          <option value="approved" ${c.status==='approved'?'selected':''}>approved</option>
+          <option value="paused" ${c.status==='paused'?'selected':''}>paused</option>
+          <option value="blocked" ${c.status==='blocked'?'selected':''}>blocked</option>
+        </select>
+      </div>
+      <div class="field"><label>AI режим</label>
+        <select id="fAiMode">
+          <option value="once_10m" ${aiMode==='once_10m'?'selected':''}>1 сообщение в окно</option>
+          <option value="every_message" ${aiMode==='every_message'?'selected':''}>каждое сообщение</option>
+        </select>
+      </div>
+      <div class="field"><label>Окно для 1 ответа, минут</label><input id="fReplyWindow" type="number" min="1" step="1" value="${Number(c.reply_window_minutes || 10)}"></div>
+      <div class="field"><label>Тег</label><input id="fTag" value="${escapeHtml(c.tag || 'NEW')}"></div>
+    </div>
+
+    <div class="grid2" style="margin-top:12px">
+      <div class="field"><label>Заметки</label><textarea id="fNotes">${escapeHtml(c.notes || '')}</textarea></div>
+      <div class="field"><label>Контекст для AI</label><textarea id="fSummary">${escapeHtml(c.context_summary || '')}</textarea></div>
+    </div>
+
+    <div class="cluster">
+      <button class="btn primary" id="saveContactBtn">Сохранить контакт</button>
+      <button class="btn green" id="approveContactBtn">Одобрить</button>
+      <button class="btn warn" id="pauseContactBtn">Пауза</button>
+      <button class="btn" id="toggleAiBtn">${Number(c.ai_enabled) ? 'Отключить AI' : 'Включить AI'}</button>
+      <span class="chip dim">входящих: ${c.inbound_count || 0}</span>
+      <span class="chip dim">исходящих: ${c.outbound_count || 0}</span>
+      <span class="chip dim">последний AI: ${ago(c.last_ai_reply_at)}</span>
+    </div>
+
+    <div class="composer">
+      <textarea id="sendBox" placeholder="Сообщение клиенту..." ${canSend ? '' : 'disabled'}></textarea>
+      <button class="btn primary" id="sendBtn" ${canSend ? '' : 'disabled'}>${canSend ? 'Отправить' : 'Ждём первого сообщения'}</button>
+    </div>
+
+    <div class="messages">
+      ${(c.messages || []).map(m => `<div class="msg ${m.direction === 'out' ? 'out' : 'in'}"><div>${escapeHtml(m.text || '')}</div><div class="meta" style="margin-top:6px">${fmt(m.timestamp)}</div></div>`).join('') || '<div class="empty">Сообщений пока нет.</div>'}
+    </div>
+  `;
+
+  $('saveContactBtn').onclick = async () => {
+    await api('/api/contact/update', { method: 'POST', body: JSON.stringify({
+      chat_id: c.chat_id,
+      display_name: $('fName').value.trim(),
+      username: $('fUsername').value.trim().replace(/^@/, ''),
+      status: $('fStatus').value,
+      ai_mode: $('fAiMode').value,
+      reply_window_minutes: Number($('fReplyWindow').value || 10),
+      tag: $('fTag').value.trim() || 'NEW',
+      notes: $('fNotes').value.trim(),
+      context_summary: $('fSummary').value.trim(),
+    })});
+    await syncNow();
+  };
+  $('approveContactBtn').onclick = async () => {
+    await api('/api/contact/update', { method: 'POST', body: JSON.stringify({ chat_id: c.chat_id, approved: 1, status: 'approved' }) });
+    await syncNow();
+  };
+  $('pauseContactBtn').onclick = async () => {
+    await api('/api/contact/update', { method: 'POST', body: JSON.stringify({ chat_id: c.chat_id, status: 'paused' }) });
+    await syncNow();
+  };
+  $('toggleAiBtn').onclick = async () => {
+    await api('/api/contact/update', { method: 'POST', body: JSON.stringify({ chat_id: c.chat_id, ai_enabled: Number(c.ai_enabled) ? 0 : 1 }) });
+    await syncNow();
+  };
+  $('sendBtn').onclick = async () => {
+    const text = $('sendBox').value.trim();
+    if (!text) return;
+    await api('/api/send', { method: 'POST', body: JSON.stringify({ chat_id: c.chat_id, text }) });
+    $('sendBox').value = '';
+    await syncNow();
+  };
+}
+
+function renderTasks(){
+  const list = tasks();
+  els.sideTitle.textContent = state.tab === 'settings' ? 'Настройки' : 'Задачи';
+  els.sideAction.textContent = state.tab === 'settings' ? 'Сохранить' : 'Добавить';
+  if (state.tab === 'settings') {
+    renderSettings();
+    return;
+  }
+  if (!list.length) {
+    els.sideContent.innerHTML = '<div class="empty">Задач пока нет.</div>';
+    return;
+  }
+  els.sideContent.innerHTML = `<div class="stack">${list.map(t => `
+    <label class="task ${Number(t.done) ? 'done' : ''}">
+      <input type="checkbox" data-task-id="${t.id}" ${Number(t.done) ? 'checked' : ''}>
+      <div>
+        <div style="font-weight:800">${escapeHtml(t.title)}</div>
+        <div class="meta">${escapeHtml(t.description || 'Без описания')}</div>
+        <div class="meta" style="margin-top:6px">${escapeHtml(t.contact_name || 'Без контакта')} · ${escapeHtml(t.priority || 'medium')} · ${ago(t.updated_at || t.created_at)}</div>
+      </div>
+    </label>
+  `).join('')}</div>`;
+  [...els.sideContent.querySelectorAll('input[data-task-id]')].forEach(box => {
+    box.onchange = async () => {
+      await api('/api/task/toggle', { method: 'POST', body: JSON.stringify({ id: Number(box.dataset.taskId), done: box.checked ? 1 : 0 }) });
+      await syncNow(true);
+    };
+  });
+}
+
+function renderSettings(){
+  const s = settings();
+  els.sideContent.innerHTML = `
+    <div class="stack">
+      <div class="field"><label>Заголовок панели</label><input id="sTitle" value="${escapeHtml(s.panel_title || 'Business Hub')}"></div>
+      <div class="field"><label>Приветствие AI</label><textarea id="sGreeting">${escapeHtml(s.greeting || '')}</textarea></div>
+      <div class="field"><label>Стиль AI</label><textarea id="sAiStyle">${escapeHtml(s.ai_style || '')}</textarea></div>
+      <div class="field"><label>Контекст бизнеса</label><textarea id="sBiz">${escapeHtml(s.business_context || '')}</textarea></div>
+      <div class="field"><label>Подпись / дисклеймер</label><textarea id="sDisc">${escapeHtml(s.ai_disclaimer || '')}</textarea></div>
+      <div class="field"><label>Пауза обновления, сек</label><input id="sRefresh" type="number" min="2" step="1" value="${Number(s.refresh_seconds || 5)}"></div>
+      <div class="field"><label>Режим по умолчанию для новых контактов</label>
+        <select id="sDefaultMode">
+          <option value="once_10m" ${(s.default_ai_mode || 'once_10m') === 'once_10m' ? 'selected' : ''}>1 сообщение в окно</option>
+          <option value="every_message" ${(s.default_ai_mode || '') === 'every_message' ? 'selected' : ''}>каждое сообщение</option>
+        </select>
+      </div>
+      <div class="field"><label>Автоответ</label>
+        <select id="sAutoReply">
+          <option value="1" ${s.auto_reply ? 'selected' : ''}>включён</option>
+          <option value="0" ${!s.auto_reply ? 'selected' : ''}>выключен</option>
+        </select>
+      </div>
+    </div>
+  `;
+}
+
+function render(){
+  renderStats();
+  renderContacts();
+  renderDetail();
+  renderTasks();
+  applyTab();
+}
+
+function applyTab(){
+  [...$('tabs').querySelectorAll('button')].forEach(b => b.classList.toggle('active', b.dataset.tab === state.tab));
+  $('contactsPane').style.display = state.tab === 'contacts' ? '' : 'none';
+  if (state.tab === 'tasks') {
+    els.sideTitle.textContent = 'Задачи';
+    els.sideAction.textContent = 'Добавить';
+  }
+  if (state.tab === 'settings') {
+    els.sideTitle.textContent = 'Настройки';
+    els.sideAction.textContent = 'Сохранить';
+  }
+}
+
+function openModal(html){
+  els.modalCard.innerHTML = html;
+  els.modalWrap.classList.add('show');
+}
+function closeModal(){ els.modalWrap.classList.remove('show'); }
+els.modalWrap.onclick = (e) => { if (e.target === els.modalWrap) closeModal(); };
+
+function openAddContactModal(){
+  openModal(`
+    <h3>Добавить контакт</h3>
+    <div class="stack">
+      <div class="field"><label>Имя</label><input id="mName" placeholder="Например, Анна"></div>
+      <div class="field"><label>Username</label><input id="mUsername" placeholder="anna_shop"></div>
+      <div class="field"><label>Заметки</label><textarea id="mNotes" placeholder="Что важно помнить о клиенте"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Статус</label><select id="mStatus"><option value="approved">approved</option><option value="new">new</option><option value="paused">paused</option></select></div>
+        <div class="field"><label>AI режим</label><select id="mMode"><option value="once_10m">1 сообщение в окно</option><option value="every_message">каждое сообщение</option></select></div>
+      </div>
+      <div class="field"><label>Окно ответа, минут</label><input id="mWindow" type="number" min="1" step="1" value="10"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="mCancel">Отмена</button><button class="btn primary" id="mSave">Сохранить</button></div>
+    </div>
+  `);
+  $('mCancel').onclick = closeModal;
+  $('mSave').onclick = async () => {
+    await api('/api/contact/add', { method: 'POST', body: JSON.stringify({
+      display_name: $('mName').value.trim(),
+      username: $('mUsername').value.trim().replace(/^@/, ''),
+      notes: $('mNotes').value.trim(),
+      status: $('mStatus').value,
+      approved: $('mStatus').value === 'approved' ? 1 : 0,
+      ai_mode: $('mMode').value,
+      reply_window_minutes: Number($('mWindow').value || 10),
+    })});
+    closeModal();
+    await syncNow();
+  };
+}
+
+function openTaskModal(){
+  const c = selectedContact();
+  openModal(`
+    <h3>Новая задача</h3>
+    <div class="stack">
+      <div class="field"><label>Название</label><input id="tTitle" placeholder="Перезвонить, отправить КП, уточнить детали"></div>
+      <div class="field"><label>Описание</label><textarea id="tDesc" placeholder="Коротко, что нужно сделать"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Приоритет</label><select id="tPriority"><option value="low">low</option><option value="medium" selected>medium</option><option value="high">high</option></select></div>
+        <div class="field"><label>Контакт</label><select id="tChat"><option value="">Без контакта</option>${contacts().map(x => `<option value="${x.chat_id}" ${c && String(c.chat_id)===String(x.chat_id)?'selected':''}>${escapeHtml(x.display_name || x.username || x.chat_id)}</option>`).join('')}</select></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="tCancel">Отмена</button><button class="btn primary" id="tSave">Создать</button></div>
+    </div>
+  `);
+  $('tCancel').onclick = closeModal;
+  $('tSave').onclick = async () => {
+    await api('/api/task/add', { method: 'POST', body: JSON.stringify({
+      title: $('tTitle').value.trim(),
+      description: $('tDesc').value.trim(),
+      priority: $('tPriority').value,
+      chat_id: $('tChat').value || null,
+    })});
+    closeModal();
+    await syncNow();
+  };
+}
+
+$('tabs').onclick = (e) => {
+  const btn = e.target.closest('button[data-tab]');
+  if (!btn) return;
+  state.tab = btn.dataset.tab;
+  saveUI();
+  render();
+};
+$('refreshBtn').onclick = () => syncNow();
+$('openAddContact').onclick = openAddContactModal;
+$('openAddTask').onclick = openTaskModal;
+$('quickApproveBtn').onclick = async () => {
+  const c = selectedContact();
+  if (!c) return;
+  await api('/api/contact/update', { method: 'POST', body: JSON.stringify({ chat_id: c.chat_id, approved: 1, status: 'approved' }) });
+  await syncNow();
+};
+els.sideAction.onclick = async () => {
+  if (state.tab === 'settings') {
+    await api('/api/settings/update', { method: 'POST', body: JSON.stringify({
+      panel_title: $('sTitle').value.trim() || 'Business Hub',
+      greeting: $('sGreeting').value,
+      ai_style: $('sAiStyle').value,
+      business_context: $('sBiz').value,
+      ai_disclaimer: $('sDisc').value,
+      refresh_seconds: Number($('sRefresh').value || 5),
+      default_ai_mode: $('sDefaultMode').value,
+      auto_reply: $('sAutoReply').value === '1',
+    })});
+    await syncNow();
+  } else {
+    openTaskModal();
+  }
+};
+els.searchInput.oninput = (e) => {
+  state.search = e.target.value;
+  saveUI();
+  renderContacts();
+  renderStats();
+};
+
+render();
+syncNow();
+setInterval(() => {
+  const sec = Number(settings().refresh_seconds || 5);
+  if (!document.hidden) syncNow(true);
+}, 5000);
+</script>
+</body>
+</html>
