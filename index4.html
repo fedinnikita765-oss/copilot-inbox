@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Business Copilot Inbox</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#0f1117;--card:#171a22;--muted:#8c93a8;--line:#2a3040;--text:#eef2ff;
+  --accent:#6d5efc;--good:#22c55e;--warn:#f59e0b;--bad:#ef4444;--soft:#202637;
+  --radius:16px;--font:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);padding-bottom:84px}
+button,input,textarea,select{font:inherit}
+.header{position:sticky;top:0;z-index:10;background:rgba(15,17,23,.92);backdrop-filter:blur(14px);padding:16px;border-bottom:1px solid var(--line)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.h1{font-size:20px;font-weight:800}
+.sub{font-size:12px;color:var(--muted);margin-top:6px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn.p{background:var(--accent);color:#fff}
+.btn.s{background:var(--soft);color:var(--text);border:1px solid var(--line)}
+.btn.d{background:rgba(239,68,68,.12);color:#fecaca}
+.wrap{padding:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.stat .n{font-size:22px;font-weight:800}
+.stat .l{font-size:11px;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:var(--soft);color:var(--muted);font-weight:700}
+.tab.on{background:var(--accent);color:#fff;border-color:transparent}
+.panel{display:none}.panel.on{display:block}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.search{flex:1;min-width:180px;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--text)}
+.select{padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--text)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.name{font-weight:800;font-size:15px}
+.user,.meta,.time{font-size:12px;color:var(--muted)}
+.preview{margin-top:10px;font-size:14px;line-height:1.4;white-space:pre-wrap}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;background:var(--soft);border:1px solid var(--line)}
+.contact-actions,.task-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.small{padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--soft);color:var(--text);font-size:12px;font-weight:700}
+.task{display:flex;gap:12px;align-items:flex-start}
+.check{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px}
+.check.done{background:var(--good);border-color:var(--good);color:#05120a}
+.tt{font-size:15px;font-weight:800}.tt.done{text-decoration:line-through;color:var(--muted)}
+.empty{padding:26px 14px;text-align:center;color:var(--muted)}
+.form{display:grid;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+.input,.ta{width:100%;padding:12px 14px;border-radius:14px;background:var(--soft);border:1px solid var(--line);color:var(--text)}
+.ta{min-height:90px;resize:vertical}
+.setting{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.setting label{display:block;font-size:12px;font-weight:800;margin-bottom:8px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.toggle{width:52px;height:30px;border-radius:999px;background:#3a4153;position:relative;cursor:pointer;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on{background:var(--good)}.toggle.on::after{left:25px}
+.footer-note{margin-top:16px;font-size:12px;color:var(--muted);line-height:1.45}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-end;justify-content:center;padding:14px}
+.modal.on{display:flex}
+.sheet{width:min(560px,100%);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;display:grid;gap:12px;max-height:88vh;overflow:auto}
+.sheet-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.thread{display:grid;gap:8px}
+.bubble{max-width:85%;padding:10px 12px;border-radius:14px;background:var(--soft);font-size:13px;line-height:1.4;white-space:pre-wrap}
+.bubble.out{margin-left:auto;background:rgba(109,94,252,.18)}
+.bubble small{display:block;color:var(--muted);margin-top:6px}
+.notice{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2);padding:12px 14px;border-radius:14px;font-size:12px;color:#fde68a;margin-bottom:14px;line-height:1.45}
+@media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="row">
+    <div>
+      <div class="h1">Business Copilot</div>
+      <div class="sub" id="snapshotInfo">Ожидание данных…</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn p" id="refreshBtn">Как обновить</button>
+    <button class="btn s" id="pingBtn">Проверка связи</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="notice">
+    Mini App на GitHub Pages не умеет сам читать <b>copilot.db</b>. Он получает только снимок данных,
+    который бот передаёт в URL при открытии <b>/inbox</b> или кнопки в <b>/start</b>.
+    Поэтому для свежих данных нужно заново открыть /inbox.
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="contacts">Контакты</button>
+    <button class="tab" data-tab="tasks">Задачи</button>
+    <button class="tab" data-tab="settings">Настройки</button>
+  </div>
+
+  <section class="panel on" id="contactsPanel">
+    <div class="form">
+      <div class="row"><strong>Добавить контакт</strong></div>
+      <input class="input" id="newName" placeholder="Имя контакта">
+      <input class="input" id="newUsername" placeholder="Username без @">
+      <button class="btn p" id="addContactBtn">Сохранить</button>
+    </div>
+
+    <div class="tools">
+      <input class="search" id="contactSearch" placeholder="Поиск по имени, username, сообщению">
+      <select class="select" id="contactFilter">
+        <option value="">Все теги</option>
+        <option value="NEW_LEAD">Лид</option>
+        <option value="QUESTION">Вопрос</option>
+        <option value="COMPLAINT">Жалоба</option>
+        <option value="FOLLOWUP">Follow-up</option>
+        <option value="PAYMENT">Оплата</option>
+        <option value="SPAM">Спам</option>
+        <option value="OTHER">Другое</option>
+      </select>
+    </div>
+    <div id="contactsList"></div>
+  </section>
+
+  <section class="panel" id="tasksPanel">
+    <div class="form">
+      <div class="row"><strong>Создать задачу</strong></div>
+      <input class="input" id="taskTitle" placeholder="Название">
+      <textarea class="ta" id="taskDesc" placeholder="Описание"></textarea>
+      <select class="select" id="taskPriority">
+        <option value="low">🟢 Низкий</option>
+        <option value="medium" selected>🟡 Средний</option>
+        <option value="high">🔴 Высокий</option>
+      </select>
+      <button class="btn p" id="addTaskBtn">Создать задачу</button>
+    </div>
+    <div id="tasksList"></div>
+  </section>
+
+  <section class="panel" id="settingsPanel">
+    <div id="settingsBox"></div>
+    <div class="footer-note">
+      Изменения из этой вкладки отправляются боту через <b>web_app_data</b>. Они сохраняются в SQLite,
+      но этот экран не получит новый snapshot автоматически. Чтобы увидеть его заново в исходном виде,
+      заново открой /inbox в Telegram.
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="modal">
+  <div class="sheet">
+    <div class="sheet-head">
+      <strong id="modalTitle">Контакт</strong>
+      <button class="small" id="closeModalBtn">Закрыть</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const TAG_LABELS = {
+  NEW_LEAD:'🟢 Лид', QUESTION:'❓ Вопрос', COMPLAINT:'🔴 Жалоба',
+  FOLLOWUP:'🔄 Follow-up', PAYMENT:'💰 Оплата', SPAM:'🚫 Спам', OTHER:'⚪ Другое'
+};
+
+const state = {
+  contacts: [],
+  tasks: [],
+  settings: {},
+  meta: {},
+  activeTab: 'contacts',
+  contactSearch: '',
+  contactFilter: '',
+};
+
+function sendAction(payload){
+  if (tg?.sendData) tg.sendData(JSON.stringify(payload));
+  else alert('Mini App открыт вне Telegram: отправка в бота недоступна.');
+}
+
+function decodeHash(){
+  const hash = location.hash.slice(1);
+  if (!hash) return false;
+  try {
+    let b64 = hash.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const json = decodeURIComponent(escape(atob(b64)));
+    const data = JSON.parse(json);
+    state.contacts = (data.c || []).map(x => ({
+      id: x.id,
+      username: x.un || '',
+      name: x.nm || '',
+      tag: x.tg || 'OTHER',
+      status: x.st || 'open',
+      urgency: x.ur || 'medium',
+      sentiment: x.sn || 'neutral',
+      lastMessage: x.lm || '',
+      time: x.tm || '',
+      draft: x.dr || '',
+      source: x.sr || 'auto',
+      context: x.cx || '',
+      messageCount: x.mc || 0,
+      messages: (x.ms || []).map(m => ({ dir: m.d, text: m.t, time: m.w }))
+    }));
+    state.tasks = (data.t || []).map(x => ({
+      id: x.id,
+      title: x.ti || '',
+      desc: x.ds || '',
+      priority: x.pr || 'medium',
+      done: !!x.dn,
+      time: x.tm || '',
+      contact: x.cn || '',
+      chatId: x.ci || 0,
+    }));
+    state.settings = data.s || {};
+    state.meta = data.meta || {};
+    return true;
+  } catch (e) {
+    console.error('Hash decode failed', e);
+    return false;
+  }
+}
+
+function formatDate(iso){
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString('ru-RU', { dateStyle:'short', timeStyle:'short' });
+}
+
+function initials(name){
+  const parts = (name || '?').trim().split(/\s+/).slice(0,2);
+  return parts.map(x => x[0]?.toUpperCase() || '').join('') || '?';
+}
+
+function urgencyLabel(v){
+  return v === 'high' ? '🔴 Высокий' : v === 'low' ? '🟢 Низкий' : '🟡 Средний';
+}
+
+function sentimentLabel(v){
+  return v === 'positive' ? '😊 Позитив' : v === 'negative' ? '😠 Негатив' : '😐 Нейтрально';
+}
+
+function escapeHtml(str){
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderStats(){
+  const contacts = state.contacts.length;
+  const open = state.contacts.filter(c => c.status === 'open').length;
+  const tasksOpen = state.tasks.filter(t => !t.done).length;
+  const tasksDone = state.tasks.filter(t => t.done).length;
+  document.getElementById('stats').innerHTML = [
+    ['Контакты', contacts],
+    ['Открытые', open],
+    ['Задачи', tasksOpen],
+    ['Готово', tasksDone],
+  ].map(([label, value]) => `<div class="stat"><div class="n">${value}</div><div class="l">${label}</div></div>`).join('');
+
+  document.getElementById('snapshotInfo').textContent = state.meta.generated_at
+    ? `Snapshot: ${formatDate(state.meta.generated_at)}`
+    : 'Snapshot не найден';
+}
+
+function filteredContacts(){
+  const q = state.contactSearch.trim().toLowerCase();
+  return state.contacts.filter(c => {
+    const byTag = !state.contactFilter || c.tag === state.contactFilter;
+    const hay = `${c.name} ${c.username} ${c.lastMessage} ${c.context}`.toLowerCase();
+    const bySearch = !q || hay.includes(q);
+    return byTag && bySearch;
+  });
+}
+
+function renderContacts(){
+  const rows = filteredContacts();
+  const root = document.getElementById('contactsList');
+  if (!rows.length) {
+    root.innerHTML = '<div class="empty">Контактов по фильтру нет</div>';
+    return;
+  }
+  root.innerHTML = rows.map(contact => `
+    <div class="card">
+      <div class="top">
+        <div>
+          <div class="name">${escapeHtml(contact.name || 'Без имени')}</div>
+          <div class="user">${contact.username ? '@' + escapeHtml(contact.username) : 'без username'}</div>
+        </div>
+        <div class="time">${formatDate(contact.time)}</div>
+      </div>
+      <div class="preview">${escapeHtml(contact.lastMessage || 'Нет сообщений')}</div>
+      <div class="badges">
+        <span class="badge">${TAG_LABELS[contact.tag] || contact.tag}</span>
+        <span class="badge">${urgencyLabel(contact.urgency)}</span>
+        <span class="badge">${sentimentLabel(contact.sentiment)}</span>
+        <span class="badge">${contact.source === 'manual' ? '✋ Ручной' : '📥 Telegram'}</span>
+        <span class="badge">${contact.status === 'closed' ? '🔕 Закрыт' : '✅ Открыт'}</span>
+        <span class="badge">💬 ${contact.messageCount}</span>
+      </div>
+      <div class="contact-actions">
+        <button class="small" onclick="openContact(${contact.id})">Открыть</button>
+        <button class="small" onclick="toggleContact(${contact.id})">${contact.status === 'closed' ? 'Открыть' : 'Закрыть'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTasks(){
+  const root = document.getElementById('tasksList');
+  if (!state.tasks.length) {
+    root.innerHTML = '<div class="empty">Задач пока нет</div>';
+    return;
+  }
+  root.innerHTML = state.tasks.map(task => `
+    <div class="card task">
+      <div class="check ${task.done ? 'done' : ''}" onclick="toggleTask(${task.id})">${task.done ? '✓' : ''}</div>
+      <div style="flex:1">
+        <div class="tt ${task.done ? 'done' : ''}">${escapeHtml(task.title)}</div>
+        ${task.desc ? `<div class="preview" style="margin-top:6px">${escapeHtml(task.desc)}</div>` : ''}
+        <div class="badges">
+          <span class="badge">${urgencyLabel(task.priority)}</span>
+          <span class="badge">${task.contact ? '👤 ' + escapeHtml(task.contact) : 'Без контакта'}</span>
+          <span class="badge">${formatDate(task.time)}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderSettings(){
+  const root = document.getElementById('settingsBox');
+  root.innerHTML = `
+    <div class="setting">
+      <label>Приветствие</label>
+      <textarea class="ta" id="set_greeting">${escapeHtml(state.settings.greeting || '')}</textarea>
+      <div class="contact-actions"><button class="btn p" onclick="saveSetting('greeting', document.getElementById('set_greeting').value)">Сохранить</button></div>
+    </div>
+    <div class="setting">
+      <label>Стиль AI</label>
+      <textarea class="ta" id="set_ai_style">${escapeHtml(state.settings.ai_style || '')}</textarea>
+      <div class="contact-actions"><button class="btn p" onclick="saveSetting('ai_style', document.getElementById('set_ai_style').value)">Сохранить</button></div>
+    </div>
+    <div class="setting">
+      <label>Контекст бизнеса</label>
+      <textarea class="ta" id="set_business_context">${escapeHtml(state.settings.business_context || '')}</textarea>
+      <div class="contact-actions"><button class="btn p" onclick="saveSetting('business_context', document.getElementById('set_business_context').value)">Сохранить</button></div>
+    </div>
+    <div class="setting">
+      <label>Дисклеймер</label>
+      <textarea class="ta" id="set_ai_disclaimer">${escapeHtml(state.settings.ai_disclaimer || '')}</textarea>
+      <div class="contact-actions"><button class="btn p" onclick="saveSetting('ai_disclaimer', document.getElementById('set_ai_disclaimer').value)">Сохранить</button></div>
+    </div>
+    <div class="setting">
+      <div class="switch">
+        <div>
+          <label style="margin:0">Авто-ответ</label>
+          <div class="sub">Изменение уйдёт боту, но snapshot останется старым до нового /inbox.</div>
+        </div>
+        <div class="toggle ${state.settings.auto_reply ? 'on' : ''}" onclick="toggleAutoReply(this)"></div>
+      </div>
+    </div>
+  `;
+}
+
+function switchTab(tab){
+  state.activeTab = tab;
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('on', el.dataset.tab === tab));
+  document.getElementById('contactsPanel').classList.toggle('on', tab === 'contacts');
+  document.getElementById('tasksPanel').classList.toggle('on', tab === 'tasks');
+  document.getElementById('settingsPanel').classList.toggle('on', tab === 'settings');
+}
+
+function renderAll(){
+  renderStats();
+  renderContacts();
+  renderTasks();
+  renderSettings();
+}
+
+function openModal(title, html){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modal').classList.add('on');
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('on');
+}
+
+window.openContact = function(id){
+  const c = state.contacts.find(x => x.id === id);
+  if (!c) return;
+  const messages = c.messages?.length
+    ? `<div class="thread">${c.messages.slice().reverse().map(m => `
+        <div class="bubble ${m.dir === 'out' ? 'out' : ''}">${escapeHtml(m.text)}<small>${formatDate(m.time)}</small></div>
+      `).join('')}</div>`
+    : '<div class="empty">Сообщений нет</div>';
+
+  openModal(c.name || 'Контакт', `
+    <div class="badges">
+      <span class="badge">${TAG_LABELS[c.tag] || c.tag}</span>
+      <span class="badge">${urgencyLabel(c.urgency)}</span>
+      <span class="badge">${sentimentLabel(c.sentiment)}</span>
+      <span class="badge">${c.source === 'manual' ? '✋ Ручной' : '📥 Telegram'}</span>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="meta">Username</div>
+      <div class="preview">${c.username ? '@' + escapeHtml(c.username) : '—'}</div>
+      <div class="meta" style="margin-top:10px">Краткий контекст</div>
+      <div class="preview">${escapeHtml(c.context || '—')}</div>
+      ${c.draft ? `<div class="meta" style="margin-top:10px">Последний draft AI</div><div class="preview">${escapeHtml(c.draft)}</div>` : ''}
+    </div>
+    <div class="card"><div class="meta">Последние сообщения</div>${messages}</div>
+  `);
+}
+
+window.toggleContact = function(id){
+  const c = state.contacts.find(x => x.id === id);
+  if (!c) return;
+  c.status = c.status === 'closed' ? 'open' : 'closed';
+  renderContacts();
+  renderStats();
+  sendAction({ action:'set_contact_status', chat_id:id, status:c.status });
+}
+
+window.toggleTask = function(id){
+  const task = state.tasks.find(x => x.id === id);
+  if (!task) return;
+  task.done = !task.done;
+  renderTasks();
+  renderStats();
+  sendAction({ action:'toggle_task', task_id:id, done:task.done });
+}
+
+window.saveSetting = function(key, value){
+  state.settings[key] = value;
+  sendAction({ action:'update_setting', key, value });
+}
+
+window.toggleAutoReply = function(el){
+  state.settings.auto_reply = !state.settings.auto_reply;
+  el.classList.toggle('on', state.settings.auto_reply);
+  sendAction({ action:'update_setting', key:'auto_reply', value:state.settings.auto_reply });
+}
+
+document.getElementById('contactSearch').addEventListener('input', e => {
+  state.contactSearch = e.target.value;
+  renderContacts();
+});
+document.getElementById('contactFilter').addEventListener('change', e => {
+  state.contactFilter = e.target.value;
+  renderContacts();
+});
+
+document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  alert('Чтобы подтянуть свежие контакты и сообщения, заново открой /inbox в Telegram. Эта страница получает только snapshot из URL.');
+});
+
+document.getElementById('pingBtn').addEventListener('click', () => sendAction({ action:'ping' }));
+
+document.getElementById('addContactBtn').addEventListener('click', () => {
+  const name = document.getElementById('newName').value.trim();
+  const username = document.getElementById('newUsername').value.trim().replace(/^@/, '');
+  if (!name && !username) {
+    alert('Укажи имя или username');
+    return;
+  }
+  const displayName = name || username;
+  state.contacts.unshift({
+    id: Date.now(), username, name: displayName, tag:'NEW_LEAD', status:'open', urgency:'medium',
+    sentiment:'neutral', lastMessage:'Добавлен из Mini App', time:new Date().toISOString(),
+    draft:'', source:'manual', context:'Добавлен из Mini App', messageCount:0, messages:[]
+  });
+  document.getElementById('newName').value = '';
+  document.getElementById('newUsername').value = '';
+  renderContacts();
+  renderStats();
+  sendAction({ action:'add_contact', name:displayName, username });
+});
+
+document.getElementById('addTaskBtn').addEventListener('click', () => {
+  const title = document.getElementById('taskTitle').value.trim();
+  const description = document.getElementById('taskDesc').value.trim();
+  const priority = document.getElementById('taskPriority').value;
+  if (!title) {
+    alert('Укажи название задачи');
+    return;
+  }
+  state.tasks.unshift({ id: Date.now(), title, desc: description, priority, done:false, time:new Date().toISOString(), contact:'', chatId:0 });
+  document.getElementById('taskTitle').value = '';
+  document.getElementById('taskDesc').value = '';
+  renderTasks();
+  renderStats();
+  sendAction({ action:'add_task', title, description, priority, chat_id:0 });
+});
+
+if (!decodeHash()) {
+  document.getElementById('snapshotInfo').textContent = 'Данные не найдены в URL';
+}
+renderAll();
+</script>
+</body>
+</html>
