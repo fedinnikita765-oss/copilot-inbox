@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Inbox Panel</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121a2b;
+      --panel-2: #182235;
+      --line: rgba(255,255,255,.08);
+      --text: #eef2ff;
+      --muted: #9aa5c3;
+      --accent: #5b8cff;
+      --accent-2: #7aa2ff;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --ok: #22c55e;
+      --chip: rgba(255,255,255,.06);
+      --shadow: 0 14px 40px rgba(0,0,0,.28);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(91,140,255,.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(34,197,94,.08), transparent 18%),
+        var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .app {
+      min-height: 100%;
+      padding: calc(14px + var(--safe-top)) 14px calc(20px + var(--safe-bottom));
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .brand h1 {
+      font-size: 22px;
+      line-height: 1.1;
+      margin: 0;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    .btn {
+      border: 0;
+      outline: none;
+      cursor: pointer;
+      color: white;
+      padding: 11px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      box-shadow: var(--shadow);
+      transition: transform .16s ease, opacity .16s ease, filter .16s ease;
+      font-weight: 700;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(.98); }
+    .btn.secondary {
+      background: var(--panel-2);
+      box-shadow: none;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      box-shadow: none;
+      color: var(--muted);
+    }
+    .btn.danger {
+      background: linear-gradient(180deg, #fb7185, var(--danger));
+    }
+    .btn.success {
+      background: linear-gradient(180deg, #4ade80, var(--ok));
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .stat .value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      margin-top: 8px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .search {
+      position: relative;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 13px 14px 13px 42px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      outline: none;
+    }
+
+    .search .icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: var(--chip);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .16s ease, transform .16s ease, border-color .16s ease;
+      user-select: none;
+    }
+
+    .chip.active {
+      background: rgba(91,140,255,.18);
+      border-color: rgba(91,140,255,.42);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 12px;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .contact {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: var(--panel);
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .contact:hover { transform: translateY(-1px); }
+    .contact.active {
+      border-color: rgba(91,140,255,.5);
+      background: linear-gradient(180deg, rgba(91,140,255,.08), rgba(255,255,255,.02));
+    }
+
+    .contact-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .contact-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .contact-name {
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .contact-name span:last-child {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.07);
+      white-space: nowrap;
+    }
+
+    .badge.open { color: #bbf7d0; }
+    .badge.closed { color: #cbd5e1; }
+    .badge.manual { color: #fde68a; }
+    .badge.auto { color: #bfdbfe; }
+
+    .snippet {
+      color: #d8def6;
+      font-size: 13px;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 38px;
+    }
+
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 28px 18px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255,255,255,.02);
+    }
+
+    .detail {
+      position: sticky;
+      top: calc(10px + var(--safe-top));
+      align-self: start;
+      min-height: 420px;
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+
+    .detail-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin: 0;
+    }
+
+    .detail-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .section {
+      margin-top: 14px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .message {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .message small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .message.out {
+      background: rgba(91,140,255,.12);
+      border-color: rgba(91,140,255,.25);
+    }
+
+    .draft-box,
+    textarea,
+    select,
+    .field {
+      width: 100%;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      display: inline-block;
+      background: var(--warn);
+      flex: 0 0 auto;
+    }
+    .dot.high { background: var(--danger); }
+    .dot.medium { background: var(--warn); }
+    .dot.low { background: var(--ok); }
+
+    .footer-note {
+      margin-top: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .detail {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar,
+      .toolbar,
+      .grid-2,
+      .stats {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+      .actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+      .actions .btn { width: 100%; }
+      .topbar { gap: 14px; }
+      .brand h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Inbox Panel</h1>
+        <p>Автономный Mini App для Telegram-бота: CloudStorage в Telegram, localStorage в браузере.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="seedBtn">Демо-данные</button>
+        <button class="btn" id="addBtn">+ Контакт</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="panel">
+        <div class="row-between" style="margin-bottom:12px;">
+          <div>
+            <div class="section-title" style="margin-bottom:6px;">Статистика</div>
+            <div class="muted">Всего / пришли сами / вручную / открытых</div>
+          </div>
+          <div class="badge" id="storageType">storage</div>
+        </div>
+        <div class="stats" id="stats"></div>
+      </div>
+      <div class="panel">
+        <div class="section-title" style="margin-bottom:8px;">Что умеет</div>
+        <div class="muted" style="line-height:1.6;">
+          • Добавление контактов вручную<br>
+          • Фильтрация по тегам<br>
+          • Детальная карточка с сообщениями<br>
+          • AI-черновик ответа<br>
+          • Закрытие и удаление контактов
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:12px;">
+      <div class="toolbar">
+        <div class="search">
+          <span class="icon">🔎</span>
+          <input id="searchInput" type="text" placeholder="Поиск по имени, username, сообщению или AI-черновику" />
+        </div>
+        <button class="btn ghost" id="clearFiltersBtn">Сбросить фильтры</button>
+      </div>
+      <div class="chips" id="tagFilters"></div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="row-between" style="margin-bottom:12px;">
+          <div class="section-title" style="margin:0;">Контакты</div>
+          <div class="muted" id="countLabel"></div>
+        </div>
+        <div id="contactList" class="list"></div>
+      </div>
+
+      <div class="panel detail" id="detailPanel"></div>
+    </div>
+
+    <div class="footer-note">Данные хранятся локально на устройстве пользователя. Без API-сервера.</div>
+  </div>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      try { tg.setHeaderColor('#121a2b'); } catch (e) {}
+      try { tg.setBackgroundColor('#0b1220'); } catch (e) {}
+    }
+
+    const TAG_META = {
+      NEW_LEAD: { label: '🟢 Лиды', short: 'Лид' },
+      QUESTION: { label: '❓ Вопросы', short: 'Вопрос' },
+      COMPLAINT: { label: '🔴 Жалобы', short: 'Жалоба' },
+      FOLLOWUP: { label: '🔄 Follow-up', short: 'Follow-up' },
+      PAYMENT: { label: '💰 Оплата', short: 'Оплата' },
+      SPAM: { label: '🚫 Спам', short: 'Спам' },
+      OTHER: { label: '⚪ Другое', short: 'Другое' }
+    };
+
+    const STORAGE_KEY = 'tg_copilot_contacts_v2';
+    const UI_KEY = 'tg_copilot_ui_v1';
+
+    const state = {
+      contacts: [],
+      activeId: null,
+      filterTag: 'ALL',
+      search: ''
+    };
+
+    const el = {
+      stats: document.getElementById('stats'),
+      tagFilters: document.getElementById('tagFilters'),
+      contactList: document.getElementById('contactList'),
+      detailPanel: document.getElementById('detailPanel'),
+      countLabel: document.getElementById('countLabel'),
+      searchInput: document.getElementById('searchInput'),
+      storageType: document.getElementById('storageType'),
+      addBtn: document.getElementById('addBtn'),
+      seedBtn: document.getElementById('seedBtn'),
+      clearFiltersBtn: document.getElementById('clearFiltersBtn')
+    };
+
+    const storage = createStorage();
+
+    function createStorage() {
+      if (tg && tg.CloudStorage) {
+        return {
+          type: 'Telegram CloudStorage',
+          async get(key) {
+            return new Promise((resolve) => {
+              tg.CloudStorage.getItem(key, (err, value) => resolve(err ? '' : (value || '')));
+            });
+          },
+          async set(key, value) {
+            return new Promise((resolve, reject) => {
+              tg.CloudStorage.setItem(key, value, (err) => err ? reject(err) : resolve());
+            });
+          },
+          async remove(key) {
+            return new Promise((resolve) => {
+              tg.CloudStorage.removeItem(key, () => resolve());
+            });
+          }
+        };
+      }
+
+      return {
+        type: 'Browser localStorage',
+        async get(key) {
+          return localStorage.getItem(key) || '';
+        },
+        async set(key, value) {
+          localStorage.setItem(key, value);
+        },
+        async remove(key) {
+          localStorage.removeItem(key);
+        }
+      };
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function fmtDate(value) {
+      if (!value) return '—';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return '—';
+      return d.toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function escapeHtml(str = '') {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function getTagLabel(tag) {
+      return TAG_META[tag]?.label || tag || 'Без тега';
+    }
+
+    function getSourceLabel(source) {
+      return source === 'auto' ? '📥 Пришёл сам' : '✋ Добавлен вручную';
+    }
+
+    function normalizeContact(raw = {}) {
+      return {
+        id: raw.id || uid(),
+        name: raw.name || 'Без имени',
+        username: raw.username || '',
+        tag: raw.tag || 'OTHER',
+        status: raw.status === 'closed' ? 'closed' : 'open',
+        source: raw.source === 'auto' ? 'auto' : 'manual',
+        createdAt: raw.createdAt || nowIso(),
+        updatedAt: raw.updatedAt || raw.createdAt || nowIso(),
+        lastMessage: raw.lastMessage || '',
+        aiDraft: raw.aiDraft || '',
+        notes: raw.notes || '',
+        urgency: ['low','medium','high'].includes(raw.urgency) ? raw.urgency : 'medium',
+        messages: Array.isArray(raw.messages) ? raw.messages.map(m => ({
+          id: m.id || uid(),
+          text: m.text || '',
+          direction: m.direction === 'out' ? 'out' : 'in',
+          createdAt: m.createdAt || nowIso()
+        })) : []
+      };
+    }
+
+    async function loadState() {
+      el.storageType.textContent = storage.type;
+      try {
+        const rawContacts = await storage.get(STORAGE_KEY);
+        const rawUi = await storage.get(UI_KEY);
+        state.contacts = rawContacts ? JSON.parse(rawContacts).map(normalizeContact) : [];
+        const ui = rawUi ? JSON.parse(rawUi) : {};
+        state.filterTag = ui.filterTag || 'ALL';
+        state.search = ui.search || '';
+        state.activeId = ui.activeId || (state.contacts[0]?.id || null);
+      } catch (e) {
+        console.error(e);
+        state.contacts = [];
+      }
+      el.searchInput.value = state.search;
+      render();
+    }
+
+    async function persist() {
+      await storage.set(STORAGE_KEY, JSON.stringify(state.contacts));
+      await storage.set(UI_KEY, JSON.stringify({
+        activeId: state.activeId,
+        filterTag: state.filterTag,
+        search: state.search
+      }));
+    }
+
+    function upsertContact(contact) {
+      const normalized = normalizeContact(contact);
+      const index = state.contacts.findIndex(c => c.id === normalized.id);
+      if (index >= 0) state.contacts[index] = normalized;
+      else state.contacts.unshift(normalized);
+      sortContacts();
+      state.activeId = normalized.id;
+      persist();
+      render();
+    }
+
+    function sortContacts() {
+      state.contacts.sort((a, b) => {
+        const ad = new Date(a.updatedAt || a.createdAt || 0).getTime();
+        const bd = new Date(b.updatedAt || b.createdAt || 0).getTime();
+        return bd - ad;
+      });
+    }
+
+    function computeStats() {
+      return {
+        total: state.contacts.length,
+        auto: state.contacts.filter(c => c.source === 'auto').length,
+        manual: state.contacts.filter(c => c.source === 'manual').length,
+        open: state.contacts.filter(c => c.status === 'open').length
+      };
+    }
+
+    function getFilteredContacts() {
+      const q = state.search.trim().toLowerCase();
+      return state.contacts.filter(contact => {
+        const tagOk = state.filterTag === 'ALL' || contact.tag === state.filterTag;
+        if (!tagOk) return false;
+        if (!q) return true;
+        const hay = [
+          contact.name,
+          contact.username,
+          contact.lastMessage,
+          contact.aiDraft,
+          contact.notes,
+          ...contact.messages.map(m => m.text)
+        ].join(' ').toLowerCase();
+        return hay.includes(q);
+      });
+    }
+
+    function renderStats() {
+      const stats = computeStats();
+      const cards = [
+        ['Всего', stats.total],
+        ['Пришли сами', stats.auto],
+        ['Вручную', stats.manual],
+        ['Открытых', stats.open]
+      ];
+      el.stats.innerHTML = cards.map(([label, value]) => `
+        <div class="stat">
+          <div class="label">${label}</div>
+          <div class="value">${value}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTagFilters() {
+      const tags = ['ALL', ...Object.keys(TAG_META)];
+      el.tagFilters.innerHTML = tags.map(tag => {
+        const active = tag === state.filterTag ? 'active' : '';
+        const label = tag === 'ALL' ? 'Все' : getTagLabel(tag);
+        return `<button class="chip ${active}" data-tag="${tag}">${label}</button>`;
+      }).join('');
+      el.tagFilters.querySelectorAll('[data-tag]').forEach(btn => {
+        btn.onclick = () => {
+          state.filterTag = btn.dataset.tag;
+          persist();
+          render();
+        };
+      });
+    }
+
+    function renderContactList() {
+      const contacts = getFilteredContacts();
+      el.countLabel.textContent = `${contacts.length} из ${state.contacts.length}`;
+
+      if (!contacts.length) {
+        el.contactList.innerHTML = `
+          <div class="empty">
+            Ничего не найдено. Добавь контакт вручную или сбрось фильтры.
+          </div>
+        `;
+        if (!contacts.find(c => c.id === state.activeId)) {
+          state.activeId = null;
+        }
+        renderDetail();
+        return;
+      }
+
+      if (!contacts.some(c => c.id === state.activeId)) {
+        state.activeId = contacts[0].id;
+      }
+
+      el.contactList.innerHTML = contacts.map(contact => {
+        const active = contact.id === state.activeId ? 'active' : '';
+        const username = contact.username ? '@' + escapeHtml(contact.username) : 'без username';
+        const statusClass = contact.status === 'closed' ? 'closed' : 'open';
+        const sourceClass = contact.source === 'auto' ? 'auto' : 'manual';
+        const lastText = contact.lastMessage || contact.messages.at(-1)?.text || 'Сообщений пока нет';
+        return `
+          <article class="contact ${active}" data-id="${contact.id}">
+            <div class="contact-head">
+              <div class="contact-title">
+                <div class="contact-name"><span class="dot ${contact.urgency}"></span><span>${escapeHtml(contact.name)}</span></div>
+                <div class="meta">
+                  <span>${username}</span>
+                  <span>•</span>
+                  <span>${fmtDate(contact.updatedAt)}</span>
+                </div>
+              </div>
+              <div class="badge ${statusClass}">${contact.status === 'open' ? 'Открыт' : 'Закрыт'}</div>
+            </div>
+            <div class="meta" style="margin-bottom:8px;">
+              <span class="badge">${getTagLabel(contact.tag)}</span>
+              <span class="badge ${sourceClass}">${getSourceLabel(contact.source)}</span>
+            </div>
+            <div class="snippet">${escapeHtml(lastText)}</div>
+          </article>
+        `;
+      }).join('');
+
+      el.contactList.querySelectorAll('[data-id]').forEach(node => {
+        node.onclick = () => {
+          state.activeId = node.dataset.id;
+          persist();
+          renderDetail();
+          renderContactList();
+        };
+      });
+
+      renderDetail();
+    }
+
+    function renderDetail() {
+      const contact = state.contacts.find(c => c.id === state.activeId);
+      if (!contact) {
+        el.detailPanel.innerHTML = `
+          <div class="empty" style="min-height:360px; display:flex; align-items:center; justify-content:center;">
+            Выбери контакт слева или создай новый.
+          </div>
+        `;
+        return;
+      }
+
+      el.detailPanel.innerHTML = `
+        <div class="detail-header">
+          <div>
+            <h2 class="detail-name">${escapeHtml(contact.name)}</h2>
+            <div class="detail-meta">
+              <span class="badge">${getTagLabel(contact.tag)}</span>
+              <span class="badge ${contact.status === 'open' ? 'open' : 'closed'}">${contact.status === 'open' ? 'Открыт' : 'Закрыт'}</span>
+              <span class="badge ${contact.source === 'auto' ? 'auto' : 'manual'}">${getSourceLabel(contact.source)}</span>
+            </div>
+          </div>
+          <div class="muted" style="text-align:right; font-size:12px;">
+            ${contact.username ? '@' + escapeHtml(contact.username) + '<br>' : ''}
+            ${fmtDate(contact.createdAt)}
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="section-title">Тег</div>
+            <select id="tagSelect">
+              ${Object.keys(TAG_META).map(tag => `<option value="${tag}" ${tag === contact.tag ? 'selected' : ''}>${TAG_META[tag].label}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <div class="section-title">Приоритет</div>
+            <select id="urgencySelect">
+              ${['low','medium','high'].map(level => `<option value="${level}" ${level === contact.urgency ? 'selected' : ''}>${level}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">AI-черновик</div>
+          <textarea id="draftInput" placeholder="Например: Здравствуйте! Спасибо за сообщение...">${escapeHtml(contact.aiDraft)}</textarea>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Заметки</div>
+          <textarea id="notesInput" placeholder="Внутренние комментарии по контакту">${escapeHtml(contact.notes)}</textarea>
+        </div>
+
+        <div class="section">
+          <div class="row-between" style="margin-bottom:8px;">
+            <div class="section-title" style="margin:0;">Сообщения</div>
+            <button class="btn ghost" id="addMessageBtn">+ Сообщение</button>
+          </div>
+          <div class="message-list">
+            ${contact.messages.length ? contact.messages.map(msg => `
+              <div class="message ${msg.direction === 'out' ? 'out' : ''}">
+                ${escapeHtml(msg.text)}
+                <small>${msg.direction === 'out' ? 'Исходящее' : 'Входящее'} • ${fmtDate(msg.createdAt)}</small>
+              </div>
+            `).join('') : '<div class="empty">Сообщений пока нет.</div>'}
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn success" id="saveBtn">Сохранить</button>
+          <button class="btn secondary" id="toggleStatusBtn">${contact.status === 'open' ? 'Закрыть контакт' : 'Переоткрыть'}</button>
+          <button class="btn danger" id="deleteBtn">Удалить</button>
+        </div>
+      `;
+
+      document.getElementById('saveBtn').onclick = async () => {
+        const current = state.contacts.find(c => c.id === contact.id);
+        if (!current) return;
+        current.tag = document.getElementById('tagSelect').value;
+        current.urgency = document.getElementById('urgencySelect').value;
+        current.aiDraft = document.getElementById('draftInput').value.trim();
+        current.notes = document.getElementById('notesInput').value.trim();
+        current.updatedAt = nowIso();
+        current.lastMessage = current.messages.at(-1)?.text || current.lastMessage;
+        sortContacts();
+        await persist();
+        render();
+        toast('Сохранено');
+      };
+
+      document.getElementById('toggleStatusBtn').onclick = async () => {
+        const current = state.contacts.find(c => c.id === contact.id);
+        if (!current) return;
+        current.status = current.status === 'open' ? 'closed' : 'open';
+        current.updatedAt = nowIso();
+        await persist();
+        render();
+        toast(current.status === 'open' ? 'Контакт снова открыт' : 'Контакт закрыт');
+      };
+
+      document.getElementById('deleteBtn').onclick = async () => {
+        const ok = confirm(`Удалить контакт «${contact.name}»?`);
+        if (!ok) return;
+        state.contacts = state.contacts.filter(c => c.id !== contact.id);
+        const visible = getFilteredContacts();
+        state.activeId = visible[0]?.id || state.contacts[0]?.id || null;
+        await persist();
+        render();
+        toast('Контакт удалён');
+      };
+
+      document.getElementById('addMessageBtn').onclick = async () => {
+        const text = prompt('Текст сообщения');
+        if (!text || !text.trim()) return;
+        const type = prompt('Направление: in / out', 'in');
+        const direction = type === 'out' ? 'out' : 'in';
+        const current = state.contacts.find(c => c.id === contact.id);
+        if (!current) return;
+        current.messages.push({ id: uid(), text: text.trim(), direction, createdAt: nowIso() });
+        current.lastMessage = text.trim();
+        current.updatedAt = nowIso();
+        sortContacts();
+        await persist();
+        render();
+      };
+    }
+
+    function render() {
+      renderStats();
+      renderTagFilters();
+      renderContactList();
+    }
+
+    async function addContact() {
+      const name = prompt('Имя контакта');
+      if (!name || !name.trim()) return;
+      const username = (prompt('Username без @ (необязательно)') || '').trim().replace(/^@/, '');
+      const tag = (prompt('Тег: NEW_LEAD / QUESTION / COMPLAINT / FOLLOWUP / PAYMENT / SPAM / OTHER', 'NEW_LEAD') || 'NEW_LEAD').trim().toUpperCase();
+      const safeTag = TAG_META[tag] ? tag : 'NEW_LEAD';
+      const draft = prompt('AI-черновик (необязательно)', '') || '';
+      const firstMessage = prompt('Последнее сообщение (необязательно)', '') || '';
+
+      const contact = normalizeContact({
+        id: uid(),
+        name: name.trim(),
+        username,
+        tag: safeTag,
+        status: 'open',
+        source: 'manual',
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+        lastMessage: firstMessage.trim(),
+        aiDraft: draft.trim(),
+        urgency: 'medium',
+        messages: firstMessage.trim() ? [{ id: uid(), text: firstMessage.trim(), direction: 'in', createdAt: nowIso() }] : []
+      });
+
+      upsertContact(contact);
+      toast('Контакт добавлен');
+    }
+
+    async function seedDemo() {
+      if (state.contacts.length && !confirm('Загрузить демо-данные поверх существующих?')) return;
+      const now = Date.now();
+      state.contacts = [
+        {
+          id: uid(),
+          name: 'Ирина Смирнова',
+          username: 'irina_shop',
+          tag: 'QUESTION',
+          status: 'open',
+          source: 'auto',
+          createdAt: new Date(now - 86400000 * 2).toISOString(),
+          updatedAt: new Date(now - 1000 * 60 * 14).toISOString(),
+          lastMessage: 'Подскажите, есть ли доставка по Европе?',
+          aiDraft: 'Здравствуйте! Да, доставка по Европе есть. Напишите страну и город — сориентируем по срокам и стоимости.',
+          notes: 'Тёплый лид, интересуется международной доставкой.',
+          urgency: 'medium',
+          messages: [
+            { id: uid(), text: 'Здравствуйте! Подскажите по доставке.', direction: 'in', createdAt: new Date(now - 1000 * 60 * 25).toISOString() },
+            { id: uid(), text: 'Добрый день! Уточните, пожалуйста, страну.', direction: 'out', createdAt: new Date(now - 1000 * 60 * 20).toISOString() },
+            { id: uid(), text: 'Испания. И сколько примерно стоит?', direction: 'in', createdAt: new Date(now - 1000 * 60 * 14).toISOString() }
+          ]
+        },
+        {
+          id: uid(),
+          name: 'Максим',
+          username: 'maksimdev',
+          tag: 'NEW_LEAD',
+          status: 'open',
+          source: 'manual',
+          createdAt: new Date(now - 86400000 * 4).toISOString(),
+          updatedAt: new Date(now - 1000 * 60 * 50).toISOString(),
+          lastMessage: 'Интересует интеграция с Telegram Business.',
+          aiDraft: 'Здравствуйте! Да, можем помочь с интеграцией Telegram Business. Опишите текущий сценарий — предложим оптимальный вариант.',
+          notes: 'Добавлен вручную с мероприятия.',
+          urgency: 'high',
+          messages: [
+            { id: uid(), text: 'Интересует интеграция с Telegram Business.', direction: 'in', createdAt: new Date(now - 1000 * 60 * 50).toISOString() }
+          ]
+        },
+        {
+          id: uid(),
+          name: 'Анна Петрова',
+          username: 'anna_support',
+          tag: 'COMPLAINT',
+          status: 'closed',
+          source: 'auto',
+          createdAt: new Date(now - 86400000 * 7).toISOString(),
+          updatedAt: new Date(now - 1000 * 60 * 120).toISOString(),
+          lastMessage: 'Спасибо, вопрос решён.',
+          aiDraft: 'Рады, что получилось помочь. Если появятся ещё вопросы — пишите.',
+          notes: 'Жалоба на задержку, урегулирована.',
+          urgency: 'low',
+          messages: [
+            { id: uid(), text: 'Почему заказ не отправлен?', direction: 'in', createdAt: new Date(now - 86400000 * 2).toISOString() },
+            { id: uid(), text: 'Проверили: отправка сегодня до конца дня.', direction: 'out', createdAt: new Date(now - 86400000 * 2 + 3600000).toISOString() },
+            { id: uid(), text: 'Спасибо, вопрос решён.', direction: 'in', createdAt: new Date(now - 1000 * 60 * 120).toISOString() }
+          ]
+        }
+      ].map(normalizeContact);
+      sortContacts();
+      state.activeId = state.contacts[0]?.id || null;
+      await persist();
+      render();
+      toast('Демо-данные загружены');
+    }
+
+    function toast(text) {
+      if (tg && tg.showPopup) {
+        try {
+          tg.showPopup({ title: 'Inbox Panel', message: text, buttons: [{ type: 'ok' }] });
+          return;
+        } catch (e) {}
+      }
+      console.log(text);
+    }
+
+    el.addBtn.onclick = addContact;
+    el.seedBtn.onclick = seedDemo;
+    el.clearFiltersBtn.onclick = async () => {
+      state.filterTag = 'ALL';
+      state.search = '';
+      el.searchInput.value = '';
+      await persist();
+      render();
+    };
+    el.searchInput.oninput = async (e) => {
+      state.search = e.target.value;
+      await persist();
+      render();
+    };
+
+    loadState();
+  </script>
+</body>
+</html>
