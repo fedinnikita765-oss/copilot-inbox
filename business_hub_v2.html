@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Business Copilot Hub</title>
+  <style>
+    :root{
+      --bg:#07111f;--bg2:#0c1830;--card:rgba(255,255,255,.07);--line:rgba(255,255,255,.12);
+      --text:#eef4ff;--muted:#98a6bf;--a:#7c9bff;--b:#5fe1c6;--c:#ffb870;--danger:#ff6b7a;
+      --shadow:0 24px 60px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:
+      radial-gradient(circle at top left, rgba(124,155,255,.28), transparent 30%),
+      radial-gradient(circle at top right, rgba(95,225,198,.16), transparent 24%),
+      linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--text); font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif;}
+    body{min-height:100vh;padding:18px 18px 100px}
+    .shell{max-width:1500px;margin:0 auto;display:grid;gap:18px}
+    .hero,.panel,.modal-card{background:var(--card);border:1px solid var(--line);backdrop-filter:blur(22px);box-shadow:var(--shadow)}
+    .hero{border-radius:30px;padding:24px;overflow:hidden;position:relative}
+    .hero:before{content:"";position:absolute;right:-80px;top:-80px;width:220px;height:220px;border-radius:999px;background:radial-gradient(circle,rgba(124,155,255,.45),transparent 65%)}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:#dce6ff;background:rgba(255,255,255,.05)}
+    h1{margin:12px 0 10px;font-size:clamp(28px,5vw,48px);line-height:1.02;max-width:900px}
+    .hero p{margin:0;max-width:980px;color:var(--muted);font-size:14px;line-height:1.6}
+    .hero .warn{margin-top:14px;color:#ffd9a8}
+    .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:20px}
+    .stat{padding:16px;border-radius:24px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+    .num{font-size:28px;font-weight:900}.lab{font-size:12px;color:var(--muted);margin-top:6px}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .tab{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);border-radius:18px;padding:12px 16px;font-weight:800;cursor:pointer}
+    .tab.on{background:linear-gradient(135deg,rgba(124,155,255,.32),rgba(95,225,198,.18));border-color:rgba(124,155,255,.45)}
+    .page{display:none}.page.on{display:block}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .toolbar .spacer{flex:1}
+    .input,.select,.textarea,.search{width:100%;background:rgba(1,7,17,.28);border:1px solid var(--line);border-radius:18px;padding:14px 16px;color:var(--text);outline:none}
+    .textarea{min-height:130px;resize:vertical}
+    .btn{border:none;border-radius:18px;padding:13px 16px;font-weight:900;color:#05101f;background:linear-gradient(135deg,var(--a),var(--b));cursor:pointer}
+    .btn.ghost{color:var(--text);background:rgba(255,255,255,.08);border:1px solid var(--line)}
+    .btn.warn{background:linear-gradient(135deg,#ffcf7e,#ff9d6f)}
+    .btn.danger{background:linear-gradient(135deg,#ff8fa3,#ff6b7a)}
+    .grid{display:grid;grid-template-columns:420px minmax(0,1fr);gap:18px;margin-top:14px}
+    .panel{border-radius:28px;padding:18px}
+    .panel h2{margin:0 0 14px;font-size:18px}
+    .list{display:grid;gap:12px}
+    .contact{padding:14px;border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.04);cursor:pointer;transition:.18s}
+    .contact:hover,.contact.active{transform:translateY(-1px);border-color:rgba(124,155,255,.42);background:rgba(124,155,255,.12)}
+    .row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .row.start{align-items:flex-start}
+    .name{font-weight:900;font-size:15px}.sub,.muted{font-size:12px;color:var(--muted)}
+    .snippet{margin-top:8px;font-size:13px;color:#d9e4ff;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:11px;font-weight:900}
+    .badge.ok{background:rgba(95,225,198,.16)} .badge.off{background:rgba(255,184,112,.16)} .badge.block{background:rgba(255,107,122,.16)}
+    .thread{display:grid;gap:10px;max-height:320px;overflow:auto;padding-right:4px}
+    .bubble{max-width:85%;padding:12px 14px;border-radius:18px;font-size:13px;line-height:1.45;border:1px solid var(--line)}
+    .bubble.in{background:rgba(255,255,255,.06);justify-self:start}.bubble.out{background:linear-gradient(135deg,rgba(124,155,255,.26),rgba(95,225,198,.16));justify-self:end}
+    .bubble .time{display:block;margin-top:6px;font-size:11px;color:var(--muted)}
+    .meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+    .mini{padding:12px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:12px}
+    .togglebar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+    .toggle{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);border-radius:999px;padding:10px 12px;font-size:12px;font-weight:800;cursor:pointer}
+    .toggle.on{background:linear-gradient(135deg,rgba(124,155,255,.28),rgba(95,225,198,.18));border-color:rgba(124,155,255,.45)}
+    .task{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+    .tick{width:26px;height:26px;border-radius:999px;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;background:rgba(255,255,255,.06)}
+    .task.done .title{text-decoration:line-through;color:var(--muted)}
+    .prio{font-size:11px;font-weight:900;border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.08);border:1px solid var(--line)}
+    .setting{padding:16px;border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.04);display:grid;gap:10px}
+    .empty{padding:26px;border-radius:24px;border:1px dashed rgba(255,255,255,.18);text-align:center;color:var(--muted)}
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:12px 14px;border-radius:14px;background:#101c30;color:#fff;border:1px solid var(--line);opacity:0;pointer-events:none;transition:.2s}
+    .toast.on{opacity:1}
+    .modal{position:fixed;inset:0;background:rgba(5,8,16,.66);display:none;place-items:center;padding:18px;z-index:30}
+    .modal.on{display:grid}.modal-card{width:min(560px,100%);border-radius:30px;padding:20px;display:grid;gap:12px}
+    @media (max-width:1050px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:640px){body{padding:14px 14px 94px}.tabs{position:fixed;left:14px;right:14px;bottom:14px;padding:8px;border-radius:22px;background:rgba(7,14,27,.94);border:1px solid var(--line);backdrop-filter:blur(18px);z-index:20}.tab{flex:1}.stats{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">💼 Telegram Business Copilot</div>
+      <h1>Панель контактов, задач и AI-ответов от имени вашего бизнес-аккаунта</h1>
+      <p>В этой версии бот не отвечает на ваши собственные сообщения. Автоответ идёт только на первое входящее от нового клиента или для одобренных контактов. Ручные изменения внутри панели применяются сразу локально.</p>
+      <p class="warn">Новые входящие сообщения из Telegram не могут магически появляться в статической Mini App сами по себе: для них нужен новый snapshot из /inbox или отдельный публичный backend API.</p>
+      <div class="stats">
+        <div class="stat"><div class="num" id="sContacts">0</div><div class="lab">Контакты</div></div>
+        <div class="stat"><div class="num" id="sApproved">0</div><div class="lab">Одобрены</div></div>
+        <div class="stat"><div class="num" id="sPending">0</div><div class="lab">Ожидают</div></div>
+        <div class="stat"><div class="num" id="sTasks">0</div><div class="lab">Открытые задачи</div></div>
+        <div class="stat"><div class="num" id="sAuto">—</div><div class="lab">Auto reply</div></div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab on" data-page="inbox">Inbox</button>
+      <button class="tab" data-page="tasks">Задачи</button>
+      <button class="tab" data-page="settings">Настройки</button>
+    </div>
+
+    <section class="page on" id="page-inbox">
+      <div class="toolbar">
+        <input id="search" class="search" placeholder="Поиск по имени, username, сообщению, notes…" />
+        <button class="btn ghost" id="btnRefreshHint">Как обновить</button>
+        <button class="btn" id="btnOpenAddContact">+ Контакт</button>
+      </div>
+      <div class="grid">
+        <div class="panel">
+          <h2>Контакты</h2>
+          <div id="contacts" class="list"></div>
+        </div>
+        <div class="panel">
+          <div class="row start">
+            <div>
+              <h2 id="detailName">Выберите контакт</h2>
+              <div class="sub" id="detailMeta">—</div>
+            </div>
+            <div id="detailStatus" class="badge">нет данных</div>
+          </div>
+
+          <div class="meta-grid">
+            <div class="mini"><b>Тег</b><div id="detailTag" class="muted">—</div></div>
+            <div class="mini"><b>Источник</b><div id="detailSource" class="muted">—</div></div>
+            <div class="mini"><b>Последнее обновление</b><div id="detailTime" class="muted">—</div></div>
+          </div>
+
+          <div class="togglebar">
+            <button class="toggle" id="btnApprove">✅ Одобрить AI</button>
+            <button class="toggle" id="btnPause">⏸ Пауза</button>
+            <button class="toggle" id="btnBlocked">⛔ Блок</button>
+          </div>
+
+          <label class="sub">Заметки / контекст</label>
+          <textarea id="notes" class="textarea" placeholder="Внутренние заметки по клиенту"></textarea>
+          <div class="row" style="margin:10px 0 14px">
+            <select id="tagSelect" class="select" style="max-width:220px">
+              <option value="NEW_LEAD">🟢 Лид</option>
+              <option value="QUESTION">❓ Вопрос</option>
+              <option value="COMPLAINT">🔴 Жалоба</option>
+              <option value="FOLLOWUP">🔄 Follow-up</option>
+              <option value="PAYMENT">💰 Оплата</option>
+              <option value="SPAM">🚫 Спам</option>
+              <option value="OTHER">⚪ Другое</option>
+            </select>
+            <button class="btn ghost" id="btnSaveContact">Сохранить контакт</button>
+          </div>
+
+          <div id="thread" class="thread"><div class="empty">Откройте контакт слева, чтобы увидеть переписку.</div></div>
+
+          <div style="margin-top:14px">
+            <label class="sub">Ответ от имени бизнеса</label>
+            <textarea id="reply" class="textarea" placeholder="Сообщение клиенту"></textarea>
+            <div class="row" style="margin-top:10px">
+              <button class="btn ghost" id="btnDraft">Вставить AI-черновик</button>
+              <button class="btn warn" id="btnSend">Отправить</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-tasks">
+      <div class="toolbar">
+        <input id="taskTitle" class="input" placeholder="Новая задача" />
+        <input id="taskDesc" class="input" placeholder="Описание" />
+        <select id="taskPriority" class="select" style="max-width:180px">
+          <option value="low">🟢 Низкий</option>
+          <option value="medium" selected>🟡 Средний</option>
+          <option value="high">🔴 Высокий</option>
+        </select>
+        <button class="btn" id="btnTaskAdd">Создать</button>
+      </div>
+      <div class="panel"><div id="tasks" class="list"></div></div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <div class="panel" id="settings"></div>
+    </section>
+  </div>
+
+  <div class="modal" id="contactModal">
+    <div class="modal-card">
+      <div class="row"><h2 style="margin:0">Новый контакт</h2><button class="btn ghost" id="btnCloseModal">Закрыть</button></div>
+      <input id="newChatId" class="input" placeholder="chat_id клиента" />
+      <input id="newName" class="input" placeholder="Имя" />
+      <input id="newUsername" class="input" placeholder="username без @" />
+      <textarea id="newNotes" class="textarea" placeholder="Заметки"></textarea>
+      <button class="btn" id="btnCreateContact">Добавить</button>
+      <div class="sub">Важно: если клиент ещё ни разу не писал вам, отправить сообщение из Telegram Business всё равно не получится, пока у контакта не появится business connection.</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    const TAGS = {
+      NEW_LEAD:'🟢 Лид', QUESTION:'❓ Вопрос', COMPLAINT:'🔴 Жалоба', FOLLOWUP:'🔄 Follow-up', PAYMENT:'💰 Оплата', SPAM:'🚫 Спам', OTHER:'⚪ Другое'
+    };
+    let state = { contacts: [], tasks: [], settings: {}, meta: {}, selectedId: null };
+
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const toast = m => { const el=$('toast'); el.textContent=m; el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),1800); };
+
+    function decodeHash(){
+      const h = location.hash.slice(1); if(!h) return null;
+      try{ let b=h.replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='='; return JSON.parse(decodeURIComponent(escape(atob(b)))); }
+      catch(err){ console.error(err); return null; }
+    }
+    function ago(iso){
+      if(!iso) return 'без даты'; const d = new Date(iso); if(Number.isNaN(d)) return iso;
+      const diff = Math.max(0, Date.now()-d.getTime()), m=Math.floor(diff/60000), h=Math.floor(m/60), day=Math.floor(h/24);
+      if(day>0) return `${day} дн. назад`; if(h>0) return `${h} ч назад`; if(m>0) return `${m} мин назад`; return 'только что';
+    }
+    function sendData(payload){
+      const raw = JSON.stringify(payload);
+      if(tg?.sendData) tg.sendData(raw); else console.log('WEBAPP DATA', payload);
+    }
+
+    function load(){
+      const data = decodeHash();
+      if(!data) return;
+      state.contacts = (data.c||[]).map(c => ({
+        id:Number(c.id), username:c.un||'', name:c.nm||'', tag:c.tg||'OTHER', status:c.st||'open', urgency:c.ur||'medium',
+        sentiment:c.sn||'neutral', lastMessage:c.lm||'', time:c.tm||'', draft:c.dr||'', source:c.sr||'telegram_business',
+        context:c.cx||'', notes:c.nt||'', businessConnectionId:c.bc||'', directTopicId:Number(c.dm||0),
+        approved:!!Number(c.ap||0), manual:!!Number(c.mc||0), firstAuto:!!Number(c.fa||0), blocked:!!Number(c.bl||0),
+        messages:(c.ms||[]).map(m=>({dir:m.d,text:m.t,time:m.w}))
+      }));
+      state.tasks = (data.t||[]).map(t => ({id:Number(t.id), chat_id:Number(t.ci||0), title:t.ti||'', description:t.ds||'', priority:t.pr||'medium', done:!!Number(t.dn||0), contact:t.cn||'', time:t.tm||''}));
+      state.settings = data.s || {}; state.meta = data.meta || {};
+      if(state.contacts.length && !state.contacts.some(c=>c.id===state.selectedId)) state.selectedId = state.contacts[0].id;
+    }
+
+    function selected(){ return state.contacts.find(c=>c.id===state.selectedId) || null; }
+
+    function updateStats(){
+      $('sContacts').textContent = state.contacts.length;
+      $('sApproved').textContent = state.contacts.filter(c=>c.approved && !c.blocked).length;
+      $('sPending').textContent = state.contacts.filter(c=>!c.approved && !c.blocked).length;
+      $('sTasks').textContent = state.tasks.filter(t=>!t.done).length;
+      $('sAuto').textContent = state.settings.auto_reply === false ? 'OFF' : 'ON';
+    }
+
+    function statusBadge(c){
+      if(c.blocked) return '<span class="badge block">⛔ blocked</span>';
+      if(c.approved) return '<span class="badge ok">✅ approved</span>';
+      if(c.firstAuto) return '<span class="badge off">🕓 first replied</span>';
+      return '<span class="badge">⌛ pending</span>';
+    }
+
+    function renderContacts(){
+      const q = $('search').value.trim().toLowerCase();
+      const list = state.contacts.filter(c => (`${c.name} ${c.username} ${c.lastMessage} ${c.notes} ${c.context}`).toLowerCase().includes(q));
+      const wrap = $('contacts');
+      if(!list.length){ wrap.innerHTML = '<div class="empty">Контактов пока нет.</div>'; return; }
+      wrap.innerHTML = list.map(c => `
+        <div class="contact ${c.id===state.selectedId?'active':''}" data-id="${c.id}">
+          <div class="row start">
+            <div>
+              <div class="name">${esc(c.name || c.username || c.id)}</div>
+              <div class="sub">${c.username ? '@'+esc(c.username) : 'chat '+c.id}</div>
+            </div>
+            ${statusBadge(c)}
+          </div>
+          <div class="snippet">${esc(c.lastMessage || c.notes || 'Без сообщений')}</div>
+          <div class="row" style="margin-top:8px">
+            <div class="muted">${esc(TAGS[c.tag] || '⚪ Другое')} ${c.manual?' · 📌 manual':''}</div>
+            <div class="muted">${ago(c.time)}</div>
+          </div>
+        </div>`).join('');
+      wrap.querySelectorAll('.contact').forEach(el => el.onclick = () => { state.selectedId = Number(el.dataset.id); renderContacts(); renderDetail(); });
+    }
+
+    function renderDetail(){
+      const c = selected();
+      if(!c){
+        $('detailName').textContent='Выберите контакт'; $('detailMeta').textContent='—'; $('detailStatus').textContent='нет данных';
+        $('thread').innerHTML='<div class="empty">Откройте контакт слева, чтобы увидеть переписку.</div>'; $('reply').value=''; $('notes').value=''; return;
+      }
+      $('detailName').textContent = c.name || c.username || String(c.id);
+      $('detailMeta').textContent = `${c.username ? '@'+c.username+' · ' : ''}chat_id ${c.id}`;
+      $('detailStatus').outerHTML = `<div id="detailStatus">${statusBadge(c)}</div>`;
+      $('detailTag').textContent = TAGS[c.tag] || c.tag;
+      $('detailSource').textContent = c.source + (c.businessConnectionId ? ' · linked' : ' · no link');
+      $('detailTime').textContent = ago(c.time);
+      $('notes').value = c.notes || c.context || '';
+      $('tagSelect').value = c.tag || 'OTHER';
+      $('btnApprove').classList.toggle('on', !!c.approved && !c.blocked);
+      $('btnPause').classList.toggle('on', !c.approved && !c.blocked);
+      $('btnBlocked').classList.toggle('on', !!c.blocked);
+      $('thread').innerHTML = c.messages.length ? c.messages.slice().reverse().map(m => `<div class="bubble ${m.dir==='out'?'out':'in'}">${esc(m.text)}<span class="time">${esc(ago(m.time))}</span></div>`).join('') : '<div class="empty">История сообщений пока пустая.</div>';
+      $('reply').placeholder = c.businessConnectionId ? 'Напишите ответ клиенту…' : 'Клиент ещё не писал первым: отправка пока невозможна';
+    }
+
+    function renderTasks(){
+      const wrap = $('tasks');
+      if(!state.tasks.length){ wrap.innerHTML = '<div class="empty">Задач пока нет.</div>'; return; }
+      wrap.innerHTML = state.tasks.map(t => `
+        <div class="task ${t.done?'done':''}">
+          <div class="tick" data-id="${t.id}">${t.done?'✓':''}</div>
+          <div><div class="title">${esc(t.title)}</div><div class="muted">${esc(t.description || (t.contact ? 'Контакт: '+t.contact : ''))}</div></div>
+          <div class="prio">${t.priority}</div>
+        </div>`).join('');
+      wrap.querySelectorAll('.tick').forEach(el => el.onclick = () => {
+        const id = Number(el.dataset.id); const t = state.tasks.find(x=>x.id===id); if(!t) return; t.done = !t.done; renderTasks(); updateStats(); sendData({action:'toggle_task', id}); toast('Задача обновлена');
+      });
+    }
+
+    function renderSettings(){
+      $('settings').innerHTML = `
+        <div class="setting">
+          <b>Greeting</b>
+          <textarea class="textarea" id="setGreeting">${esc(state.settings.greeting || '')}</textarea>
+          <button class="btn ghost" onclick="saveSetting('greeting', document.getElementById('setGreeting').value)">Сохранить</button>
+        </div>
+        <div class="setting">
+          <b>AI style</b>
+          <textarea class="textarea" id="setStyle">${esc(state.settings.ai_style || '')}</textarea>
+          <button class="btn ghost" onclick="saveSetting('ai_style', document.getElementById('setStyle').value)">Сохранить</button>
+        </div>
+        <div class="setting">
+          <b>Business context</b>
+          <textarea class="textarea" id="setContext">${esc(state.settings.business_context || '')}</textarea>
+          <button class="btn ghost" onclick="saveSetting('business_context', document.getElementById('setContext').value)">Сохранить</button>
+        </div>
+        <div class="setting">
+          <b>AI disclaimer</b>
+          <textarea class="textarea" id="setDisclaimer">${esc(state.settings.ai_disclaimer || '')}</textarea>
+          <button class="btn ghost" onclick="saveSetting('ai_disclaimer', document.getElementById('setDisclaimer').value)">Сохранить</button>
+        </div>
+        <div class="setting">
+          <b>Auto reply</b>
+          <div class="row"><div class="muted">Вкл / выкл глобально</div><button class="btn ${state.settings.auto_reply===false?'ghost':''}" onclick="toggleAuto()">${state.settings.auto_reply===false?'Включить':'Выключить'}</button></div>
+        </div>`;
+    }
+
+    function saveSetting(key, value){ state.settings[key] = value; sendData({action:'save_setting', key, value}); toast('Настройка отправлена боту'); if(key==='auto_reply') updateStats(); }
+    function toggleAuto(){ saveSetting('auto_reply', !(state.settings.auto_reply===false)); renderSettings(); }
+    window.saveSetting = saveSetting; window.toggleAuto = toggleAuto;
+
+    function openModal(on=true){ $('contactModal').classList.toggle('on', on); }
+
+    function createContact(){
+      const chat_id = Number(($('newChatId').value || '').trim());
+      if(!chat_id){ toast('Нужен chat_id'); return; }
+      const c = { id:chat_id, username:($('newUsername').value||'').trim().replace(/^@/,''), name:($('newName').value||String(chat_id)).trim(), tag:'OTHER', status:'open', urgency:'medium', sentiment:'neutral', lastMessage:'', time:new Date().toISOString(), draft:'', source:'manual', context:($('newNotes').value||'').trim(), notes:($('newNotes').value||'').trim(), businessConnectionId:'', directTopicId:0, approved:true, manual:true, firstAuto:false, blocked:false, messages:[] };
+      state.contacts.unshift(c); state.selectedId = chat_id; renderAll(); openModal(false); sendData({action:'add_contact', chat_id, name:c.name, username:c.username, notes:c.notes}); toast('Контакт добавлен локально');
+      $('newChatId').value=''; $('newName').value=''; $('newUsername').value=''; $('newNotes').value='';
+    }
+
+    function saveCurrentContact(){
+      const c = selected(); if(!c){ toast('Выберите контакт'); return; }
+      c.notes = $('notes').value.trim(); c.context = c.notes; c.tag = $('tagSelect').value; renderContacts(); renderDetail();
+      sendData({action:'update_contact', chat_id:c.id, approved:c.approved?1:0, blocked:c.blocked?1:0, notes:c.notes, tag:c.tag});
+      toast('Контакт обновлён');
+    }
+
+    function setContactMode(mode){
+      const c = selected(); if(!c) return;
+      if(mode==='approve'){ c.approved = true; c.blocked = false; c.manual = true; }
+      if(mode==='pause'){ c.approved = false; c.blocked = false; c.manual = true; }
+      if(mode==='block'){ c.approved = false; c.blocked = !c.blocked; c.manual = true; }
+      renderContacts(); renderDetail();
+      sendData({action:'update_contact', chat_id:c.id, approved:c.approved?1:0, blocked:c.blocked?1:0, notes:$('notes').value.trim(), tag:$('tagSelect').value});
+      toast('Статус отправлен боту');
+    }
+
+    function sendReply(){
+      const c = selected(); if(!c){ toast('Выберите контакт'); return; }
+      const text = $('reply').value.trim(); if(!text){ toast('Введите сообщение'); return; }
+      if(!c.businessConnectionId){ toast('Нельзя отправить: клиент ещё не писал первым'); return; }
+      c.messages.unshift({dir:'out', text, time:new Date().toISOString()}); c.lastMessage=text; c.time=new Date().toISOString(); c.approved=true; c.manual=true; $('reply').value=''; renderContacts(); renderDetail();
+      sendData({action:'send_reply', chat_id:c.id, text}); toast('Ответ отправлен боту');
+    }
+
+    function insertDraft(){ const c=selected(); if(!c){ toast('Выберите контакт'); return; } $('reply').value = c.draft || ''; }
+
+    function addTask(){
+      const title = $('taskTitle').value.trim(); if(!title){ toast('Введите задачу'); return; }
+      const t = { id: Date.now(), chat_id:selected()?.id || 0, title, description:$('taskDesc').value.trim(), priority:$('taskPriority').value, done:false, contact:selected()?.name || '', time:new Date().toISOString() };
+      state.tasks.unshift(t); $('taskTitle').value=''; $('taskDesc').value=''; renderTasks(); updateStats();
+      sendData({action:'add_task', chat_id:t.chat_id, title:t.title, description:t.description, priority:t.priority}); toast('Задача добавлена');
+    }
+
+    function renderAll(){ updateStats(); renderContacts(); renderDetail(); renderTasks(); renderSettings(); }
+
+    document.querySelectorAll('.tab').forEach(btn => btn.onclick = () => {
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); btn.classList.add('on');
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('on')); $('page-'+btn.dataset.page).classList.add('on');
+    });
+    $('search').addEventListener('input', renderContacts);
+    $('btnRefreshHint').onclick = () => toast('Чтобы получить новые входящие из Telegram, снова откройте /inbox у бота');
+    $('btnOpenAddContact').onclick = () => openModal(true);
+    $('btnCloseModal').onclick = () => openModal(false);
+    $('btnCreateContact').onclick = createContact;
+    $('btnSaveContact').onclick = saveCurrentContact;
+    $('btnApprove').onclick = () => setContactMode('approve');
+    $('btnPause').onclick = () => setContactMode('pause');
+    $('btnBlocked').onclick = () => setContactMode('block');
+    $('btnSend').onclick = sendReply;
+    $('btnDraft').onclick = insertDraft;
+    $('btnTaskAdd').onclick = addTask;
+    $('contactModal').addEventListener('click', e => { if(e.target.id==='contactModal') openModal(false); });
+
+    load(); renderAll();
+  </script>
+</body>
+</html>
