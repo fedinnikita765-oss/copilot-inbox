@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Business Hub</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg2:#121932;
+      --card:rgba(255,255,255,.06);
+      --card2:rgba(255,255,255,.035);
+      --line:rgba(255,255,255,.08);
+      --text:#eef3ff;
+      --muted:#98a4c7;
+      --blue:#7cc6ff;
+      --violet:#b08cff;
+      --green:#59e4b2;
+      --yellow:#ffd478;
+      --red:#ff8c9f;
+      --shadow:0 20px 60px rgba(0,0,0,.32);
+      --radius:24px;
+      --font:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1000px 400px at 15% -5%, rgba(124,198,255,.18), transparent 55%),
+        radial-gradient(900px 360px at 100% 0%, rgba(176,140,255,.14), transparent 45%),
+        linear-gradient(180deg,#0b1020,#0c1123 35%, #0a0f1d 100%);
+      min-height:100vh;
+      padding-bottom:96px;
+    }
+    .shell{width:min(1180px,calc(100% - 28px));margin:0 auto}
+    .hero{padding:22px 0 16px}
+    .heroBox{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+      backdrop-filter:blur(22px);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      padding:22px;
+      overflow:hidden;
+      position:relative;
+    }
+    .heroBox:before,.heroBox:after{content:"";position:absolute;border-radius:999px;filter:blur(24px);opacity:.6}
+    .heroBox:before{width:220px;height:220px;background:rgba(124,198,255,.18);right:-40px;top:-70px}
+    .heroBox:after{width:180px;height:180px;background:rgba(176,140,255,.16);left:-60px;bottom:-80px}
+    .heroTop{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;position:relative;z-index:1}
+    h1{font-size:clamp(28px,4vw,40px);font-weight:900;letter-spacing:-.04em}
+    .subtitle{margin-top:8px;max-width:720px;color:var(--muted);font-size:14px;line-height:1.6}
+    .stamp{border:1px solid var(--line);background:rgba(255,255,255,.05);padding:12px 14px;border-radius:18px;font-size:12px;color:var(--muted);white-space:nowrap}
+    .stats{margin-top:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative;z-index:1}
+    .stat{padding:16px;border-radius:22px;background:var(--card2);border:1px solid var(--line)}
+    .stat b{display:block;font-size:24px;font-weight:900}
+    .stat span{display:block;margin-top:6px;color:var(--muted);font-size:12px}
+    .toolbar{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
+    button{font:inherit}
+    .btn,.btnGhost,.seg button,.bottom button,.actionBtn,.miniBtn{
+      border:0;cursor:pointer;border-radius:18px;transition:.18s transform,.18s opacity,.18s background;
+    }
+    .btn{background:linear-gradient(135deg,var(--blue),var(--violet));color:#07111d;padding:13px 18px;font-weight:900}
+    .btn:hover,.actionBtn:hover,.miniBtn:hover,.bottom button:hover{transform:translateY(-1px)}
+    .btnGhost{background:rgba(255,255,255,.06);color:var(--text);padding:13px 18px;font-weight:800;border:1px solid var(--line)}
+    .grid{display:grid;grid-template-columns:400px 1fr;gap:16px;padding:6px 0 20px}
+    .panel{border:1px solid var(--line);background:rgba(255,255,255,.04);backdrop-filter:blur(18px);border-radius:28px;box-shadow:var(--shadow)}
+    .panelHead{padding:18px 18px 8px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .panelHead h2{font-size:20px;font-weight:900;letter-spacing:-.03em}
+    .meta{color:var(--muted);font-size:12px}
+    .seg{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 14px}
+    .seg button{background:rgba(255,255,255,.05);color:var(--text);padding:10px 13px;font-size:12px;font-weight:800;border:1px solid var(--line)}
+    .seg button.on{background:rgba(124,198,255,.16)}
+    .list{padding:0 18px 18px;display:grid;gap:12px;max-height:66vh;overflow:auto}
+    .card{padding:16px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04));border:1px solid var(--line);cursor:pointer}
+    .card.active{outline:2px solid rgba(124,198,255,.25)}
+    .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .who{display:flex;gap:12px;min-width:0}
+    .ava{width:48px;height:48px;border-radius:18px;background:linear-gradient(135deg,#77cbff,#9f8cff);display:flex;align-items:center;justify-content:center;color:#081220;font-weight:900;flex-shrink:0}
+    .name{font-size:15px;font-weight:900;line-height:1.2}
+    .handle{font-size:12px;color:var(--muted);margin-top:4px}
+    .msg{margin-top:12px;color:#d9e3ff;line-height:1.45;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .chips{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);font-size:11px;color:var(--muted);border:1px solid var(--line);font-weight:800}
+    .chip.green{color:#bbf9de;background:rgba(89,228,178,.12)}
+    .chip.yellow{color:#ffe7b0;background:rgba(255,212,120,.12)}
+    .chip.red{color:#ffc0c9;background:rgba(255,140,159,.12)}
+    .detail{padding:4px 18px 18px;display:grid;gap:16px}
+    .empty{padding:20px;color:var(--muted);line-height:1.6}
+    .detailHero{padding:18px;border-radius:26px;background:linear-gradient(135deg,rgba(124,198,255,.12),rgba(176,140,255,.10));border:1px solid var(--line)}
+    .detailHero .top{display:flex;gap:14px;align-items:center}
+    .detailHero .ava{width:62px;height:62px;border-radius:22px;font-size:22px}
+    .detailName{font-size:22px;font-weight:900;letter-spacing:-.03em}
+    .detailMeta{margin-top:4px;color:var(--muted);font-size:13px}
+    .box{padding:16px;border-radius:24px;background:var(--card2);border:1px solid var(--line)}
+    .box h3{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:12px}
+    .kv{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:grid;gap:8px}
+    .field label{font-size:12px;color:var(--muted);font-weight:800}
+    .field input,.field select,.field textarea{
+      width:100%;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);
+      border-radius:18px;padding:12px 14px;outline:none
+    }
+    .field textarea{min-height:96px;resize:vertical}
+    .messages{display:grid;gap:10px;max-height:270px;overflow:auto}
+    .bubble{padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--line);line-height:1.5;font-size:13px}
+    .bubble.out{background:rgba(124,198,255,.10)}
+    .bubble small{display:block;color:var(--muted);margin-top:6px}
+    .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .actionBtn{padding:13px 12px;font-weight:900}
+    .actionBtn.ok{background:rgba(89,228,178,.14);color:#baf8de}
+    .actionBtn.pause{background:rgba(255,212,120,.14);color:#ffe8b0}
+    .actionBtn.stop{background:rgba(255,140,159,.14);color:#ffc3cf}
+    .task{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:22px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+    .task input{margin-top:4px}
+    .task h4{font-size:15px;font-weight:900;margin-bottom:4px}
+    .task p,.task small{color:var(--muted);line-height:1.45}
+    .modal{position:fixed;inset:0;background:rgba(4,8,18,.74);display:none;align-items:flex-end;justify-content:center;padding:16px;z-index:100}
+    .modal.on{display:flex}
+    .sheet{width:min(720px,100%);border-radius:30px;background:linear-gradient(180deg,#121932,#0d1429);border:1px solid var(--line);box-shadow:var(--shadow);padding:18px}
+    .sheetHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+    .sheetHead h3{font-size:20px;font-weight:900}
+    .sheetBody{display:grid;gap:12px}
+    .miniBtn{padding:11px 14px;background:rgba(255,255,255,.06);color:var(--text);font-weight:800;border:1px solid var(--line)}
+    .bottom{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:14px calc(14px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));z-index:90}
+    .bottom .nav{display:flex;gap:8px;padding:10px;border-radius:22px;background:rgba(255,255,255,.08);backdrop-filter:blur(18px);border:1px solid var(--line)}
+    .bottom button{background:transparent;color:var(--text);padding:11px 14px;font-weight:900}
+    .bottom button.on{background:rgba(124,198,255,.16);border-radius:14px}
+    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.5}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}.list{max-height:none}.stats{grid-template-columns:repeat(2,1fr)}.kv,.actions{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="shell">
+      <div class="heroBox">
+        <div class="heroTop">
+          <div>
+            <h1>Business Hub</h1>
+            <div class="subtitle">Свежая операторская панель для Telegram Business: контакты, задачи, одобрение AI-ответов и быстрый просмотр истории. Новые данные появляются после повторного открытия <b>/inbox</b>.</div>
+          </div>
+          <div class="stamp" id="stamp">Снимок не загружен</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="statAll">0</b><span>контактов</span></div>
+          <div class="stat"><b id="statApproved">0</b><span>одобрено</span></div>
+          <div class="stat"><b id="statPending">0</b><span>на проверке</span></div>
+          <div class="stat"><b id="statTasks">0</b><span>активных задач</span></div>
+        </div>
+        <div class="toolbar">
+          <button class="btn" onclick="openAddContact()">+ Добавить контакт</button>
+          <button class="btnGhost" onclick="openTaskModal()">+ Добавить задачу</button>
+          <button class="btnGhost" onclick="sendAction({action:'refresh_hint'})">Как обновить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="grid">
+      <section class="panel">
+        <div class="panelHead"><h2 id="leftTitle">Контакты</h2><div class="meta" id="leftMeta">0 записей</div></div>
+        <div class="seg" id="filters"></div>
+        <div class="list" id="list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panelHead"><h2 id="detailTitle">Карточка</h2><div class="meta">Изменения отправляются боту и применяются в следующем снимке</div></div>
+        <div class="detail" id="detail"><div class="empty">Открой контакт слева или переключись на задачи.</div></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="sheet">
+      <div class="sheetHead"><h3 id="modalTitle">Форма</h3><button class="miniBtn" onclick="closeModal()">Закрыть</button></div>
+      <div class="sheetBody" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="nav">
+      <button id="tabContacts" class="on" onclick="switchTab('contacts')">Контакты</button>
+      <button id="tabTasks" onclick="switchTab('tasks')">Задачи</button>
+      <button onclick="openAddContact()">+ Контакт</button>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    tg?.ready();
+    tg?.expand();
+
+    let SNAP = {c:[],t:[],s:{},meta:{}};
+    let TAB = 'contacts';
+    let FILTER = 'all';
+    let selectedId = null;
+
+    const CONTACT_FILTERS = [
+      ['all','Все'],['pending','Новые'],['approved','Одобрено'],['paused','Пауза'],['manual','Ручные']
+    ];
+
+    function utf8Base64UrlDecode(str){
+      let b64 = str.replace(/-/g,'+').replace(/_/g,'/');
+      while (b64.length % 4) b64 += '=';
+      const bin = atob(b64);
+      const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+      return new TextDecoder('utf-8').decode(bytes);
+    }
+
+    function getSnapshotString(){
+      const h = location.hash.replace(/^#/, '');
+      const q = new URLSearchParams(location.search);
+      if (h.startsWith('data=')) return h.slice(5);
+      if (q.get('data')) return q.get('data');
+      if (h) return h;
+      return '';
+    }
+
+    function decodeSnapshot(){
+      const raw = getSnapshotString();
+      if (!raw) return false;
+      try {
+        SNAP = JSON.parse(utf8Base64UrlDecode(raw));
+        if (!SNAP.c) SNAP.c = [];
+        if (!SNAP.t) SNAP.t = [];
+        if (!SNAP.s) SNAP.s = {};
+        return true;
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    }
+
+    function escapeHtml(s){
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    }
+
+    function fmtAgo(iso){
+      if(!iso) return '—';
+      const diff = Math.max(0, Date.now() - new Date(iso).getTime());
+      const min = Math.floor(diff/60000);
+      if(min < 1) return 'сейчас';
+      if(min < 60) return `${min}м назад`;
+      const hrs = Math.floor(min/60);
+      if(hrs < 24) return `${hrs}ч назад`;
+      return `${Math.floor(hrs/24)}д назад`;
+    }
+
+    function initials(name){
+      return (name || '?').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('') || '?';
+    }
+
+    function sendAction(payload){
+      try{
+        tg?.sendData?.(JSON.stringify(payload));
+      }catch(e){
+        console.error(e);
+      }
+    }
+
+    function toast(text){
+      if (tg?.showPopup) {
+        tg.showPopup({title:'Готово', message:text, buttons:[{type:'ok'}]});
+      } else {
+        alert(text);
+      }
+    }
+
+    function renderStats(){
+      document.getElementById('statAll').textContent = SNAP.c.length;
+      document.getElementById('statApproved').textContent = SNAP.c.filter(c => c.ap).length;
+      document.getElementById('statPending').textContent = SNAP.c.filter(c => !c.ap).length;
+      document.getElementById('statTasks').textContent = SNAP.t.filter(t => !t.dn).length;
+      document.getElementById('leftMeta').textContent = TAB === 'contacts' ? `${filteredContacts().length} записей` : `${SNAP.t.length} задач`;
+      document.getElementById('stamp').textContent = SNAP.meta?.generated_at ? `Снимок: ${new Date(SNAP.meta.generated_at).toLocaleString('ru-RU')}` : 'Снимок не загружен';
+    }
+
+    function filteredContacts(){
+      if(FILTER === 'all') return [...SNAP.c];
+      if(FILTER === 'manual') return SNAP.c.filter(c => c.im || c.sr === 'manual');
+      return SNAP.c.filter(c => (c.st || '') === FILTER);
+    }
+
+    function chip(cls, text){ return `<span class="chip ${cls||''}">${text}</span>`; }
+
+    function contactChips(c){
+      return [
+        chip(c.st==='approved'?'green':c.st==='paused'?'yellow':'red', c.st || 'pending'),
+        chip('', c.sr==='manual' ? 'ручной' : 'авто'),
+        chip(c.al ? 'green' : 'yellow', `AI ${c.al ? 'ON' : 'OFF'}`),
+        c.cm ? chip('green','можно писать') : chip('red','ждёт первого сообщения')
+      ].join('');
+    }
+
+    function renderFilters(){
+      const root = document.getElementById('filters');
+      if(TAB !== 'contacts'){ root.innerHTML = ''; return; }
+      root.innerHTML = CONTACT_FILTERS.map(([id,label]) => `<button class="${FILTER===id?'on':''}" onclick="setFilter('${id}')">${label}</button>`).join('');
+    }
+
+    function renderList(){
+      const list = document.getElementById('list');
+      if(TAB === 'tasks'){
+        document.getElementById('leftTitle').textContent = 'Задачи';
+        if(!SNAP.t.length){ list.innerHTML = `<div class="empty">Задач пока нет.</div>`; renderStats(); return; }
+        list.innerHTML = SNAP.t.map(t => `
+          <div class="task">
+            <input type="checkbox" ${t.dn ? 'checked' : ''} onchange="toggleTask(${t.id})">
+            <div style="flex:1">
+              <h4>${escapeHtml(t.ti || 'Без названия')}</h4>
+              <p>${escapeHtml(t.ds || '')}</p>
+              <small>${escapeHtml(t.cn || 'без контакта')} · ${fmtAgo(t.tm)}</small>
+            </div>
+          </div>
+        `).join('');
+        renderStats();
+        return;
+      }
+
+      document.getElementById('leftTitle').textContent = 'Контакты';
+      const contacts = filteredContacts();
+      if(!contacts.length){
+        list.innerHTML = `<div class="empty">Контактов по этому фильтру нет. Открой /inbox ещё раз, если ждёшь новые сообщения.</div>`;
+        renderStats();
+        return;
+      }
+      list.innerHTML = contacts.map(c => `
+        <div class="card ${selectedId===c.id?'active':''}" onclick="openContact(${c.id})">
+          <div class="row">
+            <div class="who">
+              <div class="ava">${initials(c.nm)}</div>
+              <div style="min-width:0">
+                <div class="name">${escapeHtml(c.nm || 'Без имени')}</div>
+                <div class="handle">${c.un ? '@'+escapeHtml(c.un) : 'без username'} · ${fmtAgo(c.tm)}</div>
+              </div>
+            </div>
+            <div class="meta">${String(c.id).startsWith('-') ? 'local' : '#'+c.id}</div>
+          </div>
+          <div class="msg">${escapeHtml(c.lm || c.cx || 'Нет сообщений')}</div>
+          <div class="chips">${contactChips(c)}</div>
+        </div>
+      `).join('');
+      renderStats();
+    }
+
+    function renderEmptyDetail(msg='Открой контакт слева или переключись на задачи.'){
+      document.getElementById('detailTitle').textContent = TAB === 'contacts' ? 'Карточка' : 'Задачи';
+      document.getElementById('detail').innerHTML = `<div class="empty">${msg}</div>`;
+    }
+
+    function openContact(id){
+      selectedId = id;
+      const c = SNAP.c.find(x => x.id === id);
+      if(!c) return;
+      document.getElementById('detailTitle').textContent = 'Контакт';
+      document.getElementById('detail').innerHTML = `
+        <div class="detailHero">
+          <div class="top">
+            <div class="ava">${initials(c.nm)}</div>
+            <div>
+              <div class="detailName">${escapeHtml(c.nm || 'Без имени')}</div>
+              <div class="detailMeta">${c.un ? '@'+escapeHtml(c.un)+' · ' : ''}${c.cm ? 'можно писать' : 'ждёт первого сообщения'} · ${fmtAgo(c.tm)}</div>
+            </div>
+          </div>
+          <div class="chips" style="margin-top:14px">${contactChips(c)}</div>
+          <div class="hint">Изменения сохраняются в боте и отразятся в следующем свежем снимке из /inbox.</div>
+        </div>
+
+        <div class="box">
+          <h3>Поля</h3>
+          <div class="kv">
+            <div class="field"><label>Имя</label><input id="fName" value="${escapeHtml(c.nm)}"></div>
+            <div class="field"><label>Username</label><input id="fUser" value="${escapeHtml(c.un)}"></div>
+            <div class="field">
+              <label>Статус</label>
+              <select id="fStatus">
+                <option value="pending" ${c.st==='pending'?'selected':''}>pending</option>
+                <option value="approved" ${c.st==='approved'?'selected':''}>approved</option>
+                <option value="paused" ${c.st==='paused'?'selected':''}>paused</option>
+                <option value="manual" ${c.st==='manual'?'selected':''}>manual</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Тег</label>
+              <select id="fTag">
+                ${['OTHER','QUESTION','COMPLAINT','PAYMENT'].map(tag => `<option value="${tag}" ${c.tg===tag?'selected':''}>${tag}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-top:12px"><label>Контекст / заметки</label><textarea id="fNotes">${escapeHtml(c.cx || '')}</textarea></div>
+          <div class="field" style="margin-top:12px"><label><input type="checkbox" id="fAi" ${c.al ? 'checked' : ''} style="width:auto;margin-right:8px"> Разрешить AI отвечать этому контакту</label></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+            <button class="btn" onclick="saveContact(${c.id})">Сохранить</button>
+            <button class="btnGhost" onclick="openTaskModal(${c.id}, '${escapeJs(c.nm || '')}')">Создать задачу</button>
+          </div>
+        </div>
+
+        <div class="box">
+          <h3>Быстрые действия</h3>
+          <div class="actions">
+            <button class="actionBtn ok" onclick="quickStatus(${c.id}, 'approved', 1, 1)">Одобрить</button>
+            <button class="actionBtn pause" onclick="quickStatus(${c.id}, 'paused', 0, ${c.ap?1:0})">Пауза</button>
+            <button class="actionBtn stop" onclick="quickStatus(${c.id}, 'pending', 0, 0)">Сбросить</button>
+          </div>
+        </div>
+
+        <div class="box">
+          <h3>История</h3>
+          <div class="messages">
+            ${(c.ms || []).length ? c.ms.map(m => `<div class="bubble ${m.d==='out'?'out':''}">${escapeHtml(m.t || '')}<small>${m.d==='out'?'Исходящее':'Входящее'} · ${fmtAgo(m.w)}</small></div>`).join('') : '<div class="empty" style="padding:0">Истории пока нет.</div>'}
+          </div>
+        </div>
+      `;
+      renderList();
+    }
+
+    function saveContact(id){
+      const payload = {
+        action:'contact_update',
+        chat_id:id,
+        display_name: document.getElementById('fName').value.trim(),
+        username: document.getElementById('fUser').value.trim().replace(/^@/,''),
+        status: document.getElementById('fStatus').value,
+        tag: document.getElementById('fTag').value,
+        context_summary: document.getElementById('fNotes').value.trim(),
+        notes: document.getElementById('fNotes').value.trim(),
+        allow_ai: document.getElementById('fAi').checked ? 1 : 0,
+        approved_by_operator: document.getElementById('fStatus').value === 'approved' ? 1 : 0,
+      };
+      const c = SNAP.c.find(x => x.id === id);
+      if(c){
+        c.nm = payload.display_name || c.nm;
+        c.un = payload.username;
+        c.st = payload.status;
+        c.tg = payload.tag;
+        c.cx = payload.context_summary;
+        c.al = payload.allow_ai;
+        c.ap = payload.approved_by_operator;
+      }
+      sendAction(payload);
+      renderList();
+      openContact(id);
+      toast('Изменения отправлены боту');
+    }
+
+    function quickStatus(id, status, allowAi, approved){
+      const c = SNAP.c.find(x => x.id === id);
+      if(c){ c.st = status; c.al = allowAi; c.ap = approved; }
+      sendAction({action:'contact_update', chat_id:id, status, allow_ai:allowAi, approved_by_operator:approved});
+      renderList();
+      openContact(id);
+    }
+
+    function toggleTask(id){
+      const t = SNAP.t.find(x => x.id === id);
+      if(t) t.dn = t.dn ? 0 : 1;
+      sendAction({action:'toggle_task', task_id:id});
+      renderList();
+      renderStats();
+    }
+
+    function setFilter(id){ FILTER = id; renderFilters(); renderList(); }
+
+    function switchTab(tab){
+      TAB = tab;
+      document.getElementById('tabContacts').classList.toggle('on', tab==='contacts');
+      document.getElementById('tabTasks').classList.toggle('on', tab==='tasks');
+      renderFilters();
+      renderList();
+      renderEmptyDetail(tab==='contacts' ? 'Открой контакт слева.' : 'Здесь отображается список задач. Отмечай их в левой колонке.');
+    }
+
+    function openModal(title, bodyHtml){
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = bodyHtml;
+      document.getElementById('modal').classList.add('on');
+    }
+
+    function closeModal(){ document.getElementById('modal').classList.remove('on'); }
+
+    function openAddContact(){
+      openModal('Добавить контакт', `
+        <div class="field"><label>Имя</label><input id="mName" placeholder="Например, Анна Смирнова"></div>
+        <div class="field"><label>Username</label><input id="mUser" placeholder="anna"></div>
+        <div class="field"><label>Заметка</label><textarea id="mNotes" placeholder="Что важно знать по контакту"></textarea></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="submitAddContact()">Добавить</button>
+          <button class="btnGhost" onclick="closeModal()">Отмена</button>
+        </div>
+        <div class="hint">Такой контакт появится в панели сразу, но писать ему можно будет только после первого входящего сообщения.</div>
+      `);
+    }
+
+    function submitAddContact(){
+      const name = document.getElementById('mName').value.trim();
+      const username = document.getElementById('mUser').value.trim().replace(/^@/,'');
+      const notes = document.getElementById('mNotes').value.trim();
+      if(!name){ toast('Укажи имя'); return; }
+      const id = -Date.now();
+      SNAP.c.unshift({id,un:username,nm:name,tg:'OTHER',st:'manual',ur:'medium',sn:'neutral',lm:'',tm:new Date().toISOString(),dr:'',sr:'manual',cx:notes,al:0,cm:0,ap:1,im:1,ms:[]});
+      sendAction({action:'add_contact', name, username, notes});
+      closeModal();
+      switchTab('contacts');
+      renderStats();
+      renderList();
+      openContact(id);
+    }
+
+    function openTaskModal(chatId=0, contactName=''){
+      openModal('Добавить задачу', `
+        <div class="field"><label>Название</label><input id="tTitle" placeholder="Например, перезвонить клиенту"></div>
+        <div class="field"><label>Описание</label><textarea id="tDesc" placeholder="Детали"></textarea></div>
+        <div class="field"><label>Приоритет</label>
+          <select id="tPriority"><option value="low">low</option><option value="medium" selected>medium</option><option value="high">high</option></select>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="submitTask(${Number(chatId)||0}, '${escapeJs(contactName)}')">Создать</button>
+          <button class="btnGhost" onclick="closeModal()">Отмена</button>
+        </div>
+        ${contactName ? `<div class="hint">Контакт: ${escapeHtml(contactName)}</div>` : ''}
+      `);
+    }
+
+    function submitTask(chatId=0, contactName=''){
+      const title = document.getElementById('tTitle').value.trim();
+      if(!title){ toast('Укажи название'); return; }
+      const description = document.getElementById('tDesc').value.trim();
+      const priority = document.getElementById('tPriority').value;
+      SNAP.t.unshift({id: Date.now(), ci: chatId, ti:title, ds:description, pr:priority, dn:0, tm:new Date().toISOString(), cn:contactName || ''});
+      sendAction({action:'add_task', chat_id:chatId, title, description, priority});
+      closeModal();
+      switchTab('tasks');
+      renderList();
+      renderStats();
+    }
+
+    function escapeJs(s){ return String(s ?? '').replace(/\\/g,'\\\\').replace(/'/g, "\\'"); }
+
+    function boot(){
+      const ok = decodeSnapshot();
+      if(!ok){
+        document.getElementById('stamp').textContent = 'Нет данных';
+        document.getElementById('list').innerHTML = `<div class="empty">Снимок не найден. Открой mini app из команды <b>/inbox</b>, чтобы бот передал свежие данные.</div>`;
+        return;
+      }
+      renderFilters();
+      renderList();
+      renderStats();
+      renderEmptyDetail();
+    }
+
+    window.addEventListener('hashchange', boot);
+    boot();
+  </script>
+</body>
+</html>
