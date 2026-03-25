@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Business Copilot — Inbox</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0e0f14;--surface:#16171e;--s2:#1e2029;--border:#2a2c38;--text:#e8eaf0;--muted:#7a7e92;
+  --accent:#6c5ce7;--glow:rgba(108,92,231,.25);--green:#00d68f;--gbg:rgba(0,214,143,.12);
+  --red:#ff6b6b;--rbg:rgba(255,107,107,.12);--yellow:#feca57;--ybg:rgba(254,202,87,.12);
+  --blue:#54a0ff;--bbg:rgba(84,160,255,.12);--orange:#ff9f43;--r:14px;--font:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
+  body::before{content:'';position:fixed;top:-40%;left:-20%;width:80vw;height:80vw;background:radial-gradient(circle,rgba(108,92,231,.08),transparent 70%);pointer-events:none}
+
+  .header{position:sticky;top:0;z-index:100;background:rgba(14,15,20,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 20px 12px}
+  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#a29bfe);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px var(--glow)}
+  .logo-text{font-weight:800;font-size:17px}.logo-badge{font-size:10px;font-weight:600;background:var(--green);color:#000;padding:2px 7px;border-radius:20px;margin-left:4px}
+  .add-btn{padding:8px 14px;background:var(--accent);color:#fff;border:0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)}
+  .add-btn:active{transform:scale(.93)}
+
+  .stats-row{display:flex;gap:8px}
+  .stat-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;text-align:center}
+  .stat-box .num{font-size:20px;font-weight:800}.stat-box .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+  .filter-bar{display:flex;gap:4px;padding:12px 16px;overflow-x:auto;scrollbar-width:none}
+  .filter-bar::-webkit-scrollbar{display:none}
+  .ftab{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;color:var(--muted);background:0;border:0;cursor:pointer;white-space:nowrap;font-family:var(--font)}
+  .ftab.on{background:var(--accent);color:#fff;box-shadow:0 2px 12px var(--glow)}
+
+  .list{padding:0 12px 120px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;position:relative;overflow:hidden;animation:up .4s ease both;cursor:pointer}
+  .card:active{transform:scale(.985)}
+  @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .card::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;border-radius:0 3px 3px 0}
+  .card.u-high::before{background:var(--red)}.card.u-medium::before{background:var(--yellow)}.card.u-low::before{background:var(--green)}
+
+  .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .card-user{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+  .av{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;color:#fff}
+  .uname{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .uhandle{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .card-time{font-size:11px;color:var(--muted);font-family:var(--mono);flex-shrink:0}
+  .card-msg{font-size:13px;color:var(--muted);line-height:1.4;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.3px;text-transform:uppercase}
+  .tag.NEW_LEAD{background:var(--gbg);color:var(--green)}.tag.QUESTION{background:var(--bbg);color:var(--blue)}
+  .tag.COMPLAINT{background:var(--rbg);color:var(--red)}.tag.FOLLOWUP{background:var(--ybg);color:var(--yellow)}
+  .tag.PAYMENT{background:rgba(255,159,67,.12);color:var(--orange)}.tag.OTHER,.tag.SPAM{background:rgba(122,126,146,.12);color:var(--muted)}
+  .src{font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(108,92,231,.1);color:var(--accent);font-weight:600}
+
+  .draft-bar{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:10px;padding:10px 12px;margin-top:8px;display:flex;align-items:flex-start;gap:8px}
+  .draft-bar .ico{font-size:14px;flex-shrink:0}.draft-bar .txt{font-size:12px;color:#b8b0f0;line-height:1.4;flex:1}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}.empty .icon{font-size:48px;margin-bottom:16px}.empty h3{font-size:18px;color:var(--text);margin-bottom:8px}.empty p{font-size:13px;line-height:1.5}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+  .overlay.open{opacity:1;pointer-events:all}
+  .panel{position:fixed;bottom:0;left:0;right:0;max-height:85vh;background:var(--surface);border-radius:20px 20px 0 0;z-index:201;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;padding-bottom:30px}
+  .panel.open{transform:translateY(0)}
+  .handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:12px auto 16px}
+  .det-hdr{padding:0 20px 16px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border)}
+  .det-av{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff}
+  .det-info h3{font-size:18px;font-weight:800}.det-info p{font-size:13px;color:var(--muted);font-family:var(--mono)}
+  .det-sec{padding:16px 20px;border-bottom:1px solid var(--border)}
+  .det-sec h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;font-weight:700}
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .meta-item{background:var(--s2);border-radius:10px;padding:10px 12px}
+  .meta-item label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);display:block;margin-bottom:4px}
+  .meta-item span{font-size:14px;font-weight:700}
+  .bubble{padding:10px 14px;border-radius:14px 14px 14px 4px;background:var(--s2);margin-bottom:8px;max-width:85%;font-size:13px;line-height:1.5}
+  .bubble.out{background:rgba(108,92,231,.15);border-radius:14px 14px 4px 14px;margin-left:auto}
+  .bubble .time{font-size:10px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:flex-end;justify-content:center}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:24px 20px 40px}
+  .modal h3{font-size:18px;font-weight:800;margin-bottom:16px}
+  .modal input{width:100%;padding:12px 14px;margin-bottom:12px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:14px;font-family:var(--font)}
+  .modal input::placeholder{color:var(--muted)}
+  .modal-btns{display:flex;gap:10px;margin-top:8px}
+  .modal-btns button{flex:1;padding:12px;border-radius:12px;font-size:14px;font-weight:700;border:0;cursor:pointer;font-family:var(--font)}
+  .btn-cancel{background:var(--s2);color:var(--muted)}.btn-save{background:var(--accent);color:#fff}
+  .det-btn{flex:1;padding:12px;border-radius:12px;font-size:13px;font-weight:700;border:0;cursor:pointer;font-family:var(--font)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div><span class="logo-text">Copilot</span><span class="logo-badge">LIVE</span></div>
+    </div>
+    <button class="add-btn" onclick="openAddModal()">+ Контакт</button>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="num" id="sTotal">0</div><div class="lbl">Всего</div></div>
+    <div class="stat-box"><div class="num" id="sAuto">0</div><div class="lbl">📥 Сами</div></div>
+    <div class="stat-box"><div class="num" id="sManual">0</div><div class="lbl">✋ Вручную</div></div>
+    <div class="stat-box"><div class="num" id="sOpen">0</div><div class="lbl">Открытых</div></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="ftab on" data-tag="">Все</button>
+  <button class="ftab" data-tag="NEW_LEAD">🟢 Лиды</button>
+  <button class="ftab" data-tag="QUESTION">❓ Вопросы</button>
+  <button class="ftab" data-tag="COMPLAINT">🔴 Жалобы</button>
+  <button class="ftab" data-tag="FOLLOWUP">🔄 Follow-up</button>
+  <button class="ftab" data-tag="PAYMENT">💰 Оплата</button>
+</div>
+
+<div class="list" id="list"></div>
+
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="panel" id="panel"><div class="handle"></div><div id="detailContent"></div></div>
+
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <h3>➕ Добавить контакт</h3>
+    <input id="addName" placeholder="Имя (например: Иван Петров)">
+    <input id="addUsername" placeholder="Username (например: ivan_petrov)">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeAddModal()">Отмена</button>
+      <button class="btn-save" onclick="addContact()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const TAGS = {NEW_LEAD:'🟢 Новый лид',QUESTION:'❓ Вопрос',COMPLAINT:'🔴 Жалоба',FOLLOWUP:'🔄 Follow-up',PAYMENT:'💰 Оплата',SPAM:'🚫 Спам',OTHER:'⚪ Другое'};
+const COLORS = ['#6c5ce7','#fd79a8','#00b894','#ff6b6b','#feca57','#54a0ff','#a29bfe','#ff9f43','#e84393','#2ed573'];
+
+let contacts = [];
+let activeTag = '';
+
+const storage = {
+  async get(key) {
+    if (tg?.CloudStorage) return new Promise(r => tg.CloudStorage.getItem(key, (e, v) => r(v || '[]')));
+    return localStorage.getItem(key) || '[]';
+  },
+  async set(key, val) {
+    if (tg?.CloudStorage) return new Promise(r => tg.CloudStorage.setItem(key, val, () => r()));
+    localStorage.setItem(key, val);
+  }
+};
+
+async function loadContacts() {
+  try { contacts = JSON.parse(await storage.get('contacts')); } catch { contacts = []; }
+  updateStats(); renderList();
+}
+async function saveContacts() { await storage.set('contacts', JSON.stringify(contacts)); }
+
+function updateStats() {
+  document.getElementById('sTotal').textContent = contacts.length;
+  document.getElementById('sAuto').textContent = contacts.filter(c => c.source === 'auto').length;
+  document.getElementById('sManual').textContent = contacts.filter(c => c.source === 'manual').length;
+  document.getElementById('sOpen').textContent = contacts.filter(c => c.status !== 'closed').length;
+}
+
+function initials(n) { return (n||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
+function color(id) { return COLORS[Math.abs(typeof id==='number'?id:id?.charCodeAt(2)||0) % COLORS.length]; }
+function timeAgo(iso) {
+  if (!iso) return '';
+  const d = Math.floor((Date.now()-new Date(iso).getTime())/60000);
+  if (d<1) return 'сейчас'; if (d<60) return d+'м'; if (d<1440) return Math.floor(d/60)+'ч'; return Math.floor(d/1440)+'д';
+}
+
+function renderList() {
+  const f = activeTag ? contacts.filter(c => c.tag === activeTag) : contacts;
+  const el = document.getElementById('list');
+  if (!f.length) {
+    el.innerHTML = `<div class="empty"><div class="icon">${contacts.length?'🔍':'📭'}</div>
+      <h3>${contacts.length?'Нет контактов с таким тегом':'Пока пусто'}</h3>
+      <p>${contacts.length?'Попробуйте другой фильтр':'Контакты появятся когда кто-то напишет боту, или добавьте вручную кнопкой «+ Контакт»'}</p></div>`;
+    return;
+  }
+  el.innerHTML = f.map((c,i) => `
+    <div class="card u-${c.urgency||'medium'}" onclick="openDetail('${c.id}')" style="animation-delay:${i*.05}s">
+      <div class="card-top">
+        <div class="card-user">
+          <div class="av" style="background:${color(c.id)}">${initials(c.name)}</div>
+          <div><div class="uname">${c.name||'Без имени'}</div><div class="uhandle">${c.username?'@'+c.username:''}</div></div>
+        </div>
+        <div class="card-time">${timeAgo(c.time)}</div>
+      </div>
+      <div class="card-msg">${c.lastMessage||''}</div>
+      <div class="card-foot">
+        <span class="tag ${c.tag}">${TAGS[c.tag]||c.tag}</span>
+        <span class="src">${c.source==='manual'?'✋ вручную':'📥 входящий'}</span>
+        ${c.status==='closed'?'<span class="tag OTHER">закрыт</span>':''}
+      </div>
+      ${c.draft?`<div class="draft-bar"><div class="ico">🤖</div><div class="txt">${c.draft}</div></div>`:''}
+    </div>`).join('');
+}
+
+function openDetail(id) {
+  const c = contacts.find(x => x.id == id); if (!c) return;
+  const sent={positive:'😊 Позитив',neutral:'😐 Нейтрально',negative:'😠 Негатив'};
+  const urg={high:'🔴 Высокий',medium:'🟡 Средний',low:'🟢 Низкий'};
+  document.getElementById('detailContent').innerHTML = `
+    <div class="det-hdr">
+      <div class="det-av" style="background:${color(c.id)}">${initials(c.name)}</div>
+      <div class="det-info"><h3>${c.name||'—'}</h3><p>${c.username?'@'+c.username:'Нет username'}</p></div>
+    </div>
+    <div class="det-sec"><h4>Информация</h4>
+      <div class="meta-grid">
+        <div class="meta-item"><label>Тег</label><span>${TAGS[c.tag]||c.tag}</span></div>
+        <div class="meta-item"><label>Приоритет</label><span>${urg[c.urgency]||'—'}</span></div>
+        <div class="meta-item"><label>Тональность</label><span>${sent[c.sentiment]||'—'}</span></div>
+        <div class="meta-item"><label>Источник</label><span>${c.source==='manual'?'✋ Вручную':'📥 Входящий'}</span></div>
+      </div>
+    </div>
+    ${c.messages?.length?`<div class="det-sec"><h4>Сообщения</h4>
+      ${c.messages.map(m=>`<div class="bubble ${m.dir==='out'?'out':''}">${m.text}<div class="time">${m.time||''}</div></div>`).join('')}</div>`:''}
+    ${c.draft?`<div class="det-sec"><h4>AI-черновик</h4><div class="draft-bar" style="margin:0"><div class="ico">🤖</div><div class="txt">${c.draft}</div></div></div>`:''}
+    <div style="display:flex;gap:8px;padding:20px">
+      <button class="det-btn btn-cancel" onclick="toggleClose('${c.id}')">${c.status==='closed'?'🔓 Открыть':'🔕 Закрыть'}</button>
+      <button class="det-btn btn-save" onclick="removeContact('${c.id}')">🗑 Удалить</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+}
+function closeDetail() { document.getElementById('overlay').classList.remove('open'); document.getElementById('panel').classList.remove('open'); }
+async function toggleClose(id) { const c=contacts.find(x=>x.id==id); if(c){c.status=c.status==='closed'?'open':'closed'; await saveContacts(); renderList(); updateStats();} closeDetail(); }
+async function removeContact(id) { contacts=contacts.filter(x=>x.id!=id); await saveContacts(); renderList(); updateStats(); closeDetail(); }
+
+function openAddModal() { document.getElementById('addModal').classList.add('open'); document.getElementById('addName').focus(); }
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); document.getElementById('addName').value=''; document.getElementById('addUsername').value=''; }
+
+async function addContact() {
+  const name=document.getElementById('addName').value.trim();
+  const username=document.getElementById('addUsername').value.trim().replace('@','');
+  if (!name&&!username) { if(tg) tg.showAlert('Введите имя или username'); else alert('Введите имя'); return; }
+  contacts.unshift({
+    id:'m_'+Date.now(), name:name||username, username, tag:'NEW_LEAD', status:'open',
+    urgency:'medium', sentiment:'neutral', lastMessage:'Добавлен вручную', draft:'',
+    source:'manual', time:new Date().toISOString(), messages:[]
+  });
+  await saveContacts(); renderList(); updateStats(); closeAddModal();
+  if (tg?.sendData) { try { tg.sendData(JSON.stringify({action:'add_contact',name:name||username,username})); } catch{} }
+}
+
+document.querySelectorAll('.ftab').forEach(t => {
+  t.addEventListener('click', function() {
+    document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('on'));
+    this.classList.add('on'); activeTag=this.dataset.tag; renderList();
+  });
+});
+
+window.addEventListener('message', async(e)=>{
+  try {
+    const d=JSON.parse(e.data);
+    if (d.type==='new_contact'&&!contacts.find(c=>c.id===d.contact.id)) { contacts.unshift(d.contact); await saveContacts(); renderList(); updateStats(); }
+    else if (d.type==='sync_contacts') { contacts=d.contacts; await saveContacts(); renderList(); updateStats(); }
+  } catch{}
+});
+
+loadContacts();
+</script>
+</body>
+</html>
