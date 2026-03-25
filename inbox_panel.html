@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Business Copilot — Inbox</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #16171e;
+    --surface-2: #1e2029;
+    --border: #2a2c38;
+    --text: #e8eaf0;
+    --text-muted: #7a7e92;
+    --accent: #6c5ce7;
+    --accent-glow: rgba(108, 92, 231, 0.25);
+    --green: #00d68f;
+    --green-bg: rgba(0, 214, 143, 0.12);
+    --red: #ff6b6b;
+    --red-bg: rgba(255, 107, 107, 0.12);
+    --yellow: #feca57;
+    --yellow-bg: rgba(254, 202, 87, 0.12);
+    --blue: #54a0ff;
+    --blue-bg: rgba(84, 160, 255, 0.12);
+    --orange: #ff9f43;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font: 'Nunito', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Ambient background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%; left: -20%;
+    width: 80vw; height: 80vw;
+    background: radial-gradient(circle, rgba(108,92,231,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%; right: -10%;
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, rgba(0,214,143,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14,15,20,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #a29bfe);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+
+  .logo-text {
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-badge {
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--accent);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-actions {
+    display: flex; gap: 8px;
+  }
+
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .icon-btn:active { transform: scale(0.92); }
+  .icon-btn .badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 18px; height: 18px;
+    background: var(--red);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 800;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg);
+  }
+
+  /* ── Stats strip ── */
+  .stats-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .stats-strip::-webkit-scrollbar { display: none; }
+
+  .stat-chip {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .stat-chip:active { transform: scale(0.95); }
+  .stat-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .stat-chip.active { border-color: var(--accent); background: rgba(108,92,231,0.1); }
+
+  /* ── Filter tabs ── */
+  .filter-bar {
+    display: flex;
+    gap: 4px;
+    padding: 12px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-tab {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-tab:active { transform: scale(0.95); }
+  .filter-tab.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 2px 12px var(--accent-glow);
+  }
+
+  /* ── Conversation list ── */
+  .conv-list {
+    padding: 0 12px 100px;
+  }
+
+  .conv-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.4s ease both;
+  }
+  .conv-card:active { transform: scale(0.985); }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .conv-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 3px; height: 100%;
+    border-radius: 0 3px 3px 0;
+  }
+  .conv-card.urgency-high::before { background: var(--red); }
+  .conv-card.urgency-medium::before { background: var(--yellow); }
+  .conv-card.urgency-low::before { background: var(--green); }
+
+  .conv-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .conv-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+    color: white;
+  }
+
+  .user-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .user-name {
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-handle {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  .conv-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  .conv-message {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .conv-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .conv-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tag.lead { background: var(--green-bg); color: var(--green); }
+  .tag.question { background: var(--blue-bg); color: var(--blue); }
+  .tag.complaint { background: var(--red-bg); color: var(--red); }
+  .tag.followup { background: var(--yellow-bg); color: var(--yellow); }
+  .tag.payment { background: rgba(255,159,67,0.12); color: var(--orange); }
+
+  .conv-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .action-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .action-btn:active { transform: scale(0.9); }
+  .action-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ── AI Draft banner ── */
+  .ai-draft {
+    background: rgba(108,92,231,0.08);
+    border: 1px solid rgba(108,92,231,0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ai-draft-icon {
+    font-size: 14px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .ai-draft-text {
+    font-size: 12px;
+    color: #b8b0f0;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .ai-draft-send {
+    padding: 5px 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .ai-draft-send:active { transform: scale(0.92); }
+
+  /* ── Detail panel (slide-up) ── */
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .detail-overlay.open { opacity: 1; pointer-events: all; }
+
+  .detail-panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    max-height: 85vh;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    z-index: 201;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow-y: auto;
+  }
+  .detail-panel.open { transform: translateY(0); }
+
+  .detail-handle {
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 12px auto 16px;
+  }
+
+  .detail-header {
+    padding: 0 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-avatar {
+    width: 52px; height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: white;
+  }
+
+  .detail-user-info h3 {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .detail-user-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  .detail-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-section h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+
+  .detail-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .meta-item {
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .meta-item label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .meta-item span {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .message-bubble {
+    padding: 10px 14px;
+    border-radius: 14px 14px 14px 4px;
+    background: var(--surface-2);
+    margin-bottom: 8px;
+    max-width: 85%;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .message-bubble.outgoing {
+    background: rgba(108,92,231,0.15);
+    border-radius: 14px 14px 4px 14px;
+    margin-left: auto;
+  }
+  .message-bubble .time {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 8px;
+    padding: 20px;
+  }
+
+  .detail-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .detail-btn:active { transform: scale(0.96); }
+  .detail-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 30px;
+    color: var(--text-muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+  .empty-state p { font-size: 13px; line-height: 1.5; }
+
+  /* ── FAB ── */
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), #a29bfe);
+    color: white;
+    border: none;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 32px var(--accent-glow);
+    z-index: 50;
+    transition: all 0.2s;
+  }
+  .fab:active { transform: scale(0.9); }
+
+  /* ── Telegram theme integration ── */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --surface-2: #f4f6f8;
+      --border: #e4e6eb;
+      --text: #1a1c23;
+      --text-muted: #8a8e9a;
+    }
+  }
+
+  /* Animation delays for stagger effect */
+  .conv-card:nth-child(1) { animation-delay: 0.05s; }
+  .conv-card:nth-child(2) { animation-delay: 0.1s; }
+  .conv-card:nth-child(3) { animation-delay: 0.15s; }
+  .conv-card:nth-child(4) { animation-delay: 0.2s; }
+  .conv-card:nth-child(5) { animation-delay: 0.25s; }
+  .conv-card:nth-child(6) { animation-delay: 0.3s; }
+  .conv-card:nth-child(7) { animation-delay: 0.35s; }
+  .conv-card:nth-child(8) { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <span class="logo-text">Copilot</span>
+        <span class="logo-badge">AI</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showSearch()">
+        🔍
+      </button>
+      <button class="icon-btn">
+        📊
+        <span class="badge">3</span>
+      </button>
+    </div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat-chip active" onclick="filterBy('all')">
+      <span class="dot" style="background:var(--accent)"></span>
+      Все <span style="color:var(--text-muted)">24</span>
+    </div>
+    <div class="stat-chip" onclick="filterBy('unread')">
+      <span class="dot" style="background:var(--red)"></span>
+      Без ответа <span style="color:var(--text-muted)">7</span>
+    </div>
+    <div class="stat-chip" onclick="filterBy('hot')">
+      <span class="dot" style="background:var(--yellow)"></span>
+      Горячие <span style="color:var(--text-muted)">4</span>
+    </div>
+    <div class="stat-chip" onclick="filterBy('closed')">
+      <span class="dot" style="background:var(--green)"></span>
+      Закрыты <span style="color:var(--text-muted)">13</span>
+    </div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-tab active">Все</button>
+  <button class="filter-tab">🟢 Лиды</button>
+  <button class="filter-tab">❓ Вопросы</button>
+  <button class="filter-tab">🔴 Жалобы</button>
+  <button class="filter-tab">🔄 Follow-up</button>
+  <button class="filter-tab">💰 Оплата</button>
+</div>
+
+<div class="conv-list" id="convList"></div>
+
+<button class="fab" onclick="composeNew()">✍️</button>
+
+<!-- Detail Panel -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-handle"></div>
+  <div class="detail-header" id="detailHeader"></div>
+  <div id="detailContent"></div>
+</div>
+
+<script>
+// ── Demo Data ──
+const CONVERSATIONS = [
+  {
+    id: 1,
+    name: "Алексей Петров",
+    handle: "@alexeypetrov",
+    avatar_bg: "linear-gradient(135deg, #6c5ce7, #a29bfe)",
+    initials: "АП",
+    tag: "lead",
+    tagLabel: "Новый лид",
+    urgency: "high",
+    time: "2 мин",
+    message: "Здравствуйте! Видел ваш пост про услуги дизайна. Сколько стоит редизайн лендинга? У нас сроки горят, нужно за 2 недели.",
+    aiDraft: "Здравствуйте, Алексей! Спасибо за обращение. Редизайн лендинга — от 45 000₽, сроки 7-14 дней. Могу отправить портфолио?",
+    sentiment: "positive",
+    dealValue: 45000,
+    messages: [
+      { text: "Здравствуйте! Видел ваш пост про услуги дизайна.", time: "14:32", incoming: true },
+      { text: "Сколько стоит редизайн лендинга? У нас сроки горят.", time: "14:33", incoming: true },
+    ]
+  },
+  {
+    id: 2,
+    name: "Мария Иванова",
+    handle: "@maria_shop",
+    avatar_bg: "linear-gradient(135deg, #fd79a8, #e84393)",
+    initials: "МИ",
+    tag: "question",
+    tagLabel: "Вопрос",
+    urgency: "medium",
+    time: "18 мин",
+    message: "Подскажите, есть ли у вас доставка в Казань? И можно ли оплатить при получении? Заказ на 3 позиции.",
+    aiDraft: "Мария, добрый день! Да, доставляем в Казань за 3-5 дней. Оплата при получении доступна. Помочь оформить заказ?",
+    sentiment: "neutral",
+    dealValue: 12000,
+    messages: [
+      { text: "Подскажите, есть ли у вас доставка в Казань?", time: "14:14", incoming: true },
+      { text: "И можно ли оплатить при получении?", time: "14:15", incoming: true },
+    ]
+  },
+  {
+    id: 3,
+    name: "ООО ТехноСтарт",
+    handle: "@technostart_ceo",
+    avatar_bg: "linear-gradient(135deg, #00b894, #00d68f)",
+    initials: "ТС",
+    tag: "payment",
+    tagLabel: "Оплата",
+    urgency: "high",
+    time: "31 мин",
+    message: "Оплатили счёт №2847 на 280 000₽. Переводом на р/с. Когда начнёте? Отправляю платёжку.",
+    aiDraft: "Добрый день! Спасибо, проверим поступление в течение часа. Старт работ — завтра по графику. Подтвержу отдельным сообщением.",
+    sentiment: "positive",
+    dealValue: 280000,
+    messages: [
+      { text: "Оплатили счёт №2847 на 280 000₽.", time: "14:01", incoming: true },
+      { text: "Когда начнёте?", time: "14:02", incoming: true },
+    ]
+  },
+  {
+    id: 4,
+    name: "Дмитрий Козлов",
+    handle: "@dkozlov",
+    avatar_bg: "linear-gradient(135deg, #ff6b6b, #ee5a24)",
+    initials: "ДК",
+    tag: "complaint",
+    tagLabel: "Жалоба",
+    urgency: "high",
+    time: "45 мин",
+    message: "Уже третий день не могу дозвониться до поддержки! Заказ пришёл с браком. Требую возврат или замену. Это безобразие.",
+    aiDraft: "Дмитрий, приносим искренние извинения за неудобства. Оформляем замену прямо сейчас. Напишите номер заказа — решим сегодня.",
+    sentiment: "negative",
+    dealValue: 0,
+    messages: [
+      { text: "Уже третий день не могу дозвониться!", time: "13:47", incoming: true },
+      { text: "Заказ пришёл с браком. Требую возврат.", time: "13:48", incoming: true },
+    ]
+  },
+  {
+    id: 5,
+    name: "Анна Сидорова",
+    handle: "@anna_agency",
+    avatar_bg: "linear-gradient(135deg, #feca57, #ff9f43)",
+    initials: "АС",
+    tag: "followup",
+    tagLabel: "Follow-up",
+    urgency: "low",
+    time: "2ч",
+    message: "Ещё раз здравствуйте. Мы обсуждали партнёрство на прошлой неделе. Подскажите, удалось ли согласовать условия с руководством?",
+    aiDraft: "Анна, добрый день! Да, согласовали. Предлагаю созвониться завтра в 11:00 для обсуждения деталей. Удобно?",
+    sentiment: "neutral",
+    dealValue: 150000,
+    messages: [
+      { text: "Мы обсуждали партнёрство на прошлой неделе.", time: "12:22", incoming: true },
+    ]
+  },
+  {
+    id: 6,
+    name: "Сергей Орлов",
+    handle: "@sergey_b2b",
+    avatar_bg: "linear-gradient(135deg, #54a0ff, #2e86de)",
+    initials: "СО",
+    tag: "lead",
+    tagLabel: "Новый лид",
+    urgency: "medium",
+    time: "3ч",
+    message: "Добрый день. Нашёл вас через рекомендацию. Нужна автоматизация CRM для отдела продаж (15 человек). Какие варианты?",
+    aiDraft: "Сергей, здравствуйте! Спасибо за доверие. Для команды в 15 человек подойдёт наш тариф Business. Могу подготовить КП?",
+    sentiment: "positive",
+    dealValue: 95000,
+    messages: [
+      { text: "Нашёл вас через рекомендацию.", time: "11:32", incoming: true },
+      { text: "Нужна автоматизация CRM для 15 человек.", time: "11:33", incoming: true },
+    ]
+  },
+  {
+    id: 7,
+    name: "Елена Морозова",
+    handle: "@elena_m",
+    avatar_bg: "linear-gradient(135deg, #a29bfe, #6c5ce7)",
+    initials: "ЕМ",
+    tag: "question",
+    tagLabel: "Вопрос",
+    urgency: "low",
+    time: "5ч",
+    message: "Можно ли перенести встречу с четверга на пятницу? И ещё — пришлите пожалуйста обновлённую презентацию.",
+    aiDraft: "Елена, конечно! Переношу на пятницу, то же время. Презентацию обновлю и отправлю сегодня до конца дня.",
+    sentiment: "neutral",
+    dealValue: 0,
+    messages: [
+      { text: "Можно перенести встречу на пятницу?", time: "09:45", incoming: true },
+    ]
+  },
+];
+
+// ── Telegram WebApp integration ──
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.enableClosingConfirmation();
+
+  // Use Telegram theme colors if available
+  if (tg.themeParams) {
+    const tp = tg.themeParams;
+    if (tp.bg_color) document.documentElement.style.setProperty('--bg', tp.bg_color);
+    if (tp.secondary_bg_color) document.documentElement.style.setProperty('--surface', tp.secondary_bg_color);
+  }
+}
+
+// ── Render conversations ──
+function renderConversations(filter = 'all') {
+  const list = document.getElementById('convList');
+  let filtered = CONVERSATIONS;
+
+  if (filter === 'lead') filtered = CONVERSATIONS.filter(c => c.tag === 'lead');
+  else if (filter === 'question') filtered = CONVERSATIONS.filter(c => c.tag === 'question');
+  else if (filter === 'complaint') filtered = CONVERSATIONS.filter(c => c.tag === 'complaint');
+  else if (filter === 'followup') filtered = CONVERSATIONS.filter(c => c.tag === 'followup');
+  else if (filter === 'payment') filtered = CONVERSATIONS.filter(c => c.tag === 'payment');
+  else if (filter === 'unread') filtered = CONVERSATIONS.filter(c => c.urgency === 'high');
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <h3>Нет диалогов</h3>
+        <p>В этой категории пока нет сообщений</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((c, i) => `
+    <div class="conv-card urgency-${c.urgency}" onclick="openDetail(${c.id})" style="animation-delay: ${i * 0.05}s">
+      <div class="conv-top">
+        <div class="conv-user">
+          <div class="avatar" style="background: ${c.avatar_bg}">${c.initials}</div>
+          <div class="user-info">
+            <div class="user-name">${c.name}</div>
+            <div class="user-handle">${c.handle}</div>
+          </div>
+        </div>
+        <div class="conv-time">${c.time}</div>
+      </div>
+      <div class="conv-message">${c.message}</div>
+      <div class="conv-footer">
+        <div class="conv-tags">
+          <span class="tag ${c.tag}">${c.tagLabel}</span>
+          ${c.dealValue ? `<span class="tag payment">${(c.dealValue).toLocaleString('ru')}₽</span>` : ''}
+        </div>
+        <div class="conv-actions">
+          <button class="action-btn" onclick="event.stopPropagation(); sendDraft(${c.id})" title="Отправить AI-черновик">🤖</button>
+          <button class="action-btn" onclick="event.stopPropagation(); createTask(${c.id})" title="Создать задачу">📌</button>
+        </div>
+      </div>
+      <div class="ai-draft">
+        <div class="ai-draft-icon">🤖</div>
+        <div class="ai-draft-text">${c.aiDraft}</div>
+        <button class="ai-draft-send" onclick="event.stopPropagation(); sendDraft(${c.id})">Отправить</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Detail panel ──
+function openDetail(id) {
+  const c = CONVERSATIONS.find(x => x.id === id);
+  if (!c) return;
+
+  document.getElementById('detailHeader').innerHTML = `
+    <div class="detail-avatar" style="background:${c.avatar_bg}">${c.initials}</div>
+    <div class="detail-user-info">
+      <h3>${c.name}</h3>
+      <p>${c.handle}</p>
+    </div>
+  `;
+
+  const sentimentMap = { positive: '😊 Позитивная', neutral: '😐 Нейтральная', negative: '😠 Негативная' };
+  const urgencyMap = { high: '🔴 Высокий', medium: '🟡 Средний', low: '🟢 Низкий' };
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-section">
+      <h4>Информация</h4>
+      <div class="detail-meta">
+        <div class="meta-item">
+          <label>Тег</label>
+          <span>${c.tagLabel}</span>
+        </div>
+        <div class="meta-item">
+          <label>Приоритет</label>
+          <span>${urgencyMap[c.urgency]}</span>
+        </div>
+        <div class="meta-item">
+          <label>Тональность</label>
+          <span>${sentimentMap[c.sentiment]}</span>
+        </div>
+        <div class="meta-item">
+          <label>Сумма сделки</label>
+          <span>${c.dealValue ? c.dealValue.toLocaleString('ru') + '₽' : '—'}</span>
+        </div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h4>Последние сообщения</h4>
+      ${c.messages.map(m => `
+        <div class="message-bubble ${m.incoming ? '' : 'outgoing'}">
+          ${m.text}
+          <div class="time">${m.time}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="detail-section">
+      <h4>AI-черновик ответа</h4>
+      <div class="ai-draft" style="margin-top:0">
+        <div class="ai-draft-icon">🤖</div>
+        <div class="ai-draft-text">${c.aiDraft}</div>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="detail-btn" onclick="createTask(${c.id})">📌 Задача</button>
+      <button class="detail-btn primary" onclick="sendDraft(${c.id})">✅ Отправить</button>
+    </div>
+  `;
+
+  document.getElementById('detailOverlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+// ── Actions ──
+function sendDraft(id) {
+  const c = CONVERSATIONS.find(x => x.id === id);
+  if (!c) return;
+  // In production: send via bot API
+  if (tg) {
+    tg.showAlert(`✅ Черновик отправлен:\n${c.aiDraft.substring(0, 80)}...`);
+  } else {
+    alert(`✅ Черновик отправлен для ${c.name}`);
+  }
+}
+
+function createTask(id) {
+  const c = CONVERSATIONS.find(x => x.id === id);
+  if (tg) {
+    tg.showAlert(`📌 Задача создана: Follow-up с ${c.name}`);
+  } else {
+    alert(`📌 Задача создана для ${c.name}`);
+  }
+}
+
+function composeNew() {
+  if (tg) {
+    tg.showAlert('✍️ Выберите контакт для нового сообщения');
+  }
+}
+
+function showSearch() {
+  if (tg) {
+    tg.showAlert('🔍 Поиск по диалогам (в разработке)');
+  }
+}
+
+// ── Filter tabs ──
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+
+    const text = this.textContent.trim();
+    const filterMap = {
+      'Все': 'all', '🟢 Лиды': 'lead', '❓ Вопросы': 'question',
+      '🔴 Жалобы': 'complaint', '🔄 Follow-up': 'followup', '💰 Оплата': 'payment'
+    };
+    renderConversations(filterMap[text] || 'all');
+  });
+});
+
+function filterBy(type) {
+  document.querySelectorAll('.stat-chip').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if (type === 'unread') renderConversations('unread');
+  else renderConversations('all');
+}
+
+// ── Init ──
+renderConversations();
+</script>
+</body>
+</html>
