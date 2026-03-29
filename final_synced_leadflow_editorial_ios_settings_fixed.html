@@ -1267,12 +1267,12 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 
 
 /* --- full-screen contact settings restore --- */
-body.detail-open{overflow:hidden;}
+body.detail-open{overflow:hidden;touch-action:none;}
 #ov{background:rgba(18,14,12,.34)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;}
-#pn{top:0;bottom:0;left:0;right:0;max-height:100vh;height:100vh;border-radius:0!important;transform:translate3d(0,100%,0)!important;visibility:hidden;pointer-events:none;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg, rgba(253,251,248,.985), rgba(248,244,238,.98))!important;border-top:none!important;box-shadow:none!important;z-index:202;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+#pn{position:fixed;bottom:0;left:0;right:0;max-height:90vh;height:auto;border-radius:30px 30px 0 0!important;transform:translate3d(0,100%,0)!important;visibility:hidden;pointer-events:none;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg, rgba(253,251,248,.985), rgba(248,244,238,.98))!important;border-top:1px solid rgba(255,255,255,.82)!important;box-shadow:var(--sh2)!important;z-index:202;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;overflow-y:auto;}
 #pn.on{transform:translate3d(0,0,0)!important;visibility:visible;pointer-events:auto;}
-#dc{min-height:100vh;padding:0 0 calc(34px + env(safe-area-inset-bottom,0px));}
-.detail-topbar{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(18px + env(safe-area-inset-top,0px)) 18px 14px;background:linear-gradient(180deg, rgba(253,251,248,.96), rgba(253,251,248,.86));backdrop-filter:blur(18px) saturate(1.08);-webkit-backdrop-filter:blur(18px) saturate(1.08);border-bottom:1px solid rgba(110,94,81,.12);}
+#dc{padding:0 0 calc(34px + env(safe-area-inset-bottom,0px));}
+.detail-topbar{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 18px 14px;background:linear-gradient(180deg, rgba(253,251,248,.96), rgba(253,251,248,.86));backdrop-filter:blur(18px) saturate(1.08);-webkit-backdrop-filter:blur(18px) saturate(1.08);border-bottom:1px solid rgba(110,94,81,.12);}
 .detail-topbar .ttl{font-family:var(--head);font-size:22px;font-weight:900;letter-spacing:-.04em;}
 .detail-close{appearance:none;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.8);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;box-shadow:0 10px 24px rgba(28,25,23,.06);cursor:pointer;color:var(--ink2);}
 .detail-shell{padding:14px 16px 0;}
@@ -1426,7 +1426,7 @@ const API_TOKEN=qp.get('token')||'';
 const OWNER_ID=Number(qp.get('owner')||0);
 const POLL=Math.max(3, Number(qp.get('poll')||6));
 const LS_KEY=`leadflow-ai-cache-v2-${OWNER_ID||'anon'}`;
-let C=[],T=[],ST={},cF='',tF='a',pollTimer=null,lastSync='';
+let C=[],T=[],ST={},cF='',tF='a',pollTimer=null,lastSync='',openDetailId=null;
 
 function nt(t){if(tg)tg.showAlert(t);else alert(t)}
 function ini(n){return(n||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').substring(0,2).toUpperCase()||'?'}
@@ -1479,7 +1479,7 @@ async function syncSnapshot(silent=true){
 }
 
 function go(p,b){const next=document.getElementById('p-'+p);const current=document.querySelector('.pg.on');if(current===next){window.scrollTo({top:0,behavior:'smooth'});return;}document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));b.classList.add('on');syncNavHighlight();if(current){current.classList.add('is-exiting');current.classList.remove('is-settled');setTimeout(()=>{current.classList.remove('on','is-exiting');next.classList.add('on','is-entering');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.add('is-settled');next.classList.remove('is-entering');}));},180);}else{next.classList.add('on','is-entering');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.add('is-settled');next.classList.remove('is-entering');}));}window.scrollTo({top:0,behavior:'smooth'})}
-function R(){rC();rT();uS();lS();saveLocal()}
+function R(){rC();rT();uS();lS();saveLocal();if(openDetailId!==null&&document.getElementById('pn').classList.contains('on')){const idx=C.findIndex(c=>c.id===openDetailId);if(idx>=0){const scrollPos=document.getElementById('pn').scrollTop;buildDetailContent(idx);document.getElementById('pn').scrollTop=scrollPos;}}}
 function uS(){document.getElementById('sa').textContent=C.length;document.getElementById('si').textContent=C.filter(c=>c.source!=='manual').length;document.getElementById('sm').textContent=C.filter(c=>c.source==='manual').length;document.getElementById('so').textContent=C.filter(c=>c.status!=='closed').length;document.getElementById('to2').textContent=T.filter(t=>!t.done).length;document.getElementById('td2').textContent=T.filter(t=>t.done).length;document.getElementById('tt2').textContent=T.length}
 
 function rC(){const f=cF?C.filter(c=>c.tag===cF):C;const e=document.getElementById('cl');
@@ -1492,7 +1492,8 @@ ${c.summary?`<div class="cd-ctx"><svg class="ic ic-s" style="flex-shrink:0;margi
 ${c.draft?`<div class="cd-ai"><svg class="ic ic-s" style="flex-shrink:0;margin-top:1px" viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-2 3-2 8h-4c0-5-2-6.05-2-8a4 4 0 0 1 4-4z"/><line x1="10" y1="22" x2="14" y2="22"/><line x1="10" y1="18" x2="14" y2="18"/></svg><span>${escHtml(c.draft)}</span></div>`:''}
 </div>`).join('')}
 
-function oD(i){const c=C[i];if(!c)return;const dc=document.getElementById('dc');dc.style.opacity='0';dc.style.transform='translateY(14px)';
+function buildDetailContent(i){const c=C[i];if(!c)return;
+const dc=document.getElementById('dc');
 const sm={positive:'Позитив',neutral:'Нейтрально',negative:'Негатив'};const um={high:'Высокий',medium:'Средний',low:'Низкий'};const uc={high:'var(--ruby)',medium:'var(--honey)',low:'var(--forest)'};
 const modeOpts=Object.entries(RM).map(([k,v])=>`<option value="${k}" ${c.replyMode===k?'selected':''}>${v}</option>`).join('');
 const messages=(c.messages&&c.messages.length)?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Последние 3 сообщения</h4>${c.messages.slice().reverse().map(m=>`<div class="bb ${m.dir==='out'?'out':''}">${escHtml(m.text)}<div class="bt">${m.time?new Date(m.time).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}):''}</div></div>`).join('')}</div>`:`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Последние 3 сообщения</h4><p style="font-size:14px;color:var(--ink3)">${c.linked?'История появится после первых входящих сообщений от этого контакта.':'Пока контакт не связан с реальным чатом Telegram. Добавь username или дождись первого сообщения клиента.'}</p></div>`;
@@ -1504,10 +1505,12 @@ ${c.summary?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path 
 ${messages}
 <div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Настройки AI</h4><div class="ai-grid"><div class="mi select-wrap"><label>Режим ответа</label><select id="rmSel" style="width:100%;margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff">${modeOpts}</select></div><div class="mi"><label>Окно, мин</label><input id="rwInp" type="number" min="1" value="${Number(c.replyWindow)||30}" style="width:100%;margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff"></div><div class="mi"><label>Статус</label><span>${c.linked?'Связан с Telegram':'Ожидает первого сообщения'}</span></div></div><div class="d-acts"><button class="d-btn" onclick="saveMode(${i})">Сохранить режим</button></div></div>
 ${c.draft?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-2 3-2 8h-4c0-5-2-6.05-2-8a4 4 0 0 1 4-4z"/><line x1="10" y1="22" x2="14" y2="22"/><line x1="10" y1="18" x2="14" y2="18"/></svg>Последний AI-ответ</h4><div class="cd-ai" style="margin:0">${escHtml(c.draft)}</div></div>`:''}
-<div class="d-acts"><button class="d-btn sec" onclick="tCC(${i})">${c.status==='closed'?'Открыть':'Закрыть'}</button><button class="d-btn red" onclick="dCC(${i})">Удалить</button></div></div>`;
+<div class="d-acts"><button class="d-btn sec" onclick="tCC(${i})">${c.status==='closed'?'Открыть':'Закрыть'}</button><button class="d-btn red" onclick="dCC(${i})">Удалить</button></div></div>`;}
+function oD(i){const c=C[i];if(!c)return;openDetailId=c.id;const dc=document.getElementById('dc');dc.style.opacity='0';dc.style.transform='translateY(14px)';
+buildDetailContent(i);
 document.body.classList.add('detail-open');document.getElementById('ov').classList.add('on');document.getElementById('pn').classList.add('on');requestAnimationFrame(()=>{dc.style.transition='opacity .35s var(--ease), transform .45s var(--ease)';dc.style.opacity='1';dc.style.transform='translateY(0)';document.getElementById('pn').scrollTop=0;});}
 
-function cD(){document.body.classList.remove('detail-open');document.getElementById('ov').classList.remove('on');document.getElementById('pn').classList.remove('on');}
+function cD(){openDetailId=null;document.body.classList.remove('detail-open');document.getElementById('ov').classList.remove('on');document.getElementById('pn').classList.remove('on');}
 
 async function saveMode(i){const c=C[i];const mode=document.getElementById('rmSel').value;const win=Math.max(1,Number(document.getElementById('rwInp').value||30));c.replyMode=mode;c.replyWindow=win;R();try{await apiFetch('/api/contact/update',{contact_id:c.id,reply_mode:mode,reply_window_minutes:win});nt('Режим сохранён');await syncSnapshot()}catch(e){console.error(e);nt('Не удалось сохранить режим')}}
 async function tCC(i){const c=C[i];c.status=c.status==='closed'?'open':'closed';R();try{await apiFetch('/api/contact/update',{contact_id:c.id,status:c.status});await syncSnapshot()}catch(e){console.error(e);nt('Не удалось обновить контакт')}cD()}
