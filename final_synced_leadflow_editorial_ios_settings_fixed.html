@@ -236,9 +236,10 @@ button,input,textarea,select{font:inherit}
   transition:transform .26s var(--ease), box-shadow .26s var(--ease), border-color .26s var(--ease), background .26s var(--ease);
   position:relative;
   overflow:hidden;
-  animation:cIn .6s var(--ease) both;
   box-shadow:0 14px 38px rgba(28,25,23,.06);
-  backdrop-filter:blur(16px) saturate(1.12);
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  will-change:transform;
 }
 .cd::before{
   content:'';
@@ -499,6 +500,11 @@ textarea.si{min-height:88px}
   body{max-width:560px;margin:0 auto}
   .pn,.mb{max-width:560px;margin:0 auto;left:50%;right:auto;transform:translateX(-50%) translateY(100%);width:100%}
   .pn.on{transform:translateX(-50%) translateY(0)}
+}
+@media (max-width:699px){
+  .cd::before,.cd::after{display:none!important}
+  .cd{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .pn{backdrop-filter:none;-webkit-backdrop-filter:none}
 }
 
 #startup{
@@ -1105,7 +1111,7 @@ body::after{
 }
 .hdr,.fb,.ls,.sg,.acc-card,.stat-row .stat{animation:sectionRise .9s cubic-bezier(.22,1,.36,1) both;}
 .fb{animation-delay:.08s}.ls{animation-delay:.14s}.sg,.acc-card{animation-delay:.18s}
-.cd{animation:cardFloatIn .7s cubic-bezier(.22,1,.36,1) both;}
+.cd{animation:cardFloatIn .4s cubic-bezier(.22,1,.36,1) both;}
 @keyframes navAmberSweep{0%,100%{left:-145%;opacity:.20}46%{opacity:.86}58%{left:118%;opacity:.42}}
 @keyframes emptyOrbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.02)}}
 @keyframes emptyRibbon{0%,100%{transform:translateX(-120%)}50%{transform:translateX(120%)}}
@@ -1514,7 +1520,7 @@ function uS(){document.getElementById('sa').textContent=C.length;document.getEle
 
 function rC(){const sq=(document.getElementById('searchInp')?.value||'').trim().toLowerCase();let f=cF?C.filter(c=>c.tag===cF):C;if(sq)f=f.filter(c=>(c.name||'').toLowerCase().includes(sq)||(c.username||'').toLowerCase().includes(sq));const e=document.getElementById('cl');
 if(!f.length){e.innerHTML=`<div class="em em-rich em-dialogs-empty"><div class="empty-shimmer"></div><div class="em-hero"><div class="em-icon-wrap"><svg class="em-ic em-ic-fancy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="11" rx="3"/><path d="M8 19h8"/><path d="M10 9.5h4"/><path d="M8.5 12.5h7"/></svg></div></div><div class="em-copy"><h3>${C.length?'Нет обращений в этом фильтре':'Пока нет диалогов'}</h3><p>${C.length?'Попробуйте переключить фильтр выше или вернуться ко всем диалогам.':'Когда клиент напишет впервые или ты добавишь его вручную, диалог появится здесь.'}</p></div></div>`;return}
-e.innerHTML=f.map((c,i)=>`<div class="cd" onclick="oD(${C.indexOf(c)})" style="animation-delay:${i*.04}s"><div class="str ${c.urgency}"></div>
+e.innerHTML=f.map((c,i)=>`<div class="cd" onclick="oD(${C.indexOf(c)})" style="animation-delay:${Math.min(i*.03,.3)}s"><div class="str ${c.urgency}"></div>
 <div class="cd-top"><div class="cd-user"><div class="av" style="background:${cl(c.id)}">${ini(c.name)}</div><div><div class="un">${escHtml(c.name||'—')}</div><div class="uh">${c.username?'@'+escHtml(c.username):''}</div></div></div><div class="cd-time">${ago(c.time)}</div></div>
 <div class="cd-msg">${escHtml(c.lastMessage||'Без сообщений')}</div>
 <div class="cd-tags"><span class="tg ${c.tag}"><span class="dot"></span>${TG[c.tag]||c.tag}</span><span class="src-tag">${c.linked?'🔗 связан':'📝 ручной'}</span>${c.blocked?'<span class="tg" style="background:#fee;color:#c00"><span class="dot" style="background:#c00"></span>заблокирован</span>':''}${c.status==='closed'?'<span class="tg OTHER"><span class="dot"></span>закрыт</span>':''}</div>
