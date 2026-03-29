@@ -1438,6 +1438,7 @@ function saveLocal(){try{localStorage.setItem(LS_KEY, JSON.stringify({C,T,ST,las
 function loadLocal(){try{const raw=localStorage.getItem(LS_KEY);if(!raw)return false;const d=JSON.parse(raw);C=d.C||[];T=d.T||[];ST=d.ST||{};lastSync=d.lastSync||'';return true}catch{return false}}
 function mapSnapshot(d){
   C=(d.c||[]).map(x=>({id:x.id,chatId:x.chat_id||null,name:x.nm||'',username:x.un||'',tag:x.tg||'OTHER',status:x.st||'open',urgency:x.ur||'medium',sentiment:x.sn||'neutral',lastMessage:x.lm||'',time:x.tm||'',draft:x.dr||'',source:x.sr||'auto',context:x.cx||'',summary:x.smy||'',msgCount:x.mc||0,replyMode:x.rm||'first_only',replyWindow:x.rw||30,linked:!!x.linked,messages:(x.ms||[]).map(m=>({dir:m.d,text:m.t,time:m.w}))}));
+  C.forEach(c=>{if(c.messages.length)console.log('[LeadFlow] contact',c.name,'has',c.messages.length,'msgs, linked=',c.linked);});
   T=(d.t||[]).map(x=>({id:x.id,title:x.ti||'',desc:x.ds||'',priority:x.pr||'medium',done:!!x.dn,contact:x.cn||'',time:x.tm||''}));
   ST=d.s||{};lastSync=d.meta?.ts||new Date().toISOString();saveLocal();
 }
