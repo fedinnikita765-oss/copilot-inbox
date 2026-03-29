@@ -1265,6 +1265,7 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
   padding:14px 16px;margin:6px 0 10px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.84)
 }
 .settings-toggle-card .st-help{margin-top:0}
+.preset-btn.active{border-color:var(--ocean)!important;background:rgba(37,99,160,.06)!important;box-shadow:0 0 0 1px var(--ocean)}
 .em-dialogs-empty .em-hero{margin-bottom:20px}
 .em-dialogs-empty .em-icon-wrap{
   width:104px;height:104px;border-radius:34px;background:linear-gradient(180deg, rgba(255,251,246,.96), rgba(247,240,232,.82));
@@ -1366,6 +1367,26 @@ body.detail-open{overflow:hidden;touch-action:none;}
         <svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
         Автоматизация
       </button>
+    </div>
+  </section>
+
+  <div class="st-k">Режим использования</div>
+  <section class="settings-panel-grid">
+    <div class="sg settings-panel settings-panel-wide" style="position:relative;overflow:hidden">
+      <div class="settings-panel-head">
+        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <div><h4>Выбери режим</h4><p>Настройки, промпты и стиль ответов подстроятся автоматически</p></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px" id="presetBtns">
+        <button class="preset-btn" id="preset-personal" onclick="applyPreset('personal')" style="flex:1;padding:14px 12px;border-radius:16px;border:2px solid var(--line);background:var(--card);cursor:pointer;text-align:left;transition:all .2s">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">Личный</div>
+          <div style="font-size:12px;color:var(--ink3);line-height:1.5">Дружелюбные ответы, неформальный тон, автоответ пока занят</div>
+        </button>
+        <button class="preset-btn" id="preset-business" onclick="applyPreset('business')" style="flex:1;padding:14px 12px;border-radius:16px;border:2px solid var(--line);background:var(--card);cursor:pointer;text-align:left;transition:all .2s">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">Бизнес</div>
+          <div style="font-size:12px;color:var(--ink3);line-height:1.5">Вежливый стиль, обращение на «вы», профессиональные ответы</div>
+        </button>
+      </div>
     </div>
   </section>
 
@@ -1619,7 +1640,10 @@ if(!f.length){e.innerHTML=`<div class="em"><div class="empty-shimmer"></div><div
 e.innerHTML=f.map((t,x)=>`<div class="tc" style="animation-delay:${x*.04}s"><div class="tk ${t.done?'done':''}"><svg class="ic ic-s" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt ${t.done?'done':''}">${escHtml(t.title)}</div><div class="tm2"><span class="tp" style="background:${{high:'var(--ruby)',medium:'var(--honey)',low:'var(--forest)'}[t.priority]}" ></span>${escHtml(t.contact||'')} ${ago(t.time)}</div>${t.desc?`<div style="font-size:12px;color:var(--ink3);margin-top:4px">${escHtml(t.desc)}</div>`:''}</div></div>`).join('')}
 function fT(f,b){tF=f;document.querySelectorAll('#p-tk .ft').forEach(x=>x.classList.remove('on'));b.classList.add('on');rT()}
 
-function lS(){document.getElementById('sg1').value=ST.greeting||'';document.getElementById('sg2').value=ST.ai_style||'';document.getElementById('sg3').value=ST.business_context||'';document.getElementById('sg4').value=ST.ai_disclaimer||'';document.getElementById('tar').classList.toggle('on',ST.auto_reply!==false);document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);const am=document.getElementById('assignMode');if(am)am.value=ST.assignment_mode||'manual';loadWebhooks();loadOperators()}
+const PRESETS={personal:{greeting:'Привет! Сейчас не могу ответить, но скоро вернусь.',ai_style:'Отвечай дружелюбно и неформально, как друг. Коротко, без канцелярита, максимум 2 предложения.',business_context:'Это личный помощник в Telegram. Помогает не пропустить сообщения, пока хозяин занят.',ai_disclaimer:'💬 Это автоответ, скоро отвечу лично!',auto_reply:true,templates:['Сейчас занят, напишу позже!','Перезвоню через час.','Понял, спасибо!'],assignment_mode:'manual'},business:{greeting:'Здравствуйте! Спасибо за обращение. Менеджер подключится в ближайшее время.',ai_style:'Отвечай вежливо и профессионально, без markdown, максимум 3 предложения. Обращайся на «вы».',business_context:'Бот помогает обрабатывать обращения клиентов. Отвечай как представитель компании.',ai_disclaimer:'🤖 Это автоматический ответ. Менеджер скоро подключится.',auto_reply:true,templates:['Спасибо за обращение! Менеджер свяжется с вами в ближайшее время.','Перезвоним в течение часа.','Уточните, пожалуйста, ваш вопрос подробнее.'],assignment_mode:'manual'}};
+function updatePresetUI(){const p=ST.preset||'';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));if(p&&document.getElementById('preset-'+p))document.getElementById('preset-'+p).classList.add('active');}
+async function applyPreset(name){if(!PRESETS[name])return;const p=PRESETS[name];Object.assign(ST,p);ST.preset=name;lS();try{await apiFetch('/api/preset',{preset:name});await syncSnapshot();nt('Режим «'+(name==='personal'?'Личный':'Бизнес')+'» применён')}catch(e){console.error(e);nt('Не удалось применить режим')}}
+function lS(){document.getElementById('sg1').value=ST.greeting||'';document.getElementById('sg2').value=ST.ai_style||'';document.getElementById('sg3').value=ST.business_context||'';document.getElementById('sg4').value=ST.ai_disclaimer||'';document.getElementById('tar').classList.toggle('on',ST.auto_reply!==false);document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);const am=document.getElementById('assignMode');if(am)am.value=ST.assignment_mode||'manual';updatePresetUI();loadWebhooks();loadOperators()}
 async function persistSettings(){try{await apiFetch('/api/settings',{settings:ST});saveLocal();await syncSnapshot();nt('✅ Настройки сохранены')}catch(e){console.error(e);nt('Не удалось сохранить настройки')}}
 function sS(k,el){ST[k]=document.getElementById(el).value;persistSettings()}
 function tAR(){ST.auto_reply=!ST.auto_reply;document.getElementById('tar').classList.toggle('on');persistSettings()}
@@ -1639,7 +1663,7 @@ function hydrateAccount(){
   const initials=(full || u?.username || 'LF').split(/\s+/).filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase() || 'LF';
   const id=u?.id?String(u.id):'—';
   const connected=!!u;
-  const note=connected ? 'Подключён текущий профиль Telegram. LeadFlow AI синхронизирует контакты и настройки с ботом.' : 'Откройте интерфейс из Telegram, чтобы здесь автоматически показался подключённый аккаунт.';
+  const note=connected ? 'Подключён текущий профиль Telegram. Бот синхронизирует контакты и настройки автоматически.' : 'Откройте интерфейс из Telegram, чтобы здесь автоматически показался подключённый аккаунт.';
   const map={accAvatar:initials,accName:name,accHandle:handle,accPlatform:'Telegram WebApp',accId:id,accNote:note,accStatus:connected?'Подключён':'Ожидает подключение'};
   Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.textContent=val;});
 }
