@@ -501,15 +501,14 @@ textarea.si{min-height:88px}
 
 @media (min-width:700px){
   body{max-width:560px;margin:0 auto}
-  .pn,.mb{max-width:560px;margin:0 auto;left:50%;right:auto;transform:translateX(-50%) translateY(100%);width:100%}
-  .pn.on{transform:translateX(-50%) translateY(0)}
+  .mb{max-width:560px;margin:0 auto;left:50%;right:auto;transform:translateX(-50%) translateY(100%);width:100%}
 }
 @media (max-width:699px){
   *{-webkit-backface-visibility:hidden;backface-visibility:hidden}
   .cd::before,.cd::after{display:none!important}
   .cd{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;box-shadow:0 1px 3px rgba(0,0,0,.06)!important;background:#fff!important;border-color:rgba(0,0,0,.06)!important;border-radius:16px!important;transition:none!important}
   .cd:hover,.cd:active{transform:none!important;box-shadow:0 1px 3px rgba(0,0,0,.06)!important}
-  .pn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#faf8f5!important;transition:none!important;box-shadow:0 -2px 10px rgba(0,0,0,.1)!important;border-radius:20px 20px 0 0!important;contain:layout style paint}
+  .pn,#pn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#faf8f5!important;transition:none!important;box-shadow:0 -2px 10px rgba(0,0,0,.1)!important;border-radius:20px 20px 0 0!important;contain:layout style paint}
   .ov,.ov.on,#ov{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition:none!important;background:rgba(0,0,0,.4)!important}
   .detail-topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#faf8f5!important;box-shadow:none!important;border-bottom:1px solid rgba(0,0,0,.08)!important}
   .detail-shell{contain:layout style paint}
@@ -528,8 +527,8 @@ textarea.si{min-height:88px}
   body.detail-open{animation:none!important;background:#faf8f5!important;background-image:none!important}
   body.detail-open html{background:#faf8f5!important}
   /* Fix keyboard pushing layout — pin panel with fixed height */
-  .pn{max-height:100vh!important;max-height:100dvh!important}
-  .pn.on{position:fixed!important;top:0!important;bottom:0!important;left:0!important;right:0!important;max-height:none!important;height:100%!important;border-radius:0!important;z-index:201!important}
+  .pn,#pn{max-height:100vh!important;max-height:100dvh!important}
+  .pn.on,#pn.on{position:fixed!important;top:0!important;bottom:0!important;left:0!important;right:0!important;max-height:none!important;height:100%!important;border-radius:0!important;z-index:202!important;transform:none!important}
 }
 
 /* scroll containment — prevent mini app from closing */
@@ -587,7 +586,7 @@ html,body{overscroll-behavior:contain;overscroll-behavior-y:contain;-webkit-over
 .startup-line{width:110px;height:2px;border-radius:999px;background:linear-gradient(90deg, transparent, rgba(212,83,26,.55), rgba(37,99,160,.34), transparent);animation:linePulse 1.6s var(--ease) infinite}
 @keyframes startFloat{from{transform:translateY(8px) scale(.994)}to{transform:translateY(-2px) scale(1)}}
 @keyframes linePulse{0%,100%{transform:scaleX(.72);opacity:.56}50%{transform:scaleX(1);opacity:1}}
-body.app-ready #startup{opacity:0;visibility:hidden;transform:scale(1.02)}
+body.app-ready #startup{opacity:0;visibility:hidden;transform:scale(1.02);pointer-events:none}
 body:not(.app-ready) .pg,
 body:not(.app-ready) .nav,
 body:not(.app-ready) .hdr,
@@ -1094,9 +1093,7 @@ body::after{
 }
 
 
-/* panel peek fix */
-.pn{transform:translate3d(0,calc(100% + 180px),0)!important;visibility:hidden;pointer-events:none;}
-.pn.on{transform:translate3d(0,0,0)!important;visibility:visible;pointer-events:auto;}
+/* panel peek fix — handled by #pn rules below */
 .mb{display:none;align-items:flex-end;pointer-events:none;}
 .mb.on{display:flex;pointer-events:auto;}
 #ov{opacity:0!important;pointer-events:none!important;}
@@ -1331,10 +1328,11 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 
 
 /* --- full-screen contact settings restore --- */
-body.detail-open{overflow:hidden;touch-action:none;}
+@media(max-width:699px){body.detail-open{overflow:hidden;touch-action:none;}}
 #ov{background:rgba(18,14,12,.34)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;}
-#pn{position:fixed;bottom:0;left:0;right:0;max-height:90vh;height:auto;border-radius:30px 30px 0 0!important;transform:translate3d(0,100%,0)!important;visibility:hidden;pointer-events:none;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg, rgba(253,251,248,.985), rgba(248,244,238,.98))!important;border-top:1px solid rgba(255,255,255,.82)!important;box-shadow:var(--sh2)!important;z-index:202;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;overflow-y:auto;}
-#pn.on{transform:translate3d(0,0,0)!important;visibility:visible;pointer-events:auto;}
+#pn{position:fixed;bottom:0;left:0;right:0;max-height:90vh;height:auto;border-radius:30px 30px 0 0;transform:translateY(calc(100% + 80px));visibility:hidden;pointer-events:none;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg, rgba(253,251,248,.985), rgba(248,244,238,.98));border-top:1px solid rgba(255,255,255,.82);box-shadow:var(--sh2);z-index:202;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;overflow-y:auto;transition:transform .32s cubic-bezier(.25,.8,.25,1),visibility .32s;}
+#pn.on{transform:translateY(0);visibility:visible;pointer-events:auto;}
+@media(min-width:700px){#pn{max-width:560px;left:50%;right:auto;width:100%;transform:translateX(-50%) translateY(calc(100% + 80px));}#pn.on{transform:translateX(-50%) translateY(0);}}
 #dc{padding:0 0 calc(34px + env(safe-area-inset-bottom,0px));}
 .detail-topbar{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 18px 14px;background:linear-gradient(180deg, rgba(253,251,248,.96), rgba(253,251,248,.86));backdrop-filter:blur(18px) saturate(1.08);-webkit-backdrop-filter:blur(18px) saturate(1.08);border-bottom:1px solid rgba(110,94,81,.12);}
 .detail-topbar .ttl{font-family:var(--head);font-size:22px;font-weight:900;letter-spacing:-.04em;}
