@@ -874,7 +874,7 @@ body::after{
   -webkit-backdrop-filter: blur(18px) saturate(145%);
 }
 .hdr{ box-shadow:0 18px 44px rgba(102,82,57,.09), inset 0 1px 0 rgba(255,255,255,.78), inset 0 -1px 0 rgba(255,255,255,.16); }
-.stat:hover,.cd:hover,.d-btn:hover,.mb:hover,.nb:hover{ transform: translateY(-1px); }
+.stat:hover,.d-btn:hover,.mb:hover,.nb:hover{ transform: translateY(-1px); }
 .nav{
   background: transparent!important;
   backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
@@ -889,13 +889,13 @@ body::after{
     0 10px 24px rgba(234,166,102,.16),
     inset 0 1px 0 rgba(255,255,255,.76);
 }
-.nb::after,.hdr-btn::after,.acc-pill::after,.d-btn::after,.mb::after,.stat::after,.cd::after{
+.nb::after,.hdr-btn::after,.acc-pill::after,.d-btn::after,.mb::after,.stat::after{
   content:""; position:absolute; inset:-40%; pointer-events:none; opacity:0;
   background:linear-gradient(115deg, transparent 34%, rgba(255,255,255,.5) 49%, transparent 64%);
   transform: translateX(-35%) rotate(8deg);
 }
-.nb:hover::after,.hdr-btn:hover::after,.acc-pill:hover::after,.d-btn:hover::after,.mb:hover::after,.stat:hover::after,.cd:hover::after,
-.nb:active::after,.hdr-btn:active::after,.acc-pill:active::after,.d-btn:active::after,.mb:active::after,.stat:active::after,.cd:active::after{
+.nb:hover::after,.hdr-btn:hover::after,.acc-pill:hover::after,.d-btn:hover::after,.mb:hover::after,.stat:hover::after,
+.nb:active::after,.hdr-btn:active::after,.acc-pill:active::after,.d-btn:active::after,.mb:active::after,.stat:active::after{
   opacity:1; animation: fxSweep .9s ease;
 }
 .startup-core{
@@ -2136,7 +2136,7 @@ syncSnapshot(true);startPolling();
 <script>
 (function(){
   const root = document.documentElement;
-  const interactive = '.nb,.hdr-btn,.acc-pill,.d-btn,.mb,.stat,.cd,.tk,.sec';
+  const interactive = '.nb,.hdr-btn,.acc-pill,.d-btn,.mb,.stat,.tk,.sec';
   let raf=0;
   function setParallax(x,y){
     root.style.setProperty('--fx-x', `${x}px`);
