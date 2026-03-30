@@ -1789,10 +1789,14 @@ const RM={first_only:'Только первое сообщение',once_30m:'Р
 const CO=['#d4531a','#c03030','#1a7a4c','#2563a0','#a16b07','#7c3aed','#b44d8e','#1a7a7a'];
 const qp=new URLSearchParams(location.search);
 const API_BASE=(qp.get('api')||'').replace(/\/$/,'');
-const API_TOKEN=qp.get('token')||'';
+let API_TOKEN=qp.get('token')||sessionStorage.getItem('lf_token')||'';
 const OWNER_ID=Number(qp.get('owner')||0);
 const POLL=Math.max(3, Number(qp.get('poll')||6));
 const LS_KEY=`leadflow-ai-cache-v2-${OWNER_ID||'anon'}`;
+// Store token in sessionStorage and strip from URL for security
+if(API_TOKEN){sessionStorage.setItem('lf_token',API_TOKEN);
+  if(qp.has('token')){qp.delete('token');const cleanUrl=location.pathname+(qp.toString()?'?'+qp.toString():'')+(location.hash||'');history.replaceState(null,'',cleanUrl);}
+}
 let C=[],T=[],ST={},OPS=[],cF='',tF='a',pollTimer=null,lastSync='',openDetailId=null;
 let currentView='list';
 let soundEnabled=localStorage.getItem('leadflow-sound')!=='off';
@@ -1859,15 +1863,27 @@ async function apiFetch(path, payload=null, method='POST'){
     'X-Owner-ID': String(OWNER_ID||0)
   };
   const opts={method,headers,cache:'no-store'};
-  if(payload!==null) opts.body=JSON.stringify({...payload, token:API_TOKEN, owner_id:OWNER_ID});
-  const url = method==='GET' ? `${API_BASE}${path}${path.includes('?')?'&':'?'}token=${encodeURIComponent(API_TOKEN)}&owner=${encodeURIComponent(OWNER_ID||0)}` : `${API_BASE}${path}`;
+  if(payload!==null) opts.body=JSON.stringify({...payload, owner_id:OWNER_ID});
+  const url = method==='GET' ? `${API_BASE}${path}${path.includes('?')?'&':'?'}owner=${encodeURIComponent(OWNER_ID||0)}` : `${API_BASE}${path}`;
   const res=await fetch(url, opts);
   const text=await res.text();
   let data={ok:false,error:'bad_json'};
   try{data=JSON.parse(text)}catch(e){
     if(text && /ngrok/i.test(text)) throw new Error('ngrok_warning_page');
   }
-  if(!res.ok||!data.ok) throw new Error(data.error||('http_'+res.status));
+  if(!res.ok||!data.ok){
+    // Auto-refresh expired token
+    if(data.error==='token_expired' && !apiFetch._refreshing){
+      apiFetch._refreshing=true;
+      try{
+        const rr=await fetch(`${API_BASE}/api/auth/refresh`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${API_TOKEN}`}});
+        const rd=await rr.json();
+        if(rd.ok&&rd.token){API_TOKEN=rd.token;sessionStorage.setItem('lf_token',API_TOKEN);apiFetch._refreshing=false;return apiFetch(path,payload,method);}
+      }catch(e){console.error('token refresh failed',e);}
+      apiFetch._refreshing=false;
+    }
+    throw new Error(data.error||('http_'+res.status));
+  }
   return data;
 }
 
