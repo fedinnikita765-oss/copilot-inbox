@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,interactive-widget=resizes-content">
 <title>LeadFlow</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
@@ -505,17 +505,31 @@ textarea.si{min-height:88px}
   .pn.on{transform:translateX(-50%) translateY(0)}
 }
 @media (max-width:699px){
+  *{-webkit-backface-visibility:hidden;backface-visibility:hidden}
   .cd::before,.cd::after{display:none!important}
-  .cd{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;box-shadow:0 2px 8px rgba(28,25,23,.06)!important;background:#fff!important;border-color:rgba(0,0,0,.06)!important}
-  .cd:hover{transform:none!important;box-shadow:0 2px 8px rgba(28,25,23,.06)!important}
-  .pn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--cream)!important;transition:transform .25s ease-out!important;box-shadow:0 -4px 20px rgba(0,0,0,.12)!important}
-  .ov,.ov.on,#ov{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition:opacity .15s linear!important;background:rgba(0,0,0,.35)!important}
-  .detail-topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--cream)!important;box-shadow:none!important}
-  .detail-shell .ds{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 1px 4px rgba(28,25,23,.04)!important;background:#fff!important}
-  .detail-hero{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 1px 4px rgba(28,25,23,.04)!important;background:#fff!important}
+  .cd{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;box-shadow:0 1px 3px rgba(0,0,0,.06)!important;background:#fff!important;border-color:rgba(0,0,0,.06)!important;border-radius:16px!important;transition:none!important}
+  .cd:hover,.cd:active{transform:none!important;box-shadow:0 1px 3px rgba(0,0,0,.06)!important}
+  .pn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#faf8f5!important;transition:none!important;box-shadow:0 -2px 10px rgba(0,0,0,.1)!important;border-radius:20px 20px 0 0!important;contain:layout style paint}
+  .ov,.ov.on,#ov{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition:none!important;background:rgba(0,0,0,.4)!important}
+  .detail-topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#faf8f5!important;box-shadow:none!important;border-bottom:1px solid rgba(0,0,0,.08)!important}
+  .detail-shell{contain:layout style paint}
+  .detail-shell .ds{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;background:#fff!important;border:1px solid rgba(0,0,0,.06)!important;border-radius:14px!important}
+  .detail-hero{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;background:#fff!important;border:1px solid rgba(0,0,0,.06)!important;border-radius:14px!important}
   .pg.is-exiting,.pg.is-entering{filter:none!important}
   .hdr,.fb,.ls,.sg,.acc-card,.stat-row .stat{animation:none!important}
   .nav-active{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .detail-close{box-shadow:none!important;border:1px solid rgba(0,0,0,.1)!important;background:#fff!important}
+  .bb{box-shadow:none!important}
+  .si{transition:none!important}
+  /* When detail panel is open, freeze ALL heavy background effects */
+  body.detail-open::before,body.detail-open::after,body.detail-open #luxLight{
+    animation:none!important;transition:none!important;opacity:0!important;will-change:auto!important;filter:none!important;display:none!important
+  }
+  body.detail-open{animation:none!important;background:#faf8f5!important;background-image:none!important}
+  body.detail-open html{background:#faf8f5!important}
+  /* Fix keyboard pushing layout — pin panel with fixed height */
+  .pn{max-height:100vh!important;max-height:100dvh!important}
+  .pn.on{position:fixed!important;top:0!important;bottom:0!important;left:0!important;right:0!important;max-height:none!important;height:100%!important;border-radius:0!important;z-index:201!important}
 }
 
 /* scroll containment — prevent mini app from closing */
@@ -1081,7 +1095,7 @@ body::after{
 
 
 /* panel peek fix */
-.pn{transform:translate3d(0,calc(100% + 180px),0)!important;visibility:hidden;pointer-events:none;will-change:transform;}
+.pn{transform:translate3d(0,calc(100% + 180px),0)!important;visibility:hidden;pointer-events:none;}
 .pn.on{transform:translate3d(0,0,0)!important;visibility:visible;pointer-events:auto;}
 .mb{display:none;align-items:flex-end;pointer-events:none;}
 .mb.on{display:flex;pointer-events:auto;}
@@ -1707,11 +1721,29 @@ ${c.linked?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d
 <div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Настройки AI</h4><div class="ai-grid"><div class="mi select-wrap"><label>Режим ответа</label><select id="rmSel" style="width:100%;margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff">${modeOpts}</select></div><div class="mi"><label>Окно, мин</label><input id="rwInp" type="number" min="1" value="${Number(c.replyWindow)||30}" style="width:100%;margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff"></div><div class="mi"><label>Статус</label><span>${c.linked?'Связан с Telegram':'Ожидает первого сообщения'}</span></div></div><div class="d-acts"><button class="d-btn" onclick="saveMode(${i})">Сохранить режим</button></div></div>
 ${c.draft?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-2 3-2 8h-4c0-5-2-6.05-2-8a4 4 0 0 1 4-4z"/><line x1="10" y1="22" x2="14" y2="22"/><line x1="10" y1="18" x2="14" y2="18"/></svg>Последний AI-ответ</h4><div class="cd-ai" style="margin:0">${escHtml(c.draft)}</div></div>`:''}
 ${OPS.length?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Оператор</h4><select onchange="assignOp(${c.id},this.value?Number(this.value):null)" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff"><option value="">Не назначен</option>${OPS.map(o=>`<option value="${o.id}" ${c.assignedOp===o.id?'selected':''}>${escHtml(o.name)}${o.username?' @'+escHtml(o.username):''}</option>`).join('')}</select></div>`:''}<div class="d-acts"><button class="d-btn sec" onclick="tCC(${i})">${c.status==='closed'?'Открыть':'Закрыть'}</button><button class="d-btn ${c.blocked?'sec':'red'}" onclick="toggleBlock(${i})" style="min-width:auto">${c.blocked?'Разблокировать':'Заблокировать'}</button><button class="d-btn red" onclick="dCC(${i})">Удалить</button></div></div>`;}
-function oD(i){const c=C[i];if(!c)return;openDetailId=c.id;const dc=document.getElementById('dc');dc.style.opacity='';dc.style.transform='';dc.style.transition='';
+function oD(i){const c=C[i];if(!c)return;openDetailId=c.id;
+const pn=document.getElementById('pn');const ov=document.getElementById('ov');const dc=document.getElementById('dc');
+// 1. Freeze background effects immediately (class triggers CSS to hide them on mobile)
+document.body.classList.add('detail-open');
+// 2. Hide panel content while building DOM
+dc.style.visibility='hidden';
+pn.style.display='block';
+// 3. Build DOM off-screen
 buildDetailContent(i);
-document.body.classList.add('detail-open');document.getElementById('ov').classList.add('on');document.getElementById('pn').classList.add('on');document.getElementById('pn').scrollTop=0;}
+// 4. Double-rAF: wait for browser to commit DOM, then show
+requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+  dc.style.visibility='';
+  ov.classList.add('on');
+  pn.classList.add('on');
+  pn.scrollTop=0;
+});});}
 
-function cD(){openDetailId=null;document.body.classList.remove('detail-open');document.getElementById('ov').classList.remove('on');document.getElementById('pn').classList.remove('on');}
+function cD(){openDetailId=null;
+const pn=document.getElementById('pn');
+pn.classList.remove('on');
+document.getElementById('ov').classList.remove('on');
+// Delay removing detail-open so background effects don't flash during close
+setTimeout(()=>{document.body.classList.remove('detail-open');pn.style.display='';},50);}
 
 async function saveMode(i){const c=C[i];const mode=document.getElementById('rmSel').value;const win=Math.max(1,Number(document.getElementById('rwInp').value||30));c.replyMode=mode;c.replyWindow=win;R();try{await apiFetch('/api/contact/update',{contact_id:c.id,reply_mode:mode,reply_window_minutes:win});nt('Режим сохранён');await syncSnapshot()}catch(e){console.error(e);nt('Не удалось сохранить режим')}}
 async function tCC(i){const c=C[i];c.status=c.status==='closed'?'open':'closed';R();try{await apiFetch('/api/contact/update',{contact_id:c.id,status:c.status});await syncSnapshot()}catch(e){console.error(e);nt('Не удалось обновить контакт')}cD()}
@@ -1931,6 +1963,30 @@ syncSnapshot(true);startPolling();
     if(lux) lux.style.transform = `translate3d(${getComputedStyle(root).getPropertyValue('--fx-x')||'0px'}, ${(-y*0.04)}px, 0)`;
     lastY = y;
   }, {passive:true});
+})();
+</script>
+
+<script>
+// Fix mobile keyboard resize: keep panel pinned when virtual keyboard opens
+(function(){
+  if(!window.visualViewport) return;
+  const vv = window.visualViewport;
+  function onResize(){
+    const pn = document.getElementById('pn');
+    if(!pn || !pn.classList.contains('on')) return;
+    const offset = window.innerHeight - vv.height;
+    if(offset > 50){
+      // Keyboard is open — shrink panel to visible area
+      pn.style.height = vv.height + 'px';
+      pn.style.top = 'auto';
+      pn.style.bottom = '0';
+    } else {
+      pn.style.height = '';
+      pn.style.top = '';
+    }
+  }
+  vv.addEventListener('resize', onResize, {passive:true});
+  vv.addEventListener('scroll', onResize, {passive:true});
 })();
 </script>
 
