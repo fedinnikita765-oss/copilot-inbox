@@ -525,8 +525,7 @@ textarea.si{min-height:88px}
   .pn.on,#pn.on{position:fixed!important;top:0!important;bottom:0!important;left:0!important;right:0!important;max-height:none!important;height:100%!important;border-radius:0!important;z-index:202!important;transform:none!important}
 }
 
-/* scroll containment — prevent mini app from closing */
-html,body{overscroll-behavior:contain;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+/* scroll containment — only on pn panel, not body (can break desktop scroll) */
 
 /* online indicator */
 .av-online{position:absolute;bottom:0;right:0;width:13px;height:13px;border-radius:50%;background:#22c55e;border:2.5px solid #fff;z-index:2}
