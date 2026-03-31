@@ -1599,8 +1599,8 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 <div class="hdr"><div class="hdr-row" style="gap:8px"><h1 style="flex-shrink:0">Входящие</h1><div style="display:flex;gap:6px;align-items:center;min-width:0;flex-shrink:1"><div class="view-toggle" id="viewToggle"><button class="on" onclick="setView('list',this)">Список</button><button onclick="setView('kanban',this)">Доска</button></div><button class="hdr-btn" onclick="oAC()" style="white-space:nowrap;flex-shrink:0"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg><span class="hdr-btn-label">Контакт</span></button></div></div>
 <div class="stat-row"><div class="stat"><div class="n" id="sa">0</div><div class="l">Всего</div></div><div class="stat"><div class="n" id="si">0</div><div class="l">Авто</div></div><div class="stat"><div class="n" id="sm">0</div><div class="l">Ручные</div></div><div class="stat"><div class="n" id="so">0</div><div class="l">Открыто</div></div></div></div>
 <div class="widgets" id="widgetPanel"></div>
+<div style="padding:8px 14px 2px"><input id="searchInp" type="text" class="si" placeholder="Поиск по имени или @username..." oninput="rC()" style="padding:14px 16px 14px 44px;font-size:14px;border-radius:18px;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2718%27 height=%2718%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23a8a29e%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%278%27/%3E%3Cline x1=%2721%27 y1=%2721%27 x2=%2716.65%27 y2=%2716.65%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:14px center;background-size:18px"></div>
 <div class="fb" id="fb"></div>
-<div style="padding:6px 14px 0"><input id="searchInp" type="text" class="si" placeholder="Поиск по имени или @username..." oninput="rC()" style="padding:12px 16px 12px 42px;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2718%27 height=%2718%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23a8a29e%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%278%27/%3E%3Cline x1=%2721%27 y1=%2721%27 x2=%2716.65%27 y2=%2716.65%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:14px center;background-size:16px"></div>
 <div class="ptr-indicator" id="ptr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span id="ptrText">Потяни для обновления</span></div>
 <div class="ls" id="cl"></div>
 <div class="kanban" id="kanban" style="display:none"></div></div>
@@ -1686,8 +1686,7 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
         <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
         <div><h4>Приветствие</h4><p>Первое сообщение новым клиентам</p></div>
       </div>
-      <textarea class="si" id="sg1"></textarea>
-      <button class="ss" onclick="sS('greeting','sg1')">Сохранить</button>
+      <textarea class="si" id="sg1" oninput="sS('greeting','sg1')"></textarea>
     </div>
 
     <div class="sg settings-panel">
@@ -1695,8 +1694,7 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
         <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
         <div><h4>Стиль AI</h4><p>Как нейросеть отвечает и в каком тоне ведёт диалог</p></div>
       </div>
-      <textarea class="si" id="sg2"></textarea>
-      <button class="ss" onclick="sS('ai_style','sg2')">Сохранить</button>
+      <textarea class="si" id="sg2" oninput="sS('ai_style','sg2')"></textarea>
     </div>
 
     <div class="sg settings-panel settings-panel-wide">
@@ -1704,8 +1702,7 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
         <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
         <div><h4>Дисклеймер</h4><p>Пометка в конце автоответа, чтобы клиент видел, что ему отвечает AI</p></div>
       </div>
-      <textarea class="si" id="sg4"></textarea>
-      <button class="ss" onclick="sS('ai_disclaimer','sg4')">Сохранить</button>
+      <textarea class="si" id="sg4" oninput="sS('ai_disclaimer','sg4')"></textarea>
     </div>
   </section>
 
@@ -1716,10 +1713,10 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
         <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
         <div><h4 id="sg3Label">О бизнесе</h4><p id="sg3Desc">Услуги, цены, особенности и вся информация, на которую должен опираться AI</p></div>
       </div>
-      <textarea class="si" id="sg3"></textarea>
-      <button class="ss" onclick="sS('business_context','sg3')">Сохранить</button>
+      <textarea class="si" id="sg3" oninput="sS('business_context','sg3')"></textarea>
     </div>
   </section>
+  <div style="padding:0 14px 8px"><button class="ss" id="saveAllSettings" onclick="saveAllSettings()" style="width:100%;padding:16px;font-size:14px">Сохранить все настройки</button></div>
 
   <div class="st-k" id="st-auto">Автоматизация</div>
   <section class="settings-panel-grid">
@@ -1776,6 +1773,8 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 <div class="pn" id="pn"><div id="dc"></div></div>
 <div class="mb" id="mac"><div class="md md-contact"><div class="md-chip">Новый контакт</div><h3>Добавить контакт</h3><p class="md-sub">Сохрани имя и username, чтобы потом быстро найти человека в LeadFlow AI.</p><input id="an" placeholder="Имя"><input id="au" placeholder="Username"><div class="mbs"><button class="mc" onclick="cAC()">Отмена</button><button class="ms" onclick="aC()">Добавить</button></div></div></div>
 <div class="mb" id="mat"><div class="md"><h3>Новая задача</h3><input id="atn" placeholder="Название"><textarea id="atd" placeholder="Описание"></textarea><select id="atp"><option value="low">Низкий</option><option value="medium" selected>Средний</option><option value="high">Высокий</option></select><div class="mbs"><button class="mc" onclick="cAT()">Отмена</button><button class="ms" onclick="aT()">Создать</button></div></div></div>
+<div class="mb" id="mwh"><div class="md"><h3>Добавить вебхук</h3><input id="whUrlInp" placeholder="https://example.com/webhook"><input id="whEventsInp" placeholder="События (all)" value="all"><div class="mbs"><button class="mc" onclick="document.getElementById('mwh').classList.remove('on')">Отмена</button><button class="ms" onclick="submitWH()">Добавить</button></div></div></div>
+<div class="mb" id="mop"><div class="md"><h3>Добавить оператора</h3><input id="opTgIdInp" placeholder="Telegram ID" type="number"><input id="opNameInp" placeholder="Имя оператора"><div class="mbs"><button class="mc" onclick="document.getElementById('mop').classList.remove('on')">Отмена</button><button class="ms" onclick="submitOp()">Добавить</button></div></div></div>
 
 <script>
 const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
@@ -1984,11 +1983,13 @@ async function toggleBlock(i){const c=C[i];if(!c)return;const cid=c.id;const new
 function toggleSound(){soundEnabled=!soundEnabled;localStorage.setItem('leadflow-sound',soundEnabled?'on':'off');document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);if(soundEnabled)playNotifSound();}
 async function exportCSV(){try{const r=await fetch(`${API_BASE}/api/export/csv?owner=${OWNER_ID}`,{headers:{'Authorization':`Bearer ${API_TOKEN}`}});if(!r.ok){nt('Ошибка экспорта');return}const b=await r.blob();const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`leadflow_contacts_${OWNER_ID}.csv`;a.click();URL.revokeObjectURL(u)}catch(e){nt('Ошибка экспорта')}}
 async function loadWebhooks(){const el=document.getElementById('whList');if(!el)return;el.innerHTML='Загрузка...';try{const d=await apiFetch('/api/webhooks',null,'GET');const whs=d.webhooks||[];el.innerHTML=whs.length?whs.map(w=>`<div class="mi" style="flex-wrap:wrap"><label style="word-break:break-all;flex:1">${escHtml(w.url)}<br><small style="color:var(--ink3)">${w.events}</small></label><button class="ft wh-test" data-url="${escHtml(w.url)}" style="font-size:10px;padding:4px 8px">Тест</button><button class="ft wh-del" data-id="${w.id}" style="font-size:10px;padding:4px 8px;color:var(--ruby)">✕</button></div>`).join(''):'<p style="font-size:13px;color:var(--ink3)">Нет вебхуков</p>';}catch(e){el.innerHTML='Ошибка';}}
-async function addWH(){const url=prompt('URL вебхука:');if(!url)return;try{await apiFetch('/api/webhooks',{url:url,events:'all'});nt('Вебхук добавлен');loadWebhooks();}catch(e){nt('Ошибка: '+e.message);}}
+function addWH(){document.getElementById('whUrlInp').value='';document.getElementById('whEventsInp').value='all';document.getElementById('mwh').classList.add('on')}
+async function submitWH(){const url=document.getElementById('whUrlInp').value.trim();if(!url){nt('Введите URL');return}const events=document.getElementById('whEventsInp').value.trim()||'all';try{await apiFetch('/api/webhooks',{url,events});nt('Вебхук добавлен');document.getElementById('mwh').classList.remove('on');loadWebhooks();}catch(e){nt('Ошибка: '+e.message);}}
 async function delWH(id){try{await apiFetch('/api/webhooks/delete',{id:id});nt('Удалён');loadWebhooks();}catch(e){nt('Ошибка');}}
 async function testWH(url){try{const d=await apiFetch('/api/webhooks/test',{url:url});nt('Тест отправлен, статус: '+(d.status||'ok'));}catch(e){nt('Ошибка: '+e.message);}}
 async function loadOperators(){const el=document.getElementById('opList');if(!el)return;el.innerHTML='Загрузка...';try{const d=await apiFetch('/api/operators',null,'GET');const ops=d.operators||[];el.innerHTML=ops.length?ops.map(o=>`<div class="mi"><label>${escHtml(o.name)}${o.username?' @'+escHtml(o.username):''}<br><small style="color:var(--ink3)">ID: ${o.tg_id}</small></label><button class="ft" onclick="removeOp(${o.id})" style="font-size:10px;padding:4px 8px;color:var(--ruby)">✕</button></div>`).join(''):'<p style="font-size:13px;color:var(--ink3)">Нет операторов</p>';}catch(e){el.innerHTML='Ошибка';}}
-async function addOp(){const tgId=prompt('Telegram ID оператора:');if(!tgId)return;const name=prompt('Имя оператора:')||'';try{await apiFetch('/api/operators',{tg_id:Number(tgId),name:name});nt('Оператор добавлен');loadOperators();await syncSnapshot();}catch(e){nt('Ошибка: '+e.message);}}
+function addOp(){document.getElementById('opTgIdInp').value='';document.getElementById('opNameInp').value='';document.getElementById('mop').classList.add('on')}
+async function submitOp(){const tgId=document.getElementById('opTgIdInp').value.trim();if(!tgId){nt('Введите Telegram ID');return}const name=document.getElementById('opNameInp').value.trim()||'';try{await apiFetch('/api/operators',{tg_id:Number(tgId),name});nt('Оператор добавлен');document.getElementById('mop').classList.remove('on');loadOperators();await syncSnapshot();}catch(e){nt('Ошибка: '+e.message);}}
 async function removeOp(id){try{await apiFetch('/api/operators/remove',{id:id});nt('Оператор удалён');loadOperators();await syncSnapshot();}catch(e){nt('Ошибка');}}
 async function assignOp(contactId,opId){try{await apiFetch('/api/contact/assign',{contact_id:contactId,operator_id:opId||null});await syncSnapshot();nt(opId?'Оператор назначен':'Назначение снято');}catch(e){nt('Ошибка');}}
 
@@ -2003,7 +2004,9 @@ function updatePresetUI(){const p=ST.preset||'';document.querySelectorAll('.pres
 async function applyPreset(name){if(!PRESETS[name])return;const p=PRESETS[name];Object.assign(ST,p);ST.preset=name;lS(true);try{await apiFetch('/api/preset',{preset:name});await syncSnapshot();nt('Режим «'+(name==='personal'?'Личный':'Бизнес')+'» применён')}catch(e){console.error(e);nt('Не удалось применить режим')}}
 function lS(loadRemote){document.getElementById('sg1').value=ST.greeting||'';document.getElementById('sg2').value=ST.ai_style||'';document.getElementById('sg3').value=ST.business_context||'';document.getElementById('sg4').value=ST.ai_disclaimer||'';document.getElementById('tar').classList.toggle('on',ST.auto_reply!==false);document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);const am=document.getElementById('assignMode');if(am)am.value=ST.assignment_mode||'manual';const isP=ST.preset==='personal';const l3=document.getElementById('sg3Label');if(l3)l3.textContent=isP?'О себе':'О бизнесе';const d3=document.getElementById('sg3Desc');if(d3)d3.textContent=isP?'Расскажи о себе — чем занимаешься, чтобы бот отвечал в тему':'Услуги, цены, особенности и вся информация, на которую должен опираться AI';updatePresetUI();if(loadRemote){loadWebhooks();loadOperators()}}
 async function persistSettings(){try{await apiFetch('/api/settings',{settings:ST});saveLocal();await syncSnapshot();nt('✅ Настройки сохранены')}catch(e){console.error(e);nt('Не удалось сохранить настройки')}}
-function sS(k,el){ST[k]=document.getElementById(el).value;persistSettings()}
+let _settingsTimer=null;
+function sS(k,el){ST[k]=document.getElementById(el).value;if(_settingsTimer)clearTimeout(_settingsTimer);_settingsTimer=setTimeout(()=>persistSettings(),1500)}
+function saveAllSettings(){ST.greeting=document.getElementById('sg1').value;ST.ai_style=document.getElementById('sg2').value;ST.ai_disclaimer=document.getElementById('sg4').value;ST.business_context=document.getElementById('sg3').value;persistSettings()}
 function tAR(){ST.auto_reply=!ST.auto_reply;const el=document.getElementById('tar');el.classList.toggle('on');el.classList.add('just-toggled');setTimeout(()=>el.classList.remove('just-toggled'),400);persistSettings()}
 renderFilters();
 
@@ -2112,6 +2115,13 @@ el.addEventListener('touchstart',function(e){if(el.scrollTop<=0&&currentView==='
 el.addEventListener('touchmove',function(e){if(!pulling)return;dist=Math.max(0,e.touches[0].clientY-startY);if(dist>10){ptr.style.height=Math.min(dist*.6,60)+'px';ptr.classList.toggle('pulling',dist<80);}},{passive:true});
 el.addEventListener('touchend',async function(){if(!pulling)return;pulling=false;if(dist>80){ptr.classList.remove('pulling');ptr.classList.add('refreshing');document.getElementById('ptrText').textContent='Обновление...';await syncSnapshot();ptr.classList.remove('refreshing');document.getElementById('ptrText').textContent='Потяни для обновления';}ptr.style.height='0';dist=0;},{passive:true});
 })();
+(function(){
+const pn=document.getElementById('pn');if(!pn)return;
+let startY=0,dy=0,dragging=false;
+pn.addEventListener('touchstart',function(e){if(pn.scrollTop>5)return;startY=e.touches[0].clientY;dy=0;dragging=true;pn.style.transition='none';},{passive:true});
+pn.addEventListener('touchmove',function(e){if(!dragging)return;dy=Math.max(0,e.touches[0].clientY-startY);if(dy>0){pn.style.transform='translateY('+dy+'px)';document.getElementById('ov').style.opacity=String(Math.max(0,1-dy/300));}},{passive:true});
+pn.addEventListener('touchend',function(){if(!dragging)return;dragging=false;pn.style.transition='';if(dy>120){cD();}else{pn.style.transform='';document.getElementById('ov').style.opacity='';}dy=0;},{passive:true});
+})();
 
 function oAC(){document.body.classList.add('modal-open');document.getElementById('mac').classList.add('on');document.getElementById('an').focus()}
 function cAC(){document.body.classList.remove('modal-open');document.getElementById('mac').classList.remove('on');document.getElementById('an').value='';document.getElementById('au').value=''}
@@ -2153,7 +2163,7 @@ initStartup();
 
 const localOk=loadLocal();
 const hashOk=loadHash();
-if(!localOk && !hashOk){showSkeleton(document.getElementById('cl'),4);} else {R();}
+if(!localOk && !hashOk){document.getElementById('cl').innerHTML=Array.from({length:5},(_,i)=>`<div class="sk-card" style="animation-delay:${i*.08}s"><div class="sk-row"><div class="sk sk-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk sk-line"></div><div class="sk sk-line short"></div></div></div></div>`).join('');} else {R();}
 syncSnapshot(true);startPolling();
 </script>
 
