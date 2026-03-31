@@ -29,7 +29,8 @@
   --nav-w:0px;
 }
 
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent!important;-webkit-touch-callout:none}
+*:focus,*:active{outline:none!important;-webkit-tap-highlight-color:transparent!important}
 html{scroll-behavior:smooth;background:linear-gradient(180deg, #fdfbf8 0%, #faf8f5 58%, #f7f3ee 100%);overflow-x:hidden;width:100%;}
 body{
   font-family:var(--body);
@@ -261,8 +262,7 @@ button,input,textarea,select{font:inherit}
 }
 .cd:hover{border-color:rgba(228,222,214,.9);box-shadow:0 18px 48px rgba(28,25,23,.1);transform:translateY(-3px)}
 .cd:active{transform:scale(.992)}
-.cd:focus,.cd:focus-visible{outline:none!important;box-shadow:0 14px 38px rgba(28,25,23,.06)}
-*:focus{-webkit-tap-highlight-color:transparent}
+.cd,.cd:focus,.cd:focus-visible,.cd:active,.cd-swipe-wrap,.cd-swipe-wrap:focus,.cd-swipe-wrap:active{outline:none!important;-webkit-tap-highlight-color:transparent!important;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 @keyframes cIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
 .cd .str{
   position:absolute;left:0;top:16px;bottom:16px;width:4px;border-radius:0 999px 999px 0;
