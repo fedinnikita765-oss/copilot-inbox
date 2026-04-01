@@ -1388,7 +1388,7 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 /* kanban */
 .kanban{display:flex;gap:10px;padding:10px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;min-height:60vh;align-items:flex-start}
 .kanban::-webkit-scrollbar{display:none}
-.kb-col{min-width:260px;max-width:300px;flex:1;background:var(--sand);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px}
+.kb-col{min-width:200px;max-width:280px;flex:1;background:var(--sand);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px}
 .kb-col-head{font-size:13px;font-weight:700;padding:6px 8px;display:flex;justify-content:space-between;align-items:center}
 .kb-col-head .kb-count{background:var(--stone);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600}
 .kb-card{background:var(--card);border-radius:var(--r3);padding:12px;cursor:grab;box-shadow:var(--shadow-xs);transition:box-shadow .2s,transform .15s}
@@ -1397,7 +1397,7 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 .kb-card .kb-msg{font-size:12px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kb-card .kb-tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;margin-top:6px;background:var(--ocean-s);color:var(--ocean)}
 .kb-card.dragging{opacity:.4;transform:scale(.95)}
-@media(max-width:699px){.kanban{padding:10px 8px}.kb-col{min-width:220px}}
+@media(max-width:699px){.kanban{padding:10px 8px}.kb-col{min-width:180px}}
 .view-toggle{display:flex;gap:2px;background:var(--sand);border-radius:10px;padding:2px;flex-shrink:0}
 .view-toggle button{padding:5px 10px;border:none;background:transparent;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;color:var(--ink3);transition:all .2s;white-space:nowrap}
 .view-toggle button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-xs)}
@@ -1738,6 +1738,15 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
       </div>
       <div class="tr"><label data-i="sound_label">Звук</label><div class="to" id="tsnd" onclick="toggleSound()"></div></div>
     </div>
+    <div class="sg settings-panel settings-toggle-card">
+      <div class="settings-panel-head">
+        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/><path d="M5 3L2 6"/><path d="M22 6l-3-3"/></svg></div>
+        <div><h4 data-i="followup">Авто-дожим</h4><p data-i="followup_desc">Автоматические follow-up сообщения для лидов, которые не отвечают</p></div>
+      </div>
+      <div class="tr"><label data-i="followup">Авто-дожим</label><div class="to" id="tfu" onclick="toggleFollowup()"></div></div>
+      <div id="fuChains" style="margin-top:12px"></div>
+      <button class="ss" onclick="loadFollowupChains()" style="width:100%;margin-top:8px" data-i="followup_chains">Настроить цепочки</button>
+    </div>
   </section>
 
   <div class="st-k" data-i="webhooks">Вебхуки</div>
@@ -1810,7 +1819,7 @@ ru:{
   filter_personal:[{t:'',l:'Все'},{t:'FRIEND',l:'Друзья',c:'var(--forest)'},{t:'FAMILY',l:'Семья',c:'var(--ruby)'},{t:'WORK',l:'Работа',c:'var(--ocean)'},{t:'REQUEST',l:'Просьбы',c:'var(--honey)'},{t:'SPAM',l:'Спам',c:'var(--terra)'}],
   rm:{first_only:'Только первое сообщение',once_30m:'Раз в 30 минут',every_message:'Каждое сообщение'},
   // Navigation
-  inbox:'Входящие',list:'Список',board:'Доска',contact:'Контакт',
+  inbox:'Входящие',list:'Список',board:'Воронка',contact:'Контакт',
   tasks_tab:'Задачи',task_btn:'Задача',analytics:'Аналитика',settings:'Настройки',
   // Stats
   total:'Всего',auto:'Авто',manual:'Ручные',open:'Открыто',done:'Готово',
@@ -1845,6 +1854,7 @@ ru:{
   auto_reply_desc:'Когда включено, правила автоответа применяются ко всем клиентам по их режимам.',
   auto_reply_help:'Включай, когда хочешь, чтобы LeadFlow вёл первые касания и рутинные ответы автоматически.',
   sound:'Звук уведомлений',sound_desc:'Воспроизводить звук при новом сообщении',sound_label:'Звук',
+  followup_desc:'Автоматические follow-up сообщения для лидов, которые не отвечают',
   webhooks:'Вебхуки',webhooks_title:'Webhook-уведомления',webhooks_desc:'Отправлять события на внешние URL',
   add_webhook:'+ Добавить вебхук',
   multi_op:'Мультиоператор',operators:'Операторы',operators_desc:'Менеджеры с доступом к контактам',
@@ -1902,8 +1912,13 @@ ru:{
   settings_err:'Не удалось сохранить настройки',
   sync_err:'Не удалось синхронизировать Mini App',
   ngrok_hint:'Открой /health через ngrok один раз в браузере и нажми Visit Site, затем снова открой Mini App.',
-  // Kanban
+  // Kanban / Funnel
   k_open:'Открыт',k_wip:'В работе',k_closed:'Закрыт',
+  f_new:'Новый',f_qualification:'Квалификация',f_proposal:'Предложение',f_payment:'Оплата',f_closed_won:'Закрыт ✓',f_closed_lost:'Потерян',
+  lead_score:'Скор лида',hot_lead:'Горячий',warm_lead:'Тёплый',cold_lead:'Холодный',
+  funnel:'Воронка',funnel_stage:'Этап воронки',
+  followup:'Авто-дожим',followup_on:'Дожим включён',followup_off:'Дожим выключен',followup_active:'Дожим активен',followup_paused:'Дожим на паузе',
+  followup_chains:'Цепочки дожима',followup_step:'Шаг',followup_delay:'Задержка (ч)',followup_msg:'Сообщение',followup_add_step:'+ Шаг',
   // Account detail
   acc_not_found:'Аккаунт не найден',tg_profile:'Профиль Telegram',
   acc_connected:'Подключён текущий профиль Telegram. Бот синхронизирует контакты и настройки автоматически.',
@@ -1932,7 +1947,7 @@ en:{
   filter_biz:[{t:'',l:'All'},{t:'NEW_LEAD',l:'Leads',c:'var(--forest)'},{t:'QUESTION',l:'Questions',c:'var(--ocean)'},{t:'COMPLAINT',l:'Complaints',c:'var(--ruby)'},{t:'FOLLOWUP',l:'Follow-up',c:'var(--honey)'},{t:'PAYMENT',l:'Payment',c:'var(--terra)'}],
   filter_personal:[{t:'',l:'All'},{t:'FRIEND',l:'Friends',c:'var(--forest)'},{t:'FAMILY',l:'Family',c:'var(--ruby)'},{t:'WORK',l:'Work',c:'var(--ocean)'},{t:'REQUEST',l:'Requests',c:'var(--honey)'},{t:'SPAM',l:'Spam',c:'var(--terra)'}],
   rm:{first_only:'First message only',once_30m:'Once per 30 min',every_message:'Every message'},
-  inbox:'Inbox',list:'List',board:'Board',contact:'Contact',
+  inbox:'Inbox',list:'List',board:'Funnel',contact:'Contact',
   tasks_tab:'Tasks',task_btn:'Task',analytics:'Analytics',settings:'Settings',
   total:'Total',auto:'Auto',manual:'Manual',open:'Open',done:'Done',
   today:'Today',week:'Week',month:'Month',
@@ -1961,6 +1976,7 @@ en:{
   auto_reply_desc:'When enabled, auto-reply rules apply to all contacts by their modes.',
   auto_reply_help:'Enable when you want LeadFlow to handle first touches and routine replies automatically.',
   sound:'Notification Sound',sound_desc:'Play sound on new message',sound_label:'Sound',
+  followup_desc:'Automatic follow-up messages for leads that don\'t respond',
   webhooks:'Webhooks',webhooks_title:'Webhook Notifications',webhooks_desc:'Send events to external URLs',
   add_webhook:'+ Add Webhook',
   multi_op:'Multi-operator',operators:'Operators',operators_desc:'Managers with access to contacts',
@@ -2009,6 +2025,11 @@ en:{
   sync_err:'Failed to sync Mini App',
   ngrok_hint:'Open /health via ngrok once in the browser and click Visit Site, then reopen Mini App.',
   k_open:'Open',k_wip:'In Progress',k_closed:'Closed',
+  f_new:'New',f_qualification:'Qualification',f_proposal:'Proposal',f_payment:'Payment',f_closed_won:'Closed Won',f_closed_lost:'Lost',
+  lead_score:'Lead Score',hot_lead:'Hot',warm_lead:'Warm',cold_lead:'Cold',
+  funnel:'Funnel',funnel_stage:'Funnel Stage',
+  followup:'Auto Follow-up',followup_on:'Follow-up enabled',followup_off:'Follow-up disabled',followup_active:'Follow-up active',followup_paused:'Follow-up paused',
+  followup_chains:'Follow-up Chains',followup_step:'Step',followup_delay:'Delay (h)',followup_msg:'Message',followup_add_step:'+ Step',
   acc_not_found:'Account not found',tg_profile:'Telegram Profile',
   acc_connected:'Current Telegram profile connected. The bot syncs contacts and settings automatically.',
   acc_waiting:'Open the interface from Telegram so the connected account shows up here automatically.',
@@ -2109,7 +2130,7 @@ function loadLocal(){try{const raw=sessionStorage.getItem(LS_KEY);if(!raw)return
 try{localStorage.removeItem(LS_KEY)}catch{}
 function mapSnapshot(d){
   const prevCounts={};C.forEach(c=>{prevCounts[c.id]=c.msgCount||0;});
-  C=(d.c||[]).map(x=>({id:x.id,chatId:x.chat_id||null,name:x.nm||'',username:x.un||'',tag:x.tg||'OTHER',status:x.st||'open',urgency:x.ur||'medium',sentiment:x.sn||'neutral',lastMessage:x.lm||'',time:x.tm||'',draft:x.dr||'',source:x.sr||'auto',context:x.cx||'',summary:x.smy||'',msgCount:x.mc||0,replyMode:x.rm||'first_only',replyWindow:x.rw||30,linked:!!x.linked,notes:x.nt||'',blocked:!!x.bl,assignedOp:x.op||null,messages:(x.ms||[]).map(m=>({dir:m.d,text:m.t,time:m.w,fileType:m.ft||'',fileId:m.fi||'',fileName:m.fn||''}))}));
+  C=(d.c||[]).map(x=>({id:x.id,chatId:x.chat_id||null,name:x.nm||'',username:x.un||'',tag:x.tg||'OTHER',status:x.st||'open',urgency:x.ur||'medium',sentiment:x.sn||'neutral',lastMessage:x.lm||'',time:x.tm||'',draft:x.dr||'',source:x.sr||'auto',context:x.cx||'',summary:x.smy||'',msgCount:x.mc||0,replyMode:x.rm||'first_only',replyWindow:x.rw||30,linked:!!x.linked,notes:x.nt||'',blocked:!!x.bl,assignedOp:x.op||null,funnelStage:x.fs||'new',leadScore:x.ls||0,fqStatus:x.fqs||'',fqStep:x.fqstep||0,fqNext:x.fqnext||'',messages:(x.ms||[]).map(m=>({dir:m.d,text:m.t,time:m.w,fileType:m.ft||'',fileId:m.fi||'',fileName:m.fn||''}))}));
   OPS=(d.ops||[]).map(o=>({id:o.id,name:o.nm||'',username:o.un||''}));
   let hasNew=false;C.forEach(c=>{if(prevCounts[c.id]!==undefined&&c.msgCount>prevCounts[c.id])hasNew=true;});
   if(hasNew)notifyNewMessage();
@@ -2189,9 +2210,9 @@ function uS(){animateCount(document.getElementById('sa'),C.length);animateCount(
 
 function dateGroup(t){if(!t)return i('date_earlier');const d=new Date(t),now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),yest=new Date(today-864e5);if(d>=today)return i('date_today');if(d>=yest)return i('date_yesterday');return i('date_earlier');}
 function cardHtml(c,ci){const idx=C.indexOf(c);return `<div class="cd-swipe-wrap" data-idx="${idx}" style="animation-delay:${Math.min(ci*.06,.48).toFixed(2)}s"><div class="cd-swipe-bg right">${i('swipe_reply')}</div><div class="cd-swipe-bg left">${i('swipe_archive')}</div><div class="cd" onclick="oD(${idx})"><div class="str ${c.urgency}"></div>
-<div class="cd-top"><div class="cd-user">${avHtml(c)}<div><div class="un">${escHtml(c.name||'—')}</div><div class="uh">${c.username?'@'+escHtml(c.username):''}</div></div></div><div class="cd-time">${ago(c.time)}</div></div>
+<div class="cd-top"><div class="cd-user">${avHtml(c)}<div><div class="un">${escHtml(c.name||'—')}${c.leadScore>=80?' <span style="font-size:12px">🔥</span>':''}</div><div class="uh">${c.username?'@'+escHtml(c.username):''}</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><div class="cd-time">${ago(c.time)}</div>${c.leadScore>0?`<div style="font-size:10px;font-weight:800;color:${scoreColor(c.leadScore)};background:${scoreBg(c.leadScore)};padding:1px 7px;border-radius:8px">${c.leadScore}</div>`:''}</div></div>
 <div class="cd-msg">${escHtml(c.lastMessage||i('no_messages'))}</div>
-<div class="cd-tags"><span class="tg ${c.tag}"><span class="dot"></span>${getTG()[c.tag]||c.tag}</span>${c.linked?'':'<span class="src-tag">📝 ${LANG==="en"?"manual":"ручной"}</span>'}${c.assignedOp?(()=>{const op=OPS.find(o=>o.id===c.assignedOp);return '<span class="src-tag">👤 '+(op?escHtml(op.name):c.assignedOp)+'</span>';})():''}${c.blocked?'<span class="tg" style="background:#fee;color:#c00"><span class="dot" style="background:#c00"></span>${LANG==="en"?"blocked":"блок"}</span>':''}${c.status==='closed'?'<span class="tg OTHER"><span class="dot"></span>${LANG==="en"?"closed":"закрыт"}</span>':''}</div>
+<div class="cd-tags"><span class="tg ${c.tag}"><span class="dot"></span>${getTG()[c.tag]||c.tag}</span>${c.funnelStage&&c.funnelStage!=='new'?`<span class="src-tag" style="color:${FUNNEL_COLORS[c.funnelStage]||'var(--ink3)'}">${i('f_'+c.funnelStage)}</span>`:''}${c.linked?'':'<span class="src-tag">📝 ${LANG==="en"?"manual":"ручной"}</span>'}${c.assignedOp?(()=>{const op=OPS.find(o=>o.id===c.assignedOp);return '<span class="src-tag">👤 '+(op?escHtml(op.name):c.assignedOp)+'</span>';})():''}${c.fqStatus==='active'?'<span class="src-tag" style="color:var(--forest)">⏳ '+i('followup')+'</span>':''}${c.blocked?'<span class="tg" style="background:#fee;color:#c00"><span class="dot" style="background:#c00"></span>${LANG==="en"?"blocked":"блок"}</span>':''}${c.status==='closed'?'<span class="tg OTHER"><span class="dot"></span>${LANG==="en"?"closed":"закрыт"}</span>':''}</div>
 ${c.summary?`<div class="cd-ctx"><svg class="ic ic-s" style="flex-shrink:0;margin-top:1px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>${escHtml(c.summary)}</span></div>`:''}
 </div></div>`;}
 function rC(){const sq=(document.getElementById('searchInp')?.value||'').trim().toLowerCase();let f=cF?C.filter(c=>c.tag===cF):C;if(sq)f=f.filter(c=>(c.name||'').toLowerCase().includes(sq)||(c.username||'').toLowerCase().includes(sq));const e=document.getElementById('cl');
@@ -2208,7 +2229,7 @@ function renderAttach(m){if(!m.fileType)return '';const furl=`${API_BASE}/api/fi
 const messages=(c.messages&&c.messages.length)?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${i('last3')}</h4>${c.messages.slice().reverse().map(m=>`<div class="bb ${m.dir==='out'?'out':''}">${m.fileType?renderAttach(m):''}${m.text?escHtml(m.text):(!m.fileType?'':'')}<div class="bt">${m.time?new Date(m.time).toLocaleTimeString(LANG==='en'?'en':'ru',{hour:'2-digit',minute:'2-digit'}):''}</div></div>`).join('')}</div>`:`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${i('last3')}</h4><p style="font-size:14px;color:var(--ink3)">${c.linked?i('history_info'):i('unlinked_info')}</p></div>`;
 dc.innerHTML=`<div class="detail-topbar"><div class="ttl">${i('contact')}</div><button class="detail-close" onclick="cD()"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="detail-shell">
 <div class="detail-hero">${avHtmlDetail(c)}<div class="dn"><h3>${escHtml(c.name||'—')}</h3><p>${c.username?'@'+escHtml(c.username):i('no_username')}</p><div class="detail-status"><span class="tg ${c.tag}"><span class="dot"></span>${getTG()[c.tag]||c.tag}</span><span class="src-tag">${c.linked?'🔗 '+i('linked_label'):'📝 '+i('manual_contact')}</span><span class="src-tag">${c.status==='closed'?i('archived'):i('active')}</span></div></div></div>
-<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>${i('info')}</h4><div class="mg"><div class="mi"><label>${i('tag_label')}</label><span>${getTG()[c.tag]||c.tag}</span></div><div class="mi"><label>${i('priority')}</label><span style="color:${uc[c.urgency]||'inherit'}">${um[c.urgency]||'—'}</span></div><div class="mi"><label>${i('sentiment_label')}</label><span>${sm[c.sentiment]||'—'}</span></div><div class="mi"><label>${i('msg_count')}</label><span>${c.msgCount||0}</span></div></div></div>
+<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>${i('info')}</h4><div class="mg"><div class="mi"><label>${i('tag_label')}</label><span>${getTG()[c.tag]||c.tag}</span></div><div class="mi"><label>${i('priority')}</label><span style="color:${uc[c.urgency]||'inherit'}">${um[c.urgency]||'—'}</span></div><div class="mi"><label>${i('sentiment_label')}</label><span>${sm[c.sentiment]||'—'}</span></div><div class="mi"><label>${i('msg_count')}</label><span>${c.msgCount||0}</span></div><div class="mi"><label>${i('lead_score')}</label><span style="font-weight:800;color:${scoreColor(c.leadScore)}">${c.leadScore||0}/100 ${c.leadScore>=80?'🔥':''}</span></div><div class="mi select-wrap"><label>${i('funnel_stage')}</label><select onchange="updateFunnel(${c.id},this.value)" style="width:100%;margin-top:4px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:600;color:${FUNNEL_COLORS[c.funnelStage]||'var(--ink)'}">${FUNNEL_KEYS.map(k=>`<option value="${k}" ${c.funnelStage===k?'selected':''}>${i('f_'+k)}</option>`).join('')}</select></div></div>${c.fqStatus?`<div style="margin-top:10px;padding:8px 14px;border-radius:12px;background:${c.fqStatus==='active'?'rgba(26,122,76,.07)':'rgba(161,107,7,.07)'};font-size:12px;display:flex;align-items:center;gap:6px"><span style="font-size:14px">${c.fqStatus==='active'?'⏳':'⏸'}</span><span style="font-weight:600;color:${c.fqStatus==='active'?'var(--forest)':'var(--honey)'}">${c.fqStatus==='active'?i('followup_active'):i('followup_paused')}</span>${c.fqStep?` <span style="color:var(--ink3)">· ${i('followup_step')} ${c.fqStep}</span>`:''}</div>`:''}</div>
 ${c.context?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${i('what_wants')}</h4><p style="font-size:14px;line-height:1.68;color:var(--ocean)">${escHtml(c.context)}</p></div>`:''}
 ${c.summary?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M2 12h20"/><path d="M2 6h20"/><path d="M2 18h12"/></svg>${i('ai_summary')}</h4><p style="font-size:14px;line-height:1.68;color:var(--ink2)">${escHtml(c.summary)}</p></div>`:''}
 <div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>${i('notes')}</h4><textarea id="notesInp" class="si" placeholder="${i('notes_ph')}" style="min-height:64px;resize:vertical">${escHtml(c.notes||'')}</textarea><button class="ss" onclick="saveNotes(${c.id})" style="margin-top:8px">${i('save_note')}</button></div>
@@ -2269,6 +2290,7 @@ function addOp(){document.getElementById('opTgIdInp').value='';document.getEleme
 async function submitOp(){const tgId=document.getElementById('opTgIdInp').value.trim();if(!tgId){nt('Telegram ID required');return}const name=document.getElementById('opNameInp').value.trim()||'';try{await apiFetch('/api/operators',{tg_id:Number(tgId),name});nt(i('op_added'));document.body.classList.remove('modal-open');document.getElementById('mop').classList.remove('on');loadOperators();await syncSnapshot();}catch(e){nt(i('err_prefix')+e.message);}}
 async function removeOp(id){try{await apiFetch('/api/operators/remove',{id:id});nt(i('op_deleted'));loadOperators();await syncSnapshot();}catch(e){nt(i('err'));}}
 async function assignOp(contactId,opId){try{await apiFetch('/api/contact/assign',{contact_id:contactId,operator_id:opId||null});await syncSnapshot();nt(opId?i('op_assigned'):i('op_unassigned'));}catch(e){nt(i('err'));}}
+async function updateFunnel(contactId,stage){const c=C.find(x=>x.id===contactId);if(!c)return;c.funnelStage=stage;if(stage==='closed_won'||stage==='closed_lost')c.status='closed';else if(stage!=='new')c.status='in_progress';else c.status='open';R();try{await apiFetch('/api/contact/update',{contact_id:contactId,funnel_stage:stage,status:c.status});await syncSnapshot();}catch(e){nt(i('err'));}}
 
 function rT(){let f=T.filter(t=>!hiddenDone.has(t.id));if(tF==='o')f=f.filter(t=>!t.done);else if(tF==='d')f=f.filter(t=>t.done);const e=document.getElementById('tl');
 if(!f.length){e.innerHTML=`<div class="em"><div class="empty-shimmer"></div><div class="em-k">${i('tasks_tab')}</div><svg class="em-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><h3>${i('tasks_empty')}</h3><p>${i('tasks_empty_desc')}</p></div>`;return}
@@ -2282,12 +2304,18 @@ function getPresets(){return _PRESETS_I18N[LANG]||_PRESETS_I18N.ru;}
 const PRESETS=getPresets();
 function updatePresetUI(){const p=ST.preset||'';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));if(p&&document.getElementById('preset-'+p))document.getElementById('preset-'+p).classList.add('active');}
 async function applyPreset(name){const pr=getPresets();if(!pr[name])return;const p=pr[name];Object.assign(ST,p);ST.preset=name;lS(true);try{await apiFetch('/api/preset',{preset:name});await syncSnapshot();nt('«'+(name==='personal'?i('personal'):i('business'))+'» '+i('preset_applied'))}catch(e){console.error(e);nt(i('preset_err'))}}
-function lS(loadRemote){document.getElementById('sg1').value=ST.greeting||'';document.getElementById('sg2').value=ST.ai_style||'';document.getElementById('sg3').value=ST.business_context||'';document.getElementById('sg4').value=ST.ai_disclaimer||'';document.getElementById('tar').classList.toggle('on',ST.auto_reply!==false);document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);const am=document.getElementById('assignMode');if(am)am.value=ST.assignment_mode||'manual';const isP=ST.preset==='personal';const l3=document.getElementById('sg3Label');if(l3)l3.textContent=isP?i('about_self'):i('about_biz');const d3=document.getElementById('sg3Desc');if(d3)d3.textContent=isP?i('about_self_desc'):i('about_biz_desc');updatePresetUI();if(loadRemote){loadWebhooks();loadOperators()}}
+function lS(loadRemote){document.getElementById('sg1').value=ST.greeting||'';document.getElementById('sg2').value=ST.ai_style||'';document.getElementById('sg3').value=ST.business_context||'';document.getElementById('sg4').value=ST.ai_disclaimer||'';document.getElementById('tar').classList.toggle('on',ST.auto_reply!==false);document.getElementById('tfu')?.classList.toggle('on',ST.followup_enabled!==false);document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);const am=document.getElementById('assignMode');if(am)am.value=ST.assignment_mode||'manual';const isP=ST.preset==='personal';const l3=document.getElementById('sg3Label');if(l3)l3.textContent=isP?i('about_self'):i('about_biz');const d3=document.getElementById('sg3Desc');if(d3)d3.textContent=isP?i('about_self_desc'):i('about_biz_desc');updatePresetUI();if(loadRemote){loadWebhooks();loadOperators()}}
 async function persistSettings(){try{await apiFetch('/api/settings',{settings:ST});saveLocal();await syncSnapshot();nt('✅ '+i('save'))}catch(e){console.error(e);nt(i('settings_err'))}}
 let _settingsTimer=null;
 function sS(k,el){ST[k]=document.getElementById(el).value;if(_settingsTimer)clearTimeout(_settingsTimer);_settingsTimer=setTimeout(()=>persistSettings(),1500)}
 function saveAllSettings(){ST.greeting=document.getElementById('sg1').value;ST.ai_style=document.getElementById('sg2').value;ST.ai_disclaimer=document.getElementById('sg4').value;ST.business_context=document.getElementById('sg3').value;persistSettings()}
 function tAR(){ST.auto_reply=!ST.auto_reply;const el=document.getElementById('tar');el.classList.toggle('on');el.classList.add('just-toggled');setTimeout(()=>el.classList.remove('just-toggled'),400);persistSettings()}
+function toggleFollowup(){ST.followup_enabled=!ST.followup_enabled;const el=document.getElementById('tfu');el.classList.toggle('on');el.classList.add('just-toggled');setTimeout(()=>el.classList.remove('just-toggled'),400);apiFetch('/api/followup/toggle',{enabled:ST.followup_enabled}).catch(e=>console.error(e));}
+let _fuChains=[];
+async function loadFollowupChains(){try{const r=await apiFetch('/api/followup/chains',null,'GET');_fuChains=r.chains||[];renderFollowupChains();}catch(e){console.error(e);nt(i('err'));}}
+function renderFollowupChains(){const el=document.getElementById('fuChains');if(!el)return;const stages=FUNNEL_KEYS.filter(k=>k!=='closed_won'&&k!=='closed_lost');const grouped={};stages.forEach(s=>grouped[s]=[]);_fuChains.forEach(c=>{if(grouped[c.stage])grouped[c.stage].push(c);});
+el.innerHTML=stages.map(s=>{const steps=grouped[s]||[];return `<div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:${FUNNEL_COLORS[s]||'var(--ink)'};margin-bottom:6px">${i('f_'+s)}</div>${steps.map((st,si)=>`<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px"><input type="number" value="${st.delay}" min="1" style="width:56px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);font-size:12px;text-align:center" onchange="_fuChains[${_fuChains.indexOf(st)}].delay=Number(this.value)"><input value="${escHtml(st.msg)}" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--line);font-size:12px" onchange="_fuChains[${_fuChains.indexOf(st)}].msg=this.value"><button onclick="_fuChains.splice(${_fuChains.indexOf(st)},1);renderFollowupChains()" style="background:none;border:none;color:var(--ruby);cursor:pointer;font-size:16px;padding:2px 6px">×</button></div>`).join('')}<button onclick="_fuChains.push({stage:'${s}',step:${steps.length+1},delay:24,msg:''});renderFollowupChains()" style="font-size:11px;padding:4px 10px;border-radius:8px;border:1px dashed var(--line);background:none;cursor:pointer;color:var(--ink3)">${i('followup_add_step')}</button></div>`}).join('')+'<button class="ss" onclick="saveFollowupChains()" style="width:100%;margin-top:8px">'+i('save_all')+'</button>';}
+async function saveFollowupChains(){try{await apiFetch('/api/followup/chains',{chains:_fuChains});nt('✓');await loadFollowupChains();}catch(e){nt(i('err'));}}
 renderFilters();
 
 /* --- Swipe actions --- */
@@ -2319,16 +2347,21 @@ wp.innerHTML=`
 }
 
 /* --- Kanban board --- */
+function scoreLabel(s){return s>=80?i('hot_lead'):s>=50?i('warm_lead'):i('cold_lead')}
+function scoreColor(s){return s>=80?'var(--ruby)':s>=50?'var(--honey)':'var(--ink3)'}
+function scoreBg(s){return s>=80?'rgba(192,48,48,.10)':s>=50?'rgba(161,107,7,.10)':'rgba(168,162,158,.10)'}
+const FUNNEL_KEYS=['new','qualification','proposal','payment','closed_won','closed_lost'];
+const FUNNEL_COLORS={'new':'var(--ocean)','qualification':'var(--honey)','proposal':'var(--terra)','payment':'var(--forest)','closed_won':'#1a7a4c','closed_lost':'var(--ruby)'};
 function renderKanban(){
 const kb=document.getElementById('kanban');if(!kb)return;
-const cols=[{key:'open',label:i('k_open'),items:C.filter(c=>c.status==='open')},{key:'in_progress',label:i('k_wip'),items:C.filter(c=>c.status==='in_progress')},{key:'closed',label:i('k_closed'),items:C.filter(c=>c.status==='closed')}];
+const cols=FUNNEL_KEYS.map(key=>({key,label:i('f_'+key),color:FUNNEL_COLORS[key],items:C.filter(c=>c.funnelStage===key)}));
 kb.innerHTML=cols.map(col=>`<div class="kb-col" data-status="${col.key}">
-<div class="kb-col-head">${col.label}<span class="kb-count">${col.items.length}</span></div>
-${col.items.map(c=>`<div class="kb-card" draggable="true" data-cid="${c.id}">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">${avHtml(c)}<div><div class="kb-name">${escHtml(c.name||'—')}</div>${c.username?'<div style="font-size:11px;color:var(--ink3)">@'+escHtml(c.username)+'</div>':''}</div></div>
+<div class="kb-col-head"><span style="color:${col.color}">${col.label}</span><span class="kb-count">${col.items.length}</span></div>
+${col.items.map(c=>{const sc=c.leadScore||0;return `<div class="kb-card" draggable="true" data-cid="${c.id}">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">${avHtml(c)}<div style="flex:1;min-width:0"><div class="kb-name">${escHtml(c.name||'—')}</div>${c.username?'<div style="font-size:11px;color:var(--ink3)">@'+escHtml(c.username)+'</div>':''}</div>${sc>0?`<div style="font-size:11px;font-weight:700;color:${scoreColor(sc)};background:${scoreBg(sc)};padding:2px 8px;border-radius:10px">${sc}</div>`:''}</div>
 <div class="kb-msg">${escHtml(c.lastMessage||i('no_messages'))}</div>
-<span class="kb-tag">${getTG()[c.tag]||c.tag}</span>
-</div>`).join('')}
+<div style="display:flex;gap:4px;align-items:center;margin-top:6px;flex-wrap:wrap"><span class="kb-tag">${getTG()[c.tag]||c.tag}</span>${sc>=80?'<span style="font-size:10px;font-weight:700;color:var(--ruby)">🔥</span>':''}</div>
+</div>`}).join('')}
 </div>`).join('');
 initKbDrag();
 }
@@ -2385,7 +2418,7 @@ kb.querySelectorAll('.kb-card').forEach(card=>{
   },{passive:true});
 });
 }
-async function kbMove(cid,status){const c=C.find(x=>x.id===cid);if(!c||c.status===status)return;c.status=status;R();try{await apiFetch('/api/contact/update',{contact_id:c.id,status});await syncSnapshot();}catch(ex){nt(i('err'));}}
+async function kbMove(cid,stage){const c=C.find(x=>x.id===cid);if(!c||c.funnelStage===stage)return;c.funnelStage=stage;if(stage==='closed_won'||stage==='closed_lost')c.status='closed';else if(stage!=='new')c.status='in_progress';else c.status='open';R();try{await apiFetch('/api/contact/update',{contact_id:c.id,funnel_stage:stage,status:c.status});await syncSnapshot();}catch(ex){nt(i('err'));}}
 
 /* --- Pull to refresh --- */
 (function(){
