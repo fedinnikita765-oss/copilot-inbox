@@ -392,6 +392,11 @@ button,input,textarea,select{font:inherit}
 .tk:active{transform:scale(.86)}
 .tk.done{background:var(--forest);border-color:var(--forest);color:#fff;box-shadow:0 10px 24px rgba(26,122,76,.18)}
 .tc.fade-out{opacity:0;transform:translateX(40px) scale(.95);max-height:0;padding:0;margin:0;overflow:hidden;transition:opacity .4s ease,transform .4s ease,max-height .4s ease .1s,padding .4s ease .1s,margin .4s ease .1s}
+.tc-done{opacity:.65;background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,.45))!important}
+.tc-done:hover{opacity:.85}
+.done-section-label{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--forest);margin:18px 4px 10px;padding:0 4px;display:flex;align-items:center;gap:10px}
+.done-section-label::before{content:'';width:28px;height:1px;border-radius:999px;background:linear-gradient(90deg,rgba(26,122,76,.55),rgba(26,122,76,0))}
+.done-timer{font-size:10px;color:var(--ink3);background:rgba(26,122,76,.08);padding:2px 7px;border-radius:8px;font-weight:600}
 .tk svg{opacity:0;transition:.2s}.tk.done svg{opacity:1}
 .tb{flex:1}
 .tt{font-size:14px;font-weight:800;margin-bottom:4px;letter-spacing:-.01em}
@@ -1312,6 +1317,35 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
   font-size:12px;font-weight:800;color:var(--ink2);cursor:pointer;transition:transform .2s var(--ease), box-shadow .22s var(--ease)
 }
 .profile-link-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(93,77,58,.07)}
+/* Settings menu grid */
+.stm-grid{display:flex;flex-direction:column;gap:2px;margin:6px 0 20px;background:rgba(255,255,255,.65);border-radius:22px;border:1px solid rgba(255,255,255,.86);overflow:hidden;box-shadow:0 8px 24px rgba(28,25,23,.04)}
+.stm-item{display:flex;align-items:center;gap:14px;padding:15px 16px;background:transparent;border:0;cursor:pointer;text-align:left;font-family:var(--body);transition:background .15s ease}
+.stm-item:hover{background:rgba(0,0,0,.02)}
+.stm-item:active{background:rgba(0,0,0,.04)}
+.stm-item+.stm-item{border-top:1px solid var(--line)}
+.stm-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.stm-icon .ic{width:20px;height:20px}
+.stm-text{flex:1;min-width:0}
+.stm-title{font-size:14px;font-weight:700;color:var(--ink)}
+.stm-sub{font-size:12px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stm-arrow{width:18px;height:18px;flex-shrink:0;color:var(--ink3);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Settings sub-pages (fullscreen overlays) */
+.sp{position:fixed;inset:0;z-index:300;background:linear-gradient(180deg,#fdfbf8,#faf8f5 58%,#f7f3ee);transform:translateX(100%);opacity:0;transition:transform .38s var(--ease),opacity .28s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+.sp.on{transform:translateX(0);opacity:1}
+.sp-head{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(253,251,248,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.sp-head h2{font-size:17px;font-weight:800;font-family:var(--body)}
+.sp-back{width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.04);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s}
+.sp-back:hover{background:rgba(0,0,0,.07)}
+.sp-back:active{transform:scale(.9)}
+.sp-back svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sp-body{flex:1;padding:18px 16px 100px}
+.sp-field{margin-bottom:20px}
+.sp-field label{font-size:14px;font-weight:700;color:var(--ink);display:block;margin-bottom:4px}
+.sp-hint{font-size:12px;color:var(--ink3);margin-bottom:8px;line-height:1.5}
+.sp-card{background:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.86);border-radius:18px;padding:16px;box-shadow:0 4px 12px rgba(28,25,23,.03)}
+.sp-card h4{font-size:14px;font-weight:800;margin-bottom:8px}
+
 .settings-panel-grid{display:grid;gap:12px;margin:0 14px 14px}
 .settings-panel{
   padding:18px 18px 20px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
@@ -1633,165 +1667,113 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
       <div class="profile-hero-copy">
         <h2 id="accName" data-i="account">Аккаунт</h2>
         <p id="accHandle" data-i="profile_placeholder">Данные профиля появятся здесь</p>
-        <div class="profile-hero-note" id="accNote" data-i="account_note">Показываем подключённый аккаунт, не меняя остальную логику приложения.</div>
       </div>
     </div>
     <div class="profile-hero-meta">
-      <div class="profile-meta-card">
-        <span class="profile-meta-label">ID</span>
-        <strong id="accId">—</strong>
-      </div>
-      <div class="profile-meta-card">
-        <span class="profile-meta-label" data-i="platform">Платформа</span>
-        <strong>LeadFlow · WebApp</strong>
-      </div>
-    </div>
-    <div class="profile-hero-actions">
-      <button class="profile-link-btn" onclick="document.getElementById('st-ai').scrollIntoView({behavior:'smooth',block:'start'})">
-        <svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span data-i="prompts">Промпты</span>
-      </button>
-      <button class="profile-link-btn" onclick="document.getElementById('st-context').scrollIntoView({behavior:'smooth',block:'start'})">
-        <svg class="ic ic-s" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        <span data-i="context_nav">Контекст</span>
-      </button>
-      <button class="profile-link-btn" onclick="document.getElementById('st-auto').scrollIntoView({behavior:'smooth',block:'start'})">
-        <svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
-        <span data-i="automation">Автоматизация</span>
-      </button>
+      <div class="profile-meta-card"><span class="profile-meta-label">ID</span><strong id="accId">—</strong></div>
+      <div class="profile-meta-card"><span class="profile-meta-label" data-i="platform">Платформа</span><strong>LeadFlow</strong></div>
     </div>
   </section>
 
-  <div class="st-k" data-i="mode_title">Режим использования</div>
-  <section class="settings-panel-grid">
-    <div class="sg settings-panel settings-panel-wide" style="position:relative;overflow:hidden">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-        <div><h4 data-i="mode_choose">Выбери режим</h4><p data-i="mode_desc">Настройки, промпты и стиль ответов подстроятся автоматически</p></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:4px" id="presetBtns">
-        <button class="preset-btn" id="preset-personal" onclick="applyPreset('personal')" style="flex:1;padding:14px 12px;border-radius:16px;border:2px solid var(--line);background:var(--card);cursor:pointer;text-align:left;transition:all .2s">
-          <div style="font-size:14px;font-weight:700;margin-bottom:4px" data-i="personal">Личный</div>
-          <div style="font-size:12px;color:var(--ink3);line-height:1.5" data-i="personal_desc">Дружелюбные ответы, неформальный тон, автоответ пока занят</div>
-        </button>
-        <button class="preset-btn" id="preset-business" onclick="applyPreset('business')" style="flex:1;padding:14px 12px;border-radius:16px;border:2px solid var(--line);background:var(--card);cursor:pointer;text-align:left;transition:all .2s">
-          <div style="font-size:14px;font-weight:700;margin-bottom:4px" data-i="business">Бизнес</div>
-          <div style="font-size:12px;color:var(--ink3);line-height:1.5" data-i="business_desc">Вежливый стиль, обращение на «вы», профессиональные ответы</div>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <div class="st-k" id="st-ai" data-i="prompts_title">Промпты и стиль</div>
-  <section class="settings-panel-grid">
-    <div class="sg settings-panel">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <div><h4 data-i="greeting">Приветствие</h4><p data-i="greeting_desc">Первое сообщение новым клиентам</p></div>
-      </div>
-      <textarea class="si" id="sg1" oninput="sS('greeting','sg1')"></textarea>
-    </div>
-
-    <div class="sg settings-panel">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
-        <div><h4 data-i="ai_style">Стиль AI</h4><p data-i="ai_style_desc">Как нейросеть отвечает и в каком тоне ведёт диалог</p></div>
-      </div>
-      <textarea class="si" id="sg2" oninput="sS('ai_style','sg2')"></textarea>
-    </div>
-
-    <div class="sg settings-panel settings-panel-wide">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-        <div><h4 data-i="disclaimer">Дисклеймер</h4><p data-i="disclaimer_desc">Пометка в конце автоответа, чтобы клиент видел, что ему отвечает AI</p></div>
-      </div>
-      <textarea class="si" id="sg4" oninput="sS('ai_disclaimer','sg4')"></textarea>
-    </div>
-  </section>
-
-  <div class="st-k" id="st-context" data-i="context_title">Контекст и база знаний</div>
-  <section class="settings-panel-grid">
-    <div class="sg settings-panel settings-panel-wide">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-        <div><h4 id="sg3Label" data-i="about_biz">О бизнесе</h4><p id="sg3Desc" data-i="about_biz_desc">Услуги, цены, особенности и вся информация, на которую должен опираться AI</p></div>
-      </div>
-      <textarea class="si" id="sg3" oninput="sS('business_context','sg3')"></textarea>
-    </div>
-  </section>
-  <div style="padding:0 14px 8px"><button class="ss" id="saveAllSettings" onclick="saveAllSettings()" style="width:100%;padding:16px;font-size:14px" data-i="save_all">Сохранить все настройки</button></div>
-
-  <div class="st-k" id="st-auto" data-i="auto_title">Автоматизация</div>
-  <section class="settings-panel-grid">
-    <div class="sg settings-panel settings-toggle-card">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></div>
-        <div><h4 data-i="auto_reply">Авто-ответ AI</h4><p data-i="auto_reply_desc">Когда включено, правила автоответа применяются ко всем клиентам по их режимам.</p></div>
-      </div>
-      <div class="tr"><label data-i="auto_reply_on">Авто-ответ AI</label><div class="to" id="tar" onclick="tAR()"></div></div>
-      <p class="st-help" data-i="auto_reply_help">Включай, когда хочешь, чтобы LeadFlow вёл первые касания и рутинные ответы автоматически.</p>
-    </div>
-    <div class="sg settings-panel settings-toggle-card">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
-        <div><h4 data-i="sound">Звук уведомлений</h4><p data-i="sound_desc">Воспроизводить звук при новом сообщении</p></div>
-      </div>
-      <div class="tr"><label data-i="sound_label">Звук</label><div class="to" id="tsnd" onclick="toggleSound()"></div></div>
-    </div>
-    <div class="sg settings-panel settings-toggle-card">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/><path d="M5 3L2 6"/><path d="M22 6l-3-3"/></svg></div>
-        <div><h4 data-i="followup">Авто-дожим</h4><p data-i="followup_desc">Автоматические follow-up сообщения для лидов, которые не отвечают</p></div>
-      </div>
-      <div class="tr"><label data-i="followup">Авто-дожим</label><div class="to" id="tfu" onclick="toggleFollowup()"></div></div>
-      <div id="fuChains" style="margin-top:12px"></div>
-      <button class="ss" onclick="loadFollowupChains()" style="width:100%;margin-top:8px" data-i="followup_chains">Настроить цепочки</button>
-    </div>
-  </section>
-
-  <div class="st-k" data-i="webhooks">Вебхуки</div>
-  <section class="settings-panel-grid">
-    <div class="sg settings-panel">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-        <div><h4 data-i="webhooks_title">Webhook-уведомления</h4><p data-i="webhooks_desc">Отправлять события на внешние URL</p></div>
-      </div>
-      <div id="whList" style="margin:12px 0"><p style="font-size:13px;color:var(--ink3)" data-i="loading">Загрузка...</p></div>
-      <button class="ss" onclick="addWH()" style="width:100%" data-i="add_webhook">+ Добавить вебхук</button>
-    </div>
-  </section>
-
-  <div class="st-k" data-i="multi_op">Мультиоператор</div>
-  <section class="settings-panel-grid">
-    <div class="sg settings-panel">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <div><h4 data-i="operators">Операторы</h4><p data-i="operators_desc">Менеджеры с доступом к контактам</p></div>
-      </div>
-      <div id="opList" style="margin:12px 0"><p style="font-size:13px;color:var(--ink3)" data-i="loading">Загрузка...</p></div>
-      <button class="ss" onclick="addOp()" style="width:100%;margin-bottom:10px" data-i="add_operator">+ Добавить оператора</button>
-      <div class="tr"><label data-i="assign_mode">Режим назначения</label><select id="assignMode" onchange="ST.assignment_mode=this.value;persistSettings()" style="padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:#fff"><option value="manual" data-i="manual_mode">Ручной</option><option value="round_robin">Round-robin</option></select></div>
-    </div>
-  </section>
-
-  <div class="st-k" data-i="lang_label">Язык</div>
-  <section class="settings-panel-grid">
-    <div class="sg settings-panel">
-      <div class="settings-panel-head">
-        <div class="settings-panel-icon">🌐</div>
-        <div><h4 data-i="lang_label">Язык</h4><p id="langDesc">Language / Язык</p></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:4px" id="langBtns">
-        <button class="preset-btn" id="lang-ru" onclick="changeLang('ru')" style="flex:1;padding:14px 12px;border-radius:16px;border:2px solid var(--line);background:var(--card);cursor:pointer;text-align:center;transition:all .2s">
-          <div style="font-size:14px;font-weight:700">🇷🇺 Русский</div>
-        </button>
-        <button class="preset-btn" id="lang-en" onclick="changeLang('en')" style="flex:1;padding:14px 12px;border-radius:16px;border:2px solid var(--line);background:var(--card);cursor:pointer;text-align:center;transition:all .2s">
-          <div style="font-size:14px;font-weight:700">🇬🇧 English</div>
-        </button>
-      </div>
-    </div>
-  </section>
+  <div class="stm-grid">
+    <button class="stm-item" onclick="openSettingsPage('sp-mode')">
+      <div class="stm-icon" style="background:var(--terra-s);color:var(--terra)"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div class="stm-text"><div class="stm-title" data-i="mode_choose">Режим</div><div class="stm-sub" data-i="mode_desc">Личный или бизнес</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="stm-item" onclick="openSettingsPage('sp-prompts')">
+      <div class="stm-icon" style="background:var(--ocean-s);color:var(--ocean)"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="stm-text"><div class="stm-title" data-i="prompts_title">Промпты и стиль</div><div class="stm-sub" data-i="prompts_sub">Приветствие, стиль AI, дисклеймер</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="stm-item" onclick="openSettingsPage('sp-context')">
+      <div class="stm-icon" style="background:var(--forest-s);color:var(--forest)"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <div class="stm-text"><div class="stm-title" data-i="context_title">Контекст</div><div class="stm-sub" data-i="about_biz_desc">О бизнесе и база знаний для AI</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="stm-item" onclick="openSettingsPage('sp-auto')">
+      <div class="stm-icon" style="background:var(--honey-s);color:var(--honey)"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></div>
+      <div class="stm-text"><div class="stm-title" data-i="auto_title">Автоматизация</div><div class="stm-sub" data-i="auto_sub">Авто-ответ, звук, follow-up</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="stm-item" onclick="openSettingsPage('sp-team')">
+      <div class="stm-icon" style="background:var(--ocean-s);color:var(--ocean)"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="stm-text"><div class="stm-title" data-i="multi_op">Команда</div><div class="stm-sub" data-i="operators_desc">Операторы и вебхуки</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="stm-item" onclick="openSettingsPage('sp-lang')">
+      <div class="stm-icon" style="background:rgba(120,100,80,.07);color:#786450">🌐</div>
+      <div class="stm-text"><div class="stm-title" data-i="lang_label">Язык</div><div class="stm-sub">Language / Язык</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
 </div></div>
+
+<!-- Settings sub-pages (fullscreen overlays) -->
+<div class="sp" id="sp-mode">
+  <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-mode')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="mode_choose">Режим</h2></div>
+  <div class="sp-body">
+    <div style="display:flex;gap:10px;margin-top:4px" id="presetBtns">
+      <button class="preset-btn" id="preset-personal" onclick="applyPreset('personal')" style="flex:1;padding:18px 14px;border-radius:18px;border:2px solid var(--line);background:rgba(255,255,255,.8);cursor:pointer;text-align:left;transition:all .25s var(--ease)">
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px" data-i="personal">Личный</div>
+        <div style="font-size:12px;color:var(--ink3);line-height:1.6" data-i="personal_desc">Дружелюбные ответы, неформальный тон, автоответ пока занят</div>
+      </button>
+      <button class="preset-btn" id="preset-business" onclick="applyPreset('business')" style="flex:1;padding:18px 14px;border-radius:18px;border:2px solid var(--line);background:rgba(255,255,255,.8);cursor:pointer;text-align:left;transition:all .25s var(--ease)">
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px" data-i="business">Бизнес</div>
+        <div style="font-size:12px;color:var(--ink3);line-height:1.6" data-i="business_desc">Вежливый стиль, обращение на «вы», профессиональные ответы</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sp" id="sp-prompts">
+  <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-prompts')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="prompts_title">Промпты и стиль</h2></div>
+  <div class="sp-body">
+    <div class="sp-field"><label data-i="greeting">Приветствие</label><p class="sp-hint" data-i="greeting_desc">Первое сообщение новым клиентам</p><textarea class="si" id="sg1" oninput="sS('greeting','sg1')"></textarea></div>
+    <div class="sp-field"><label data-i="ai_style">Стиль AI</label><p class="sp-hint" data-i="ai_style_desc">Как нейросеть отвечает и в каком тоне ведёт диалог</p><textarea class="si" id="sg2" oninput="sS('ai_style','sg2')"></textarea></div>
+    <div class="sp-field"><label data-i="disclaimer">Дисклеймер</label><p class="sp-hint" data-i="disclaimer_desc">Пометка в конце автоответа</p><textarea class="si" id="sg4" oninput="sS('ai_disclaimer','sg4')"></textarea></div>
+    <button class="ss" onclick="saveAllSettings()" style="width:100%;padding:16px;font-size:14px;margin-top:8px" data-i="save_all">Сохранить</button>
+  </div>
+</div>
+
+<div class="sp" id="sp-context">
+  <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-context')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="context_title">Контекст</h2></div>
+  <div class="sp-body">
+    <div class="sp-field"><label id="sg3Label" data-i="about_biz">О бизнесе</label><p class="sp-hint" id="sg3Desc" data-i="about_biz_desc">Услуги, цены, особенности и вся информация для AI</p><textarea class="si" id="sg3" oninput="sS('business_context','sg3')" style="min-height:160px"></textarea></div>
+    <button class="ss" onclick="saveAllSettings()" style="width:100%;padding:16px;font-size:14px;margin-top:8px" data-i="save_all">Сохранить</button>
+  </div>
+</div>
+
+<div class="sp" id="sp-auto">
+  <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-auto')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="auto_title">Автоматизация</h2></div>
+  <div class="sp-body">
+    <div class="sp-card"><div class="tr"><label data-i="auto_reply_on">Авто-ответ AI</label><div class="to" id="tar" onclick="tAR()"></div></div><p class="st-help" data-i="auto_reply_help">LeadFlow ведёт первые касания и рутинные ответы автоматически.</p></div>
+    <div class="sp-card"><div class="tr"><label data-i="sound_label">Звук уведомлений</label><div class="to" id="tsnd" onclick="toggleSound()"></div></div></div>
+    <div class="sp-card"><div class="tr"><label data-i="followup">Авто-дожим</label><div class="to" id="tfu" onclick="toggleFollowup()"></div></div><div id="fuChains" style="margin-top:12px"></div><button class="ss" onclick="loadFollowupChains()" style="width:100%;margin-top:8px" data-i="followup_chains">Настроить цепочки</button></div>
+  </div>
+</div>
+
+<div class="sp" id="sp-team">
+  <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-team')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="multi_op">Команда</h2></div>
+  <div class="sp-body">
+    <div class="sp-card"><h4 data-i="operators">Операторы</h4><div id="opList" style="margin:12px 0"><p style="font-size:13px;color:var(--ink3)" data-i="loading">Загрузка...</p></div><button class="ss" onclick="addOp()" style="width:100%;margin-bottom:10px" data-i="add_operator">+ Добавить оператора</button><div class="tr"><label data-i="assign_mode">Режим назначения</label><select id="assignMode" onchange="ST.assignment_mode=this.value;persistSettings()" style="padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:#fff"><option value="manual" data-i="manual_mode">Ручной</option><option value="round_robin">Round-robin</option></select></div></div>
+    <div class="sp-card" style="margin-top:14px"><h4 data-i="webhooks_title">Webhook-уведомления</h4><div id="whList" style="margin:12px 0"><p style="font-size:13px;color:var(--ink3)" data-i="loading">Загрузка...</p></div><button class="ss" onclick="addWH()" style="width:100%" data-i="add_webhook">+ Добавить вебхук</button></div>
+  </div>
+</div>
+
+<div class="sp" id="sp-lang">
+  <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-lang')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="lang_label">Язык</h2></div>
+  <div class="sp-body">
+    <div style="display:flex;gap:10px" id="langBtns">
+      <button class="preset-btn" id="lang-ru" onclick="changeLang('ru')" style="flex:1;padding:18px 14px;border-radius:18px;border:2px solid var(--line);background:rgba(255,255,255,.8);cursor:pointer;text-align:center;transition:all .25s var(--ease)">
+        <div style="font-size:15px;font-weight:700">🇷🇺 Русский</div>
+      </button>
+      <button class="preset-btn" id="lang-en" onclick="changeLang('en')" style="flex:1;padding:18px 14px;border-radius:18px;border:2px solid var(--line);background:rgba(255,255,255,.8);cursor:pointer;text-align:center;transition:all .25s var(--ease)">
+        <div style="font-size:15px;font-weight:700">🇬🇧 English</div>
+      </button>
+    </div>
+  </div>
+</div>
 <div class="nav">
 <div class="nav-active" aria-hidden="true"></div>
 <button class="nb on" onclick="go('in',this)"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span data-i="inbox">Входящие</span></button>
@@ -1842,14 +1824,14 @@ ru:{
   mode_desc:'Настройки, промпты и стиль ответов подстроятся автоматически',
   personal:'Личный',personal_desc:'Дружелюбные ответы, неформальный тон, автоответ пока занят',
   business:'Бизнес',business_desc:'Вежливый стиль, обращение на «вы», профессиональные ответы',
-  prompts_title:'Промпты и стиль',
+  prompts_title:'Промпты и стиль',prompts_sub:'Приветствие, стиль AI, дисклеймер',
   greeting:'Приветствие',greeting_desc:'Первое сообщение новым клиентам',
   save:'Сохранить',
   ai_style:'Стиль AI',ai_style_desc:'Как нейросеть отвечает и в каком тоне ведёт диалог',
   disclaimer:'Дисклеймер',disclaimer_desc:'Пометка в конце автоответа, чтобы клиент видел, что ему отвечает AI',
   context_title:'Контекст и база знаний',
   about_biz:'О бизнесе',about_biz_desc:'Услуги, цены, особенности и вся информация, на которую должен опираться AI',
-  auto_title:'Автоматизация',
+  auto_title:'Автоматизация',auto_sub:'Авто-ответ, звук, follow-up',
   auto_reply:'Авто-ответ AI',auto_reply_on:'Авто-ответ AI',
   auto_reply_desc:'Когда включено, правила автоответа применяются ко всем клиентам по их режимам.',
   auto_reply_help:'Включай, когда хочешь, чтобы LeadFlow вёл первые касания и рутинные ответы автоматически.',
@@ -1964,14 +1946,14 @@ en:{
   mode_desc:'Settings, prompts and reply style will adjust automatically',
   personal:'Personal',personal_desc:'Friendly replies, informal tone, auto-reply while busy',
   business:'Business',business_desc:'Polite style, formal tone, professional replies',
-  prompts_title:'Prompts & Style',
+  prompts_title:'Prompts & Style',prompts_sub:'Greeting, AI style, disclaimer',
   greeting:'Greeting',greeting_desc:'First message to new contacts',
   save:'Save',
   ai_style:'AI Style',ai_style_desc:'How the AI responds and in what tone',
   disclaimer:'Disclaimer',disclaimer_desc:'Note at the end of auto-reply so the customer knows it\'s AI',
   context_title:'Context & Knowledge Base',
   about_biz:'About Business',about_biz_desc:'Services, prices, details the AI should rely on',
-  auto_title:'Automation',
+  auto_title:'Automation',auto_sub:'Auto-reply, sound, follow-up',
   auto_reply:'AI Auto-Reply',auto_reply_on:'AI Auto-Reply',
   auto_reply_desc:'When enabled, auto-reply rules apply to all contacts by their modes.',
   auto_reply_help:'Enable when you want LeadFlow to handle first touches and routine replies automatically.',
@@ -2134,7 +2116,7 @@ function mapSnapshot(d){
   OPS=(d.ops||[]).map(o=>({id:o.id,name:o.nm||'',username:o.un||''}));
   let hasNew=false;C.forEach(c=>{if(prevCounts[c.id]!==undefined&&c.msgCount>prevCounts[c.id])hasNew=true;});
   if(hasNew)notifyNewMessage();
-  T=(d.t||[]).map(x=>({id:x.id,title:x.ti||'',desc:x.ds||'',priority:x.pr||'medium',done:!!x.dn,contact:x.cn||'',time:x.tm||''}));
+  T=(d.t||[]).map(x=>({id:x.id,title:x.ti||'',desc:x.ds||'',priority:x.pr||'medium',done:!!x.dn,contact:x.cn||'',time:x.tm||'',doneAt:x.da||''}));
   ST=d.s||{};lastSync=d.meta?.ts||new Date().toISOString();saveLocal();
 }
 function loadHash(){const h=location.hash.substring(1);if(!h)return false;try{let b=h.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';const d=JSON.parse(decodeURIComponent(escape(atob(b))));mapSnapshot(d);return true}catch(e){console.error(e);return false}}
@@ -2188,7 +2170,7 @@ async function syncSnapshot(silent=true){
 }
 
 const pgOrder=['in','tk','an','st'];
-function go(p,b){const next=document.getElementById('p-'+p);const current=document.querySelector('.pg.on');if(current===next){window.scrollTo({top:0,behavior:'smooth'});return;}document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));b.classList.add('on');syncNavHighlight();if(p==='an')loadStats();if(p==='st'){loadWebhooks();loadOperators();}const ci=pgOrder.indexOf(current?.id?.replace('p-','')||'in');const ni=pgOrder.indexOf(p);const goRight=ni>ci;if(current){current.classList.add(goRight?'slide-out-left':'slide-out-right');current.classList.remove('is-settled');setTimeout(()=>{current.classList.remove('on','slide-out-left','slide-out-right','is-settled');next.classList.add('on',goRight?'slide-in-right':'slide-in-left');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('slide-in-right','slide-in-left');next.classList.add('is-settled');}));},200);}else{next.classList.add('on','is-settled');}window.scrollTo({top:0,behavior:'smooth'})}
+function go(p,b){const next=document.getElementById('p-'+p);const current=document.querySelector('.pg.on');if(current===next){window.scrollTo({top:0,behavior:'smooth'});return;}document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));b.classList.add('on');syncNavHighlight();if(p==='an')loadStats();if(p==='st'){document.querySelectorAll('.sp.on').forEach(s=>s.classList.remove('on'));document.querySelector('.nav').style.transform='';}const ci=pgOrder.indexOf(current?.id?.replace('p-','')||'in');const ni=pgOrder.indexOf(p);const goRight=ni>ci;if(current){current.classList.add(goRight?'slide-out-left':'slide-out-right');current.classList.remove('is-settled');setTimeout(()=>{current.classList.remove('on','slide-out-left','slide-out-right','is-settled');next.classList.add('on',goRight?'slide-in-right':'slide-in-left');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('slide-in-right','slide-in-left');next.classList.add('is-settled');}));},200);}else{next.classList.add('on','is-settled');}window.scrollTo({top:0,behavior:'smooth'})}
 function applyLangToUI(){
   document.querySelectorAll('[data-i]').forEach(el=>{const k=el.dataset.i;const v=i(k);if(v&&v!==k)el.textContent=v;});
   document.querySelectorAll('[data-iph]').forEach(el=>{el.placeholder=i(el.dataset.iph);});
@@ -2292,19 +2274,25 @@ async function removeOp(id){try{await apiFetch('/api/operators/remove',{id:id});
 async function assignOp(contactId,opId){try{await apiFetch('/api/contact/assign',{contact_id:contactId,operator_id:opId||null});await syncSnapshot();nt(opId?i('op_assigned'):i('op_unassigned'));}catch(e){nt(i('err'));}}
 async function updateFunnel(contactId,stage){const c=C.find(x=>x.id===contactId);if(!c)return;c.funnelStage=stage;if(stage==='closed_won'||stage==='closed_lost')c.status='closed';else if(stage!=='new')c.status='in_progress';else c.status='open';R();try{await apiFetch('/api/contact/update',{contact_id:contactId,funnel_stage:stage,status:c.status});await syncSnapshot();}catch(e){nt(i('err'));}}
 
-function rT(){let f=T.filter(t=>!hiddenDone.has(t.id));if(tF==='o')f=f.filter(t=>!t.done);else if(tF==='d')f=f.filter(t=>t.done);const e=document.getElementById('tl');
-if(!f.length){e.innerHTML=`<div class="em"><div class="empty-shimmer"></div><div class="em-k">${i('tasks_tab')}</div><svg class="em-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><h3>${i('tasks_empty')}</h3><p>${i('tasks_empty_desc')}</p></div>`;return}
-e.innerHTML=f.map((t,x)=>`<div class="tc" style="animation-delay:${x*.04}s"><div class="tk ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask(${T.indexOf(t)})"><svg class="ic ic-s" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt ${t.done?'done':''}">${escHtml(t.title)}</div><div class="tm2"><span class="tp" style="background:${{high:'var(--ruby)',medium:'var(--honey)',low:'var(--forest)'}[t.priority]}" ></span>${escHtml(t.contact||'')} ${ago(t.time)}</div>${t.desc?`<div style="font-size:12px;color:var(--ink3);margin-top:4px">${escHtml(t.desc)}</div>`:''}</div></div>`).join('')}
+function _doneTimeLeft(doneAt){if(!doneAt)return '';try{const d=new Date(doneAt);const left=24*3600*1000-(Date.now()-d.getTime());if(left<=0)return '';const h=Math.floor(left/3600000);const m=Math.floor((left%3600000)/60000);return h>0?h+(LANG==='en'?'h left':'ч'):(m+(LANG==='en'?'m left':'мин'));}catch(e){return '';}}
+function rT(){let open=T.filter(t=>!t.done);let done=T.filter(t=>t.done);if(tF==='o'){done=[];}else if(tF==='d'){open=[];}const e=document.getElementById('tl');
+if(!open.length&&!done.length){e.innerHTML=`<div class="em"><div class="empty-shimmer"></div><div class="em-k">${i('tasks_tab')}</div><svg class="em-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><h3>${i('tasks_empty')}</h3><p>${i('tasks_empty_desc')}</p></div>`;return}
+let html='';
+html+=open.map((t,x)=>`<div class="tc" style="animation-delay:${x*.04}s"><div class="tk" onclick="event.stopPropagation();toggleTask(${T.indexOf(t)})"><svg class="ic ic-s" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt">${escHtml(t.title)}</div><div class="tm2"><span class="tp" style="background:${{high:'var(--ruby)',medium:'var(--honey)',low:'var(--forest)'}[t.priority]}"></span>${escHtml(t.contact||'')} ${ago(t.time)}</div>${t.desc?`<div style="font-size:12px;color:var(--ink3);margin-top:4px">${escHtml(t.desc)}</div>`:''}</div></div>`).join('');
+if(done.length){html+=`<div class="done-section-label">${LANG==='en'?'Completed':'Выполнено'} (${done.length})</div>`;
+html+=done.map((t,x)=>{const tl=_doneTimeLeft(t.doneAt);return `<div class="tc tc-done" style="animation-delay:${x*.04}s"><div class="tk done" onclick="event.stopPropagation();toggleTask(${T.indexOf(t)})"><svg class="ic ic-s" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt done">${escHtml(t.title)}</div><div class="tm2"><span class="tp" style="background:var(--forest)"></span>${escHtml(t.contact||'')} ${ago(t.time)}${tl?` <span class="done-timer">${tl}</span>`:''}</div></div></div>`;}).join('');}
+e.innerHTML=html;
+const to2=document.getElementById('to2'),td2=document.getElementById('td2'),tt2=document.getElementById('tt2');
+if(to2)to2.textContent=T.filter(t=>!t.done).length;if(td2)td2.textContent=T.filter(t=>t.done).length;if(tt2)tt2.textContent=T.length;}
 function fT(f,b){tF=f;document.querySelectorAll('#p-tk .ft').forEach(x=>x.classList.remove('on'));b.classList.add('on');rT()}
-const hiddenDone=new Set();
-async function toggleTask(idx){const t=T[idx];if(!t)return;t.done=!t.done;if(!t.done)hiddenDone.delete(t.id);rT();if(t.done){const cards=document.querySelectorAll('.tc');cards.forEach(card=>{const tk=card.querySelector('.tk.done');if(tk&&!tk.classList.contains('just-done')){tk.classList.add('just-done');setTimeout(()=>tk.classList.remove('just-done'),700);}});setTimeout(()=>{const allCards=document.querySelectorAll('.tc');allCards.forEach(card=>{const tk=card.querySelector('.tk.done');if(tk){card.style.maxHeight=card.offsetHeight+'px';requestAnimationFrame(()=>card.classList.add('fade-out'));}});setTimeout(()=>{hiddenDone.add(t.id);rT();},500);},1200);}try{await apiFetch('/api/task/update',{task_id:t.id,done:t.done});await syncSnapshot()}catch(e){console.error(e);nt(i('task_err'))}}
+async function toggleTask(idx){const t=T[idx];if(!t)return;t.done=!t.done;if(t.done)t.doneAt=new Date().toISOString();else t.doneAt='';rT();if(t.done){setTimeout(()=>{document.querySelectorAll('.tc-done .tk.done').forEach(tk=>{if(!tk.classList.contains('just-done')){tk.classList.add('just-done');setTimeout(()=>tk.classList.remove('just-done'),700);}});},50);}try{await apiFetch('/api/task/update',{task_id:t.id,done:t.done});await syncSnapshot()}catch(e){console.error(e);nt(i('task_err'))}}
 
 const _PRESETS_I18N={ru:{personal:{greeting:'Привет! Сейчас не могу ответить, но скоро вернусь.',ai_style:'Отвечай дружелюбно и неформально, как друг. Коротко, без канцелярита, максимум 2 предложения.',business_context:'Это личный помощник в Telegram. Помогает не пропустить сообщения, пока хозяин занят.',ai_disclaimer:'💬 Это автоответ, скоро отвечу лично!',auto_reply:true,templates:['Сейчас занят, напишу позже!','Перезвоню через час.','Понял, спасибо!'],assignment_mode:'manual'},business:{greeting:'Здравствуйте! Спасибо за обращение. Менеджер подключится в ближайшее время.',ai_style:'Отвечай вежливо и профессионально, без markdown, максимум 3 предложения. Обращайся на «вы».',business_context:'Бот помогает обрабатывать обращения клиентов. Отвечай как представитель компании.',ai_disclaimer:'🤖 Это автоматический ответ. Менеджер скоро подключится.',auto_reply:true,templates:['Спасибо за обращение! Менеджер свяжется с вами в ближайшее время.','Перезвоним в течение часа.','Уточните, пожалуйста, ваш вопрос подробнее.'],assignment_mode:'manual'}},en:{personal:{greeting:'Hi! I can\'t reply right now, but I\'ll get back to you soon.',ai_style:'Reply in a friendly, informal way, like a friend. Keep it short, max 2 sentences.',business_context:'This is a personal Telegram assistant. Helps not miss messages while the owner is busy.',ai_disclaimer:'💬 This is an auto-reply, I\'ll respond personally soon!',auto_reply:true,templates:['Busy right now, will write later!','Will call back in an hour.','Got it, thanks!'],assignment_mode:'manual'},business:{greeting:'Hello! Thank you for reaching out. A manager will connect with you shortly.',ai_style:'Reply politely and professionally, no markdown, max 3 sentences. Use formal tone.',business_context:'The bot helps process customer inquiries. Reply as a company representative.',ai_disclaimer:'🤖 This is an automated reply. A manager will connect shortly.',auto_reply:true,templates:['Thank you for your inquiry! A manager will contact you shortly.','We\'ll call back within an hour.','Could you please provide more details about your question?'],assignment_mode:'manual'}}};
 function getPresets(){return _PRESETS_I18N[LANG]||_PRESETS_I18N.ru;}
 const PRESETS=getPresets();
 function updatePresetUI(){const p=ST.preset||'';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));if(p&&document.getElementById('preset-'+p))document.getElementById('preset-'+p).classList.add('active');}
 async function applyPreset(name){const pr=getPresets();if(!pr[name])return;const p=pr[name];Object.assign(ST,p);ST.preset=name;lS(true);try{await apiFetch('/api/preset',{preset:name});await syncSnapshot();nt('«'+(name==='personal'?i('personal'):i('business'))+'» '+i('preset_applied'))}catch(e){console.error(e);nt(i('preset_err'))}}
-function lS(loadRemote){document.getElementById('sg1').value=ST.greeting||'';document.getElementById('sg2').value=ST.ai_style||'';document.getElementById('sg3').value=ST.business_context||'';document.getElementById('sg4').value=ST.ai_disclaimer||'';document.getElementById('tar').classList.toggle('on',ST.auto_reply!==false);document.getElementById('tfu')?.classList.toggle('on',ST.followup_enabled!==false);document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);const am=document.getElementById('assignMode');if(am)am.value=ST.assignment_mode||'manual';const isP=ST.preset==='personal';const l3=document.getElementById('sg3Label');if(l3)l3.textContent=isP?i('about_self'):i('about_biz');const d3=document.getElementById('sg3Desc');if(d3)d3.textContent=isP?i('about_self_desc'):i('about_biz_desc');updatePresetUI();if(loadRemote){loadWebhooks();loadOperators()}}
+function lS(loadRemote){document.getElementById('sg1').value=ST.greeting||'';document.getElementById('sg2').value=ST.ai_style||'';document.getElementById('sg3').value=ST.business_context||'';document.getElementById('sg4').value=ST.ai_disclaimer||'';document.getElementById('tar').classList.toggle('on',ST.auto_reply!==false);document.getElementById('tfu')?.classList.toggle('on',ST.followup_enabled!==false);document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);const am=document.getElementById('assignMode');if(am)am.value=ST.assignment_mode||'manual';const isP=ST.preset==='personal';const l3=document.getElementById('sg3Label');if(l3)l3.textContent=isP?i('about_self'):i('about_biz');const d3=document.getElementById('sg3Desc');if(d3)d3.textContent=isP?i('about_self_desc'):i('about_biz_desc');updatePresetUI()}
 async function persistSettings(){try{await apiFetch('/api/settings',{settings:ST});saveLocal();await syncSnapshot();nt('✅ '+i('save'))}catch(e){console.error(e);nt(i('settings_err'))}}
 let _settingsTimer=null;
 function sS(k,el){ST[k]=document.getElementById(el).value;if(_settingsTimer)clearTimeout(_settingsTimer);_settingsTimer=setTimeout(()=>persistSettings(),1500)}
@@ -2456,6 +2444,8 @@ function hydrateAccount(){
   Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.textContent=val;});
 }
 function syncNavHighlight(){const nav=document.querySelector('.nav');const active=document.querySelector('.nb.on');if(!nav||!active)return;const r=nav.getBoundingClientRect();const a=active.getBoundingClientRect();nav.style.setProperty('--nav-x',(a.left-r.left)+'px');nav.style.setProperty('--nav-w',a.width+'px')}
+function openSettingsPage(id){const sp=document.getElementById(id);if(!sp)return;sp.classList.add('on');document.querySelector('.nav').style.transform='translateY(100px)';if(id==='sp-team'){loadWebhooks();loadOperators();}sp.scrollTo(0,0);}
+function closeSettingsPage(id){const sp=document.getElementById(id);if(!sp)return;sp.classList.remove('on');if(!document.querySelector('.sp.on'))document.querySelector('.nav').style.transform='';}
 function initPressFX(){document.querySelectorAll('button,.nb,.ft,.ss,.hdr-btn,.d-btn,.mc,.ms,.tk,.to').forEach(el=>{const on=()=>el.classList.add('is-pressed');const off=()=>el.classList.remove('is-pressed');el.addEventListener('pointerdown',on,{passive:true});el.addEventListener('pointerup',off,{passive:true});el.addEventListener('pointercancel',off,{passive:true});el.addEventListener('pointerleave',off,{passive:true});});
 /* Card press-to-open: visual press then open detail */
 document.addEventListener('pointerdown',e=>{const cd=e.target.closest('.cd');if(cd)cd.classList.add('pressed')},{passive:true});
