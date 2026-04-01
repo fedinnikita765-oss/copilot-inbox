@@ -2052,13 +2052,15 @@ const RM=_L[LANG].rm;
 const CO=['#d4531a','#c03030','#1a7a4c','#2563a0','#a16b07','#7c3aed','#b44d8e','#1a7a7a'];
 const qp=new URLSearchParams(location.search);
 const API_BASE=(qp.get('api')||'').replace(/\/$/,'');
-let API_TOKEN=qp.get('token')||sessionStorage.getItem('lf_token')||'';
+// Auth: prefer Telegram WebApp initData (cryptographic), fallback to legacy token
+const TG_INIT_DATA=(tg&&tg.initData)?tg.initData:'';
+let API_TOKEN=(!TG_INIT_DATA)?(qp.get('token')||sessionStorage.getItem('lf_token')||''):'';
 const OWNER_ID=Number(qp.get('owner')||0);
 const POLL=Math.max(3, Number(qp.get('poll')||6));
 const LS_KEY=`leadflow-ai-cache-v2-${OWNER_ID||'anon'}`;
-// Store token in sessionStorage and strip from URL for security
-if(API_TOKEN){sessionStorage.setItem('lf_token',API_TOKEN);
-  if(qp.has('token')){qp.delete('token');const cleanUrl=location.pathname+(qp.toString()?'?'+qp.toString():'')+(location.hash||'');history.replaceState(null,'',cleanUrl);}
+// Strip token from URL if present (legacy links)
+if(qp.has('token')){if(API_TOKEN)sessionStorage.setItem('lf_token',API_TOKEN);
+  qp.delete('token');const cleanUrl=location.pathname+(qp.toString()?'?'+qp.toString():'')+(location.hash||'');history.replaceState(null,'',cleanUrl);
 }
 let C=[],T=[],ST={},OPS=[],cF='',tF='a',pollTimer=null,lastSync='',openDetailId=null;
 let currentView='list';
@@ -2095,7 +2097,7 @@ new Chart(document.getElementById('chartHourly'),{type:'bar',data:{labels:hours.
 }}catch(e){el.innerHTML='<div class="em"><h3>'+i('load_err')+'</h3><p>'+escHtml(e.message||'')+'</p></div>';}}
 function ini(n){return(n||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').substring(0,2).toUpperCase()||'?'}
 function avatarUrl(chatId){if(!chatId||!API_BASE||!API_TOKEN)return '';return `${API_BASE}/api/avatar?chat_id=${chatId}`;}
-async function authMedia(url){try{const r=await fetch(url,{headers:{'Authorization':`Bearer ${API_TOKEN}`},redirect:'follow'});if(!r.ok)return '';const b=await r.blob();return URL.createObjectURL(b)}catch{return ''}}
+async function authMedia(url){try{const h={};if(TG_INIT_DATA)h['X-Telegram-Init-Data']=TG_INIT_DATA;else if(API_TOKEN)h['Authorization']=`Bearer ${API_TOKEN}`;const r=await fetch(url,{headers:h,redirect:'follow'});if(!r.ok)return '';const b=await r.blob();return URL.createObjectURL(b)}catch{return ''}}
 function observeSecureImgs(root){(root||document).querySelectorAll('[data-src]').forEach(el=>{if(!el.dataset.loaded){el.dataset.loaded='1';authMedia(el.dataset.src).then(u=>{if(u)el.src=u;else if(el.tagName==='IMG')el.remove()}).catch(()=>{if(el.tagName==='IMG')el.remove()})}})}
 function avHtml(c,size){const url=c.chatId?avatarUrl(c.chatId):'';const bg=`background:${cl(c.id)}`;const fallback=ini(c.name);const online=c.linked?'<div class="av-online"></div>':'';if(!url)return `<div class="av" style="${bg}">${fallback}${online}</div>`;return `<div class="av" style="${bg}">${fallback}<img data-src="${url}" onerror="this.remove()" loading="lazy">${online}</div>`;}
 function avHtmlDetail(c){const url=c.chatId?avatarUrl(c.chatId):'';const bg=`background:${cl(c.id)}`;const fallback=ini(c.name);if(!url)return `<div class="da" style="${bg}">${fallback}</div>`;return `<div class="da" style="${bg}">${fallback}<img data-src="${url}" onerror="this.remove()" loading="lazy"></div>`;}
@@ -2122,13 +2124,15 @@ function mapSnapshot(d){
 function loadHash(){const h=location.hash.substring(1);if(!h)return false;try{let b=h.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';const d=JSON.parse(decodeURIComponent(escape(atob(b))));mapSnapshot(d);return true}catch(e){console.error(e);return false}}
 
 async function apiFetch(path, payload=null, method='POST'){
-  if(!API_BASE||!API_TOKEN||!OWNER_ID) throw new Error('api_not_configured');
+  if(!API_BASE||(!API_TOKEN&&!TG_INIT_DATA)||!OWNER_ID) throw new Error('api_not_configured');
   const headers={
     'Content-Type':'application/json',
-    'Authorization':`Bearer ${API_TOKEN}`,
     'ngrok-skip-browser-warning':'1',
     'X-Owner-ID': String(OWNER_ID||0)
   };
+  // Prefer Telegram initData auth, fallback to Bearer token
+  if(TG_INIT_DATA) headers['X-Telegram-Init-Data']=TG_INIT_DATA;
+  else if(API_TOKEN) headers['Authorization']=`Bearer ${API_TOKEN}`;
   const opts={method,headers,cache:'no-store'};
   if(payload!==null) opts.body=JSON.stringify({...payload, owner_id:OWNER_ID});
   const url = method==='GET' ? `${API_BASE}${path}${path.includes('?')?'&':'?'}owner=${encodeURIComponent(OWNER_ID||0)}` : `${API_BASE}${path}`;
@@ -2140,7 +2144,7 @@ async function apiFetch(path, payload=null, method='POST'){
   }
   if(!res.ok||!data.ok){
     // Auto-refresh expired token
-    if(data.error==='token_expired' && !apiFetch._refreshing){
+    if(data.error==='token_expired' && !TG_INIT_DATA && !apiFetch._refreshing){
       apiFetch._refreshing=true;
       try{
         const rr=await fetch(`${API_BASE}/api/auth/refresh`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${API_TOKEN}`}});
@@ -2155,7 +2159,7 @@ async function apiFetch(path, payload=null, method='POST'){
 }
 
 async function syncSnapshot(silent=true){
-  if(!API_BASE||!API_TOKEN||!OWNER_ID) return false;
+  if(!API_BASE||(!API_TOKEN&&!TG_INIT_DATA)||!OWNER_ID) return false;
   try{
     const data=await apiFetch('/api/snapshot', null, 'GET');
     if(data.lang && data.lang!==LANG){LANG=data.lang;sessionStorage.setItem('lf_lang',data.lang);}
@@ -2261,7 +2265,7 @@ async function tCC(idx){const c=C[idx];if(!c)return;const cid=c.id;const newStat
 async function dCC(idx){const c=C[idx];if(!confirm(i('delete_confirm')))return;C.splice(idx,1);R();try{await apiFetch('/api/contact/delete',{contact_id:c.id});await syncSnapshot()}catch(e){console.error(e);nt(i('delete_err'))}cD()}
 async function toggleBlock(idx){const c=C[idx];if(!c)return;const cid=c.id;const newBlocked=!c.blocked;try{await apiFetch('/api/contact/update',{contact_id:cid,blocked:newBlocked?1:0});await syncSnapshot();nt(newBlocked?i('blocked_msg'):i('unblocked_msg'));}catch(e){console.error(e);nt(i('update_err'))}}
 function toggleSound(){soundEnabled=!soundEnabled;localStorage.setItem('leadflow-sound',soundEnabled?'on':'off');document.getElementById('tsnd')?.classList.toggle('on',soundEnabled);if(soundEnabled)playNotifSound();}
-async function exportCSV(){try{const r=await fetch(`${API_BASE}/api/export/csv?owner=${OWNER_ID}`,{headers:{'Authorization':`Bearer ${API_TOKEN}`}});if(!r.ok){nt(i('export_err'));return}const b=await r.blob();const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`leadflow_contacts_${OWNER_ID}.csv`;a.click();URL.revokeObjectURL(u)}catch(e){nt(i('export_err'))}}
+async function exportCSV(){try{const h={};if(TG_INIT_DATA)h['X-Telegram-Init-Data']=TG_INIT_DATA;else if(API_TOKEN)h['Authorization']=`Bearer ${API_TOKEN}`;const r=await fetch(`${API_BASE}/api/export/csv?owner=${OWNER_ID}`,{headers:h});if(!r.ok){nt(i('export_err'));return}const b=await r.blob();const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`leadflow_contacts_${OWNER_ID}.csv`;a.click();URL.revokeObjectURL(u)}catch(e){nt(i('export_err'))}}
 async function loadWebhooks(){const el=document.getElementById('whList');if(!el)return;el.innerHTML=i('loading');try{const d=await apiFetch('/api/webhooks',null,'GET');const whs=d.webhooks||[];el.innerHTML=whs.length?whs.map(w=>`<div class="mi" style="flex-wrap:wrap"><label style="word-break:break-all;flex:1">${escHtml(w.url)}<br><small style="color:var(--ink3)">${w.events}</small></label><button class="ft wh-test" data-url="${escHtml(w.url)}" style="font-size:10px;padding:4px 8px">${i('test_btn')}</button><button class="ft wh-del" data-id="${w.id}" style="font-size:10px;padding:4px 8px;color:var(--ruby)">✕</button></div>`).join(''):'<p style="font-size:13px;color:var(--ink3)">'+i('no_webhooks')+'</p>';}catch(e){el.innerHTML=i('err');}}
 function addWH(){document.getElementById('whUrlInp').value='';document.getElementById('whEventsInp').value='all';document.body.classList.add('modal-open');document.getElementById('mwh').classList.add('on')}
 async function submitWH(){const url=document.getElementById('whUrlInp').value.trim();if(!url){nt('URL required');return}const events=document.getElementById('whEventsInp').value.trim()||'all';try{await apiFetch('/api/webhooks',{url,events});nt(i('wh_added'));document.body.classList.remove('modal-open');document.getElementById('mwh').classList.remove('on');loadWebhooks();}catch(e){nt(i('err_prefix')+e.message);}}
