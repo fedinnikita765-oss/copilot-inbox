@@ -3,181 +3,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LeadFlow AI — умный CRM-бот для Telegram</title>
-<meta name="description" content="AI-автоответчик и CRM для Telegram Business. Автоматические ответы, воронка продаж, лид-скоринг, аналитика — всё в одном боте.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+<title>LeadFlow AI — CRM для Telegram Business</title>
+<meta name="description" content="Автоответы, воронка продаж и аналитика для Telegram Business. Один бот вместо десятка сервисов.">
+<meta property="og:title" content="LeadFlow AI">
+<meta property="og:description" content="CRM-бот для Telegram Business">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-:root{--cream:#faf8f5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;--terra:#d4531a;--forest:#1a7a4c;--ocean:#2563a0;--r:22px;--head:'Fraunces',Georgia,serif;--body:'DM Sans',system-ui,sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fcfbf9;--bg2:#f5f3ef;--bg3:#eae7e1;
+  --tx:#1a1a1a;--tx2:#555;--tx3:#999;
+  --ac:#c44b1a;--ac2:#a33d14;
+  --gr:#2d8555;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+  --serif:'Newsreader',Georgia,serif;
+}
 html{scroll-behavior:smooth}
-body{font-family:var(--body);color:var(--ink);background:var(--cream);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-::selection{background:rgba(212,83,26,.16)}
+body{font-family:var(--sans);color:var(--tx);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.6}
+::selection{background:rgba(196,75,26,.15)}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
 
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:-20%;background:radial-gradient(50% 50% at 30% 20%,rgba(212,83,26,.12),transparent 60%),radial-gradient(40% 40% at 70% 80%,rgba(26,122,76,.08),transparent 50%),radial-gradient(45% 45% at 80% 20%,rgba(37,99,160,.08),transparent 55%);filter:blur(40px);z-index:0}
-.hero>*{position:relative;z-index:1}
-.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(212,83,26,.08);color:var(--terra);font-size:13px;font-weight:600;padding:6px 16px;border-radius:100px;margin-bottom:24px;letter-spacing:.3px}
-.badge::before{content:'';width:8px;height:8px;background:var(--terra);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-h1{font-family:var(--head);font-size:clamp(40px,8vw,72px);line-height:1.05;letter-spacing:-.03em;max-width:800px;margin-bottom:20px}
-h1 span{background:linear-gradient(135deg,var(--terra),#e06830);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.subtitle{font-size:clamp(16px,2.5vw,20px);color:var(--ink2);max-width:560px;line-height:1.6;margin-bottom:40px}
-.cta-group{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-.btn{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:14px;font-size:16px;font-weight:600;text-decoration:none;transition:all .3s cubic-bezier(.22,1,.36,1)}
-.btn-primary{background:var(--ink);color:#fff}
-.btn-primary:hover{background:#292524;transform:translateY(-2px);box-shadow:0 12px 32px rgba(28,25,23,.18)}
-.btn-secondary{background:rgba(28,25,23,.06);color:var(--ink)}
-.btn-secondary:hover{background:rgba(28,25,23,.1)}
-.btn svg{width:20px;height:20px}
+/* --- NAV --- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:90;padding:0 24px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(252,251,249,.82);border-bottom:1px solid rgba(0,0,0,.04)}
+.nav-in{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-weight:700;font-size:15px;letter-spacing:-.02em}
+.logo span{color:var(--ac)}
+.nav-links{display:flex;gap:28px;font-size:13px;color:var(--tx2)}
+.nav-links a:hover{color:var(--tx)}
+.nav-cta{font-size:13px;font-weight:600;color:var(--ac);border:1.5px solid var(--ac);padding:6px 16px;border-radius:8px;transition:all .2s}
+.nav-cta:hover{background:var(--ac);color:#fff}
 
-section{padding:80px 24px}
-.container{max-width:1100px;margin:0 auto}
-h2{font-family:var(--head);font-size:clamp(28px,5vw,42px);letter-spacing:-.02em;text-align:center;margin-bottom:16px}
-.section-sub{text-align:center;color:var(--ink2);font-size:17px;max-width:560px;margin:0 auto 48px;line-height:1.6}
+/* --- HERO --- */
+.hero{max-width:680px;margin:0 auto;padding:120px 24px 80px;text-align:center}
+.pill{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ac);background:rgba(196,75,26,.07);padding:5px 14px;border-radius:100px;margin-bottom:24px}
+.hero h1{font-family:var(--serif);font-size:clamp(32px,6.5vw,54px);line-height:1.12;letter-spacing:-.025em;font-weight:600;margin-bottom:18px}
+.hero h1 em{font-style:italic;color:var(--ac)}
+.hero p{font-size:17px;color:var(--tx2);max-width:480px;margin:0 auto 36px;line-height:1.65}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;padding:12px 24px;border-radius:10px;transition:all .25s ease}
+.btn-fill{background:var(--tx);color:#fff}
+.btn-fill:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.btn-ghost{color:var(--tx2);background:var(--bg2)}
+.btn-ghost:hover{background:var(--bg3);color:var(--tx)}
 
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.feature{background:#fff;border-radius:var(--r);padding:32px;border:1px solid rgba(110,94,81,.08);transition:all .3s}
-.feature:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(28,25,23,.08)}
-.feature-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
-.feature h3{font-size:18px;font-weight:700;margin-bottom:8px}
-.feature p{color:var(--ink2);font-size:15px;line-height:1.6}
-.fi-1{background:rgba(212,83,26,.08)}
-.fi-2{background:rgba(26,122,76,.08)}
-.fi-3{background:rgba(37,99,160,.08)}
-.fi-4{background:rgba(161,107,7,.08)}
-.fi-5{background:rgba(124,58,237,.08)}
-.fi-6{background:rgba(192,48,48,.08)}
+/* --- SOCIAL PROOF --- */
+.proof{text-align:center;padding:0 24px 64px}
+.proof p{font-size:13px;color:var(--tx3);letter-spacing:.01em}
+.proof span{color:var(--tx2);font-weight:500}
 
-.how{counter-reset:step}
-.how-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
-.step{background:#fff;border-radius:var(--r);padding:32px;position:relative;border:1px solid rgba(110,94,81,.08)}
-.step::before{counter-increment:step;content:counter(step);font-family:var(--head);font-size:48px;color:rgba(212,83,26,.12);font-weight:900;line-height:1}
-.step h3{font-size:17px;font-weight:700;margin:12px 0 8px}
-.step p{color:var(--ink2);font-size:14px;line-height:1.6}
+/* --- FEATURES SECTION --- */
+.section{max-width:980px;margin:0 auto;padding:64px 24px}
+.section-label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ac);margin-bottom:12px}
+.section h2{font-family:var(--serif);font-size:clamp(24px,4vw,36px);letter-spacing:-.02em;line-height:1.2;margin-bottom:8px}
+.section h2 em{font-style:italic}
+.section-desc{color:var(--tx2);font-size:15px;max-width:460px;margin-bottom:40px}
 
-.pricing{background:#fff;border-radius:var(--r);max-width:480px;margin:0 auto;padding:48px;text-align:center;border:2px solid rgba(212,83,26,.15);position:relative;overflow:hidden}
-.pricing::before{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;background:rgba(212,83,26,.06);border-radius:50%;filter:blur(40px)}
-.price{font-family:var(--head);font-size:56px;letter-spacing:-.03em;margin:16px 0 4px}
-.price-note{color:var(--ink3);font-size:14px;margin-bottom:24px}
-.pricing ul{text-align:left;list-style:none;margin-bottom:32px}
-.pricing li{padding:10px 0;border-bottom:1px solid rgba(110,94,81,.06);font-size:15px;color:var(--ink2)}
-.pricing li::before{content:'\2713';color:var(--forest);font-weight:700;margin-right:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bg3);border:1px solid var(--bg3);border-radius:16px;overflow:hidden}
+.grid-item{background:var(--bg);padding:32px 28px}
+.grid-item .ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:18px}
+.grid-item h3{font-size:15px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
+.grid-item p{font-size:13.5px;color:var(--tx2);line-height:1.55}
 
-footer{text-align:center;padding:40px 24px;color:var(--ink3);font-size:13px;border-top:1px solid rgba(110,94,81,.08)}
-footer a{color:var(--ink2);text-decoration:none}
-footer a:hover{color:var(--terra)}
+.ico-reply{background:#fef0e8;color:#c44b1a}
+.ico-funnel{background:#e8f5ee;color:#2d8555}
+.ico-score{background:#eef1f8;color:#3b5ea6}
+.ico-app{background:#f5eef8;color:#7c3aed}
+.ico-follow{background:#fef5e8;color:#a16b07}
+.ico-voice{background:#f0eae8;color:#8b5e3c}
 
-@media(max-width:640px){
-  .hero{padding:40px 20px;min-height:auto;padding-top:80px;padding-bottom:60px}
-  section{padding:60px 20px}
-  .features{grid-template-columns:1fr}
-  .how-steps{grid-template-columns:1fr}
-  .cta-group{flex-direction:column;align-items:center}
+/* --- HOW IT WORKS --- */
+.how{max-width:980px;margin:0 auto;padding:80px 24px}
+.steps{display:flex;gap:0;position:relative}
+.steps::before{content:'';position:absolute;top:22px;left:44px;right:44px;height:1px;background:var(--bg3)}
+.step{flex:1;text-align:center;position:relative}
+.step-num{width:44px;height:44px;border-radius:50%;background:var(--bg);border:2px solid var(--bg3);display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:16px;position:relative;z-index:1}
+.step h3{font-size:14px;font-weight:600;margin-bottom:4px}
+.step p{font-size:13px;color:var(--tx2);max-width:200px;margin:0 auto;line-height:1.5}
+
+/* --- DETAILS BLOCK --- */
+.details{max-width:980px;margin:0 auto;padding:40px 24px 80px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.detail-col h3{font-family:var(--serif);font-size:22px;letter-spacing:-.015em;margin-bottom:16px;line-height:1.3}
+.detail-col h3 em{font-style:italic;color:var(--ac)}
+.detail-list{list-style:none}
+.detail-list li{padding:10px 0;border-bottom:1px solid var(--bg2);font-size:14px;color:var(--tx2);display:flex;align-items:baseline;gap:10px}
+.detail-list li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:7px}
+
+/* --- PRICING --- */
+.pricing{max-width:980px;margin:0 auto;padding:40px 24px 80px;display:flex;justify-content:center}
+.price-card{max-width:400px;width:100%;border:1px solid var(--bg3);border-radius:16px;padding:40px;position:relative}
+.price-card .pill{margin-bottom:20px}
+.price-val{font-family:var(--serif);font-size:42px;letter-spacing:-.03em;line-height:1}
+.price-note{font-size:13px;color:var(--tx3);margin:4px 0 20px}
+.price-list{list-style:none;margin-bottom:28px}
+.price-list li{font-size:14px;color:var(--tx2);padding:7px 0;display:flex;align-items:center;gap:8px}
+.price-list li::before{content:'';width:16px;height:16px;border-radius:50%;background:var(--gr);flex-shrink:0;-webkit-mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.5 10.8L4.2 8.5l-.9.8L6.5 12.5l7-7-.9-.8L6.5 10.8z'/%3E%3C/svg%3E") center/12px no-repeat;mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.5 10.8L4.2 8.5l-.9.8L6.5 12.5l7-7-.9-.8L6.5 10.8z'/%3E%3C/svg%3E") center/12px no-repeat}
+.btn-full{width:100%;justify-content:center}
+
+/* --- FOOTER --- */
+.foot{border-top:1px solid var(--bg2);padding:32px 24px;text-align:center}
+.foot-in{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--tx3)}
+.foot-links{display:flex;gap:20px}
+.foot-links a:hover{color:var(--tx2)}
+
+/* --- RESPONSIVE --- */
+@media(max-width:768px){
+  .grid{grid-template-columns:1fr}
+  .steps{flex-direction:column;gap:24px}
+  .steps::before{display:none}
+  .step{text-align:left;display:flex;gap:16px;align-items:flex-start}
+  .step-num{flex-shrink:0;margin-bottom:0}
+  .step p{max-width:none}
+  .detail-grid{grid-template-columns:1fr;gap:32px}
+  .nav-links{display:none}
+  .foot-in{flex-direction:column;gap:12px}
+}
+@media(max-width:480px){
+  .hero{padding:100px 20px 60px}
+  .hero-btns{flex-direction:column;align-items:stretch}
+  .section,.how,.details,.pricing{padding-left:20px;padding-right:20px}
+  .grid-item{padding:24px 20px}
 }
 </style>
 </head>
 <body>
 
+<nav class="nav">
+  <div class="nav-in">
+    <div class="logo">lead<span>flow</span></div>
+    <div class="nav-links">
+      <a href="#features">Возможности</a>
+      <a href="#how">Как работает</a>
+      <a href="#price">Тарифы</a>
+    </div>
+    <a href="https://t.me/leadflow_crm_bot" class="nav-cta">Попробовать</a>
+  </div>
+</nav>
+
 <div class="hero">
-  <div class="badge">AI-Powered CRM</div>
-  <h1>Умный автоответчик<br>для <span>Telegram Business</span></h1>
-  <p class="subtitle">LeadFlow AI отвечает клиентам, пока вы заняты. Воронка продаж, лид-скоринг, аналитика и задачи — всё в одном боте.</p>
-  <div class="cta-group">
-    <a href="https://t.me/leadflow_crm_bot" class="btn btn-primary">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-      Подключить бота
+  <div class="pill">Telegram Business</div>
+  <h1>Клиенты пишут,<br>пока вы <em>заняты</em></h1>
+  <p>LeadFlow отвечает за вас, сортирует лиды по температуре и подсказывает, кому перезвонить первым. Один бот вместо CRM, автоответчика и таблички в Excel.</p>
+  <div class="hero-btns">
+    <a href="https://t.me/leadflow_crm_bot" class="btn btn-fill">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+      Запустить бота
     </a>
-    <a href="#features" class="btn btn-secondary">Подробнее</a>
+    <a href="#features" class="btn btn-ghost">Что внутри</a>
   </div>
 </div>
 
-<section id="features">
-  <div class="container">
-    <h2>Возможности</h2>
-    <p class="section-sub">Всё что нужно для управления клиентами в Telegram — автоматизация, аналитика и контроль</p>
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon fi-1">&#x1F916;</div>
-        <h3>AI-автоответы</h3>
-        <p>Бот мгновенно отвечает клиентам на базе контекста переписки. Настраиваемый стиль, дисклеймер, шаблоны ответов.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon fi-2">&#x1F4CA;</div>
-        <h3>Воронка продаж</h3>
-        <p>Автоматическое продвижение лидов по этапам: новый, квалификация, предложение, оплата. BANT-анализ клиентов.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon fi-3">&#x1F525;</div>
-        <h3>Лид-скоринг</h3>
-        <p>AI оценивает каждого клиента от 0 до 100. Мгновенные уведомления о горячих лидах, готовых к покупке.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon fi-4">&#x1F4F1;</div>
-        <h3>Mini App панель</h3>
-        <p>Полноценная CRM прямо в Telegram: контакты, переписка, задачи, аналитика, канбан-доска.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon fi-5">&#x1F501;</div>
-        <h3>Follow-up цепочки</h3>
-        <p>Автоматические напоминания клиентам по расписанию. Re-engagement для неактивных контактов.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon fi-6">&#x1F3A4;</div>
-        <h3>Голосовые в текст</h3>
-        <p>Автоматическая транскрипция голосовых сообщений. Вся переписка — в текстовом виде для анализа.</p>
-      </div>
+<div class="proof">
+  <p>Подключается за 2 минуты &middot; Работает с <span>Telegram Business</span> &middot; Не нужна карта</p>
+</div>
+
+<div class="section" id="features">
+  <div class="section-label">Возможности</div>
+  <h2>Всё, что обычно<br>разбросано по <em>пяти сервисам</em></h2>
+  <p class="section-desc">Не нужно платить отдельно за CRM, чат-бота, аналитику и рассылку. Всё уже здесь.</p>
+
+  <div class="grid">
+    <div class="grid-item">
+      <div class="ico ico-reply"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <h3>Автоответы по контексту</h3>
+      <p>AI читает переписку, понимает суть вопроса и отвечает в вашем стиле. Не шаблоны — живые ответы.</p>
+    </div>
+    <div class="grid-item">
+      <div class="ico ico-funnel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg></div>
+      <h3>Воронка продаж</h3>
+      <p>Контакты автоматически двигаются по этапам: от первого сообщения до оплаты. Канбан-доска прямо в Telegram.</p>
+    </div>
+    <div class="grid-item">
+      <div class="ico ico-score"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
+      <h3>Скоринг лидов</h3>
+      <p>Каждому контакту — оценка от 0 до 100. Спрашивает цену, торопится, упоминает бюджет? Вы узнаете первым.</p>
+    </div>
+    <div class="grid-item">
+      <div class="ico ico-app"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg></div>
+      <h3>Панель управления</h3>
+      <p>Mini App внутри Telegram: контакты, история, задачи, аналитика, настройки. Ничего не нужно устанавливать.</p>
+    </div>
+    <div class="grid-item">
+      <div class="ico ico-follow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <h3>Follow-up на автомате</h3>
+      <p>Клиент замолчал? Бот напомнит о вас через день, три, неделю. Настраиваемые цепочки по каждому этапу.</p>
+    </div>
+    <div class="grid-item">
+      <div class="ico ico-voice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+      <h3>Голосовые в текст</h3>
+      <p>Присылают войсы? Бот расшифрует их и покажет текстом. Удобно для поиска и аналитики.</p>
     </div>
   </div>
-</section>
+</div>
 
-<section style="background:#fff">
-  <div class="container how">
-    <h2>Как начать</h2>
-    <p class="section-sub">Три шага до автоматизации вашего Telegram</p>
-    <div class="how-steps">
-      <div class="step">
+<div class="how" id="how">
+  <div class="section-label">Начало работы</div>
+  <h2 style="font-family:var(--serif);font-size:clamp(24px,4vw,36px);letter-spacing:-.02em;margin-bottom:40px">Три шага, <em>две минуты</em></h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
         <h3>Запустите бота</h3>
-        <p>Откройте @leadflow_crm_bot в Telegram и нажмите /start. Аккаунт создаётся автоматически.</p>
+        <p>Откройте @leadflow_crm_bot и нажмите Start. Аккаунт создастся сам.</p>
       </div>
-      <div class="step">
-        <h3>Подключите Telegram Business</h3>
-        <p>В настройках Telegram подключите бота как бизнес-бота. Он начнёт получать сообщения от клиентов.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>Подключите бизнес-аккаунт</h3>
+        <p>Telegram &rarr; Настройки &rarr; Telegram Business &rarr; Чат-боты. Выберите LeadFlow.</p>
       </div>
-      <div class="step">
-        <h3>Настройте под себя</h3>
-        <p>Выберите пресет (личный / бизнес), настройте стиль ответов, добавьте базу знаний о продуктах.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Готово</h3>
+        <p>Бот начнёт обрабатывать входящие. Настройте стиль ответов и базу знаний под себя.</p>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<section>
-  <div class="container">
-    <h2>Тарифы</h2>
-    <p class="section-sub">Начните бесплатно, масштабируйте по мере роста</p>
-    <div class="pricing">
-      <div class="badge" style="margin:0 auto 16px">Early Access</div>
-      <div class="price">0 &#8381;</div>
-      <p class="price-note">Бесплатно на время раннего доступа</p>
-      <ul>
-        <li>Неограниченные AI-автоответы</li>
-        <li>До 200 контактов</li>
-        <li>Воронка продаж и лид-скоринг</li>
-        <li>Follow-up цепочки</li>
-        <li>Транскрипция голосовых</li>
-        <li>Mini App панель управления</li>
-        <li>Экспорт данных в CSV</li>
-        <li>Вебхуки и интеграции</li>
+<div class="details">
+  <div class="detail-grid">
+    <div class="detail-col">
+      <h3>Для тех, кто продаёт <em>через Telegram</em></h3>
+      <ul class="detail-list">
+        <li>BANT-квалификация: бюджет, потребность, сроки, ЛПР</li>
+        <li>Уведомления о горячих лидах в реальном времени</li>
+        <li>AI сам ведёт переговоры по вашему скрипту</li>
+        <li>Экспорт базы в CSV в один клик</li>
+        <li>Вебхуки для интеграции с другими сервисами</li>
       </ul>
-      <a href="https://t.me/leadflow_crm_bot" class="btn btn-primary" style="width:100%;justify-content:center">
-        Начать бесплатно
-      </a>
+    </div>
+    <div class="detail-col">
+      <h3>Для тех, кто просто <em>не успевает</em> отвечать</h3>
+      <ul class="detail-list">
+        <li>Персональный режим: отвечает друзьям и коллегам, пока вы заняты</li>
+        <li>Распознавание голосовых — не нужно переслушивать</li>
+        <li>Теги и фильтры: семья, работа, друзья, важное</li>
+        <li>Заметки к контактам — всё под рукой</li>
+        <li>Операторы: делегируйте общение команде</li>
+      </ul>
     </div>
   </div>
-</section>
+</div>
 
-<footer>
-  <p>LeadFlow AI &copy; 2026 &nbsp;&middot;&nbsp; <a href="https://104-252-30-151.nip.io/privacy">Конфиденциальность</a> &nbsp;&middot;&nbsp; <a href="https://104-252-30-151.nip.io/terms">Условия</a></p>
+<div class="pricing" id="price">
+  <div class="price-card">
+    <div class="pill">Early access</div>
+    <div class="price-val">Бесплатно</div>
+    <p class="price-note">Все функции, без ограничений по времени. Пока что так.</p>
+    <ul class="price-list">
+      <li>AI-автоответы без лимитов</li>
+      <li>Воронка продаж и скоринг</li>
+      <li>Follow-up цепочки</li>
+      <li>До 200 контактов</li>
+      <li>Транскрипция голосовых</li>
+      <li>Аналитика и статистика</li>
+      <li>Вебхуки и операторы</li>
+    </ul>
+    <a href="https://t.me/leadflow_crm_bot" class="btn btn-fill btn-full">Подключить</a>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="foot-in">
+    <span>&copy; 2026 LeadFlow</span>
+    <div class="foot-links">
+      <a href="https://104-252-30-151.nip.io/privacy">Конфиденциальность</a>
+      <a href="https://104-252-30-151.nip.io/terms">Условия</a>
+      <a href="https://t.me/leadflow_crm_bot">Telegram</a>
+    </div>
+  </div>
 </footer>
 
 </body>
