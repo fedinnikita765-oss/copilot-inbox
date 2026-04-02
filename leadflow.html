@@ -1676,6 +1676,11 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
   </section>
 
   <div class="stm-grid">
+    <button class="stm-item" onclick="openSettingsPage('sp-subscription')" id="stm-sub-btn">
+      <div class="stm-icon" style="background:linear-gradient(135deg,#FFD700 0%,#FFA500 100%);color:#fff"><svg class="ic ic-s" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="stm-text"><div class="stm-title" data-i="subscription">Подписка</div><div class="stm-sub" id="subStatusLine" data-i="sub_desc">Текущий план и лимиты</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
     <button class="stm-item" onclick="openSettingsPage('sp-mode')">
       <div class="stm-icon" style="background:var(--terra-s);color:var(--terra)"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div class="stm-text"><div class="stm-title" data-i="mode_choose">Режим</div><div class="stm-sub" data-i="mode_desc">Личный или бизнес</div></div>
@@ -1710,6 +1715,35 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 </div></div>
 
 <!-- Settings sub-pages (fullscreen overlays) -->
+<div class="sp" id="sp-subscription">
+  <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-subscription')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="subscription">Подписка</h2></div>
+  <div class="sp-body">
+    <!-- Current plan badge -->
+    <div id="subPlanCard" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:24px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,215,0,.1);border-radius:50%"></div>
+      <div style="font-size:12px;opacity:.6;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px" data-i="current_plan">Текущий план</div>
+      <div id="subPlanName" style="font-size:28px;font-weight:800;margin-bottom:4px">Free</div>
+      <div id="subPlanExpiry" style="font-size:13px;opacity:.7"></div>
+    </div>
+
+    <!-- Usage meters -->
+    <div style="margin-bottom:20px">
+      <h3 style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px" data-i="usage_today">Использование сегодня</h3>
+      <div id="subUsageMeters" style="display:grid;gap:10px">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- Plan comparison -->
+    <div style="margin-bottom:20px">
+      <h3 style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px" data-i="plans_title">Тарифы</h3>
+      <div id="subPlansGrid" style="display:grid;gap:12px">
+        <!-- Plan cards filled by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="sp" id="sp-mode">
   <div class="sp-head"><button class="sp-back" onclick="closeSettingsPage('sp-mode')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2 data-i="mode_choose">Режим</h2></div>
   <div class="sp-body">
@@ -1922,6 +1956,19 @@ ru:{
   w_active:'Активные',w_of:'из',w_contacts:'контактов',w_top:'Топ контакты',
   w_no_contacts:'Нет контактов',w_all_done:'Всё сделано!',w_conversion:'Конверсия',w_closed:'закрытых',
   swipe_reply:'Ответить',swipe_archive:'Архив',
+  // Subscription
+  subscription:'Подписка',sub_desc:'Текущий план и лимиты',
+  current_plan:'Текущий план',usage_today:'Использование сегодня',plans_title:'Тарифы',
+  plan_free:'Бесплатный',plan_pro:'Про',plan_biz:'Бизнес',
+  contacts_usage:'Контакты',ai_replies_usage:'AI-ответы',ai_class_usage:'AI-классификация',voice_usage:'Голос→текст',
+  per_day:'/день',unlimited:'∞',
+  plan_free_desc:'15 контактов, 10 AI-ответов/день',
+  plan_pro_price:'149 Stars/мес',plan_pro_desc:'200 контактов, 100 AI-ответов/день, горячие лиды, BANT, CSV, фоллоу-апы',
+  plan_biz_price:'399 Stars/мес',plan_biz_desc:'Безлимит, 10 операторов, 10 вебхуков, аналитика 90 дней',
+  upgrade_btn:'Улучшить',current_badge:'Текущий',expires_label:'Действует до',
+  limit_reached:'Лимит достигнут',upgrade_hint:'Улучшите план для снятия ограничений',
+  feature_pro:'Pro',feature_biz:'Business',
+  contact_limit_msg:'Достигнут лимит контактов. Обновите план.',
 },
 en:{
   tg_biz:{NEW_LEAD:'Lead',QUESTION:'Question',COMPLAINT:'Complaint',FOLLOWUP:'Follow-up',PAYMENT:'Payment',SPAM:'Spam',OTHER:'Other'},
@@ -2031,6 +2078,19 @@ en:{
   w_active:'Active',w_of:'of',w_contacts:'contacts',w_top:'Top Contacts',
   w_no_contacts:'No contacts',w_all_done:'All done!',w_conversion:'Conversion',w_closed:'closed',
   swipe_reply:'Reply',swipe_archive:'Archive',
+  // Subscription
+  subscription:'Subscription',sub_desc:'Current plan and limits',
+  current_plan:'Current plan',usage_today:'Today\'s usage',plans_title:'Plans',
+  plan_free:'Free',plan_pro:'Pro',plan_biz:'Business',
+  contacts_usage:'Contacts',ai_replies_usage:'AI replies',ai_class_usage:'AI classification',voice_usage:'Voice→text',
+  per_day:'/day',unlimited:'∞',
+  plan_free_desc:'15 contacts, 10 AI replies/day',
+  plan_pro_price:'149 Stars/mo',plan_pro_desc:'200 contacts, 100 AI replies/day, hot leads, BANT, CSV, follow-ups',
+  plan_biz_price:'399 Stars/mo',plan_biz_desc:'Unlimited, 10 operators, 10 webhooks, 90-day analytics',
+  upgrade_btn:'Upgrade',current_badge:'Current',expires_label:'Valid until',
+  limit_reached:'Limit reached',upgrade_hint:'Upgrade your plan to remove limits',
+  feature_pro:'Pro',feature_biz:'Business',
+  contact_limit_msg:'Contact limit reached. Upgrade your plan.',
 }
 };
 let LANG='ru';
@@ -2062,7 +2122,7 @@ const LS_KEY=`leadflow-ai-cache-v2-${OWNER_ID||'anon'}`;
 if(qp.has('token')){if(API_TOKEN)sessionStorage.setItem('lf_token',API_TOKEN);
   qp.delete('token');const cleanUrl=location.pathname+(qp.toString()?'?'+qp.toString():'')+(location.hash||'');history.replaceState(null,'',cleanUrl);
 }
-let C=[],T=[],ST={},OPS=[],cF='',tF='a',pollTimer=null,lastSync='',openDetailId=null;
+let C=[],T=[],ST={},OPS=[],SUB={plan:'free',limits:{},usage:{},expires_at:''},cF='',tF='a',pollTimer=null,lastSync='',openDetailId=null;
 let currentView='list';
 let soundEnabled=localStorage.getItem('leadflow-sound')!=='off';
 let audioCtx=null;
@@ -2119,7 +2179,7 @@ function mapSnapshot(d){
   let hasNew=false;C.forEach(c=>{if(prevCounts[c.id]!==undefined&&c.msgCount>prevCounts[c.id])hasNew=true;});
   if(hasNew)notifyNewMessage();
   T=(d.t||[]).map(x=>({id:x.id,title:x.ti||'',desc:x.ds||'',priority:x.pr||'medium',done:!!x.dn,contact:x.cn||'',time:x.tm||'',doneAt:x.da||''}));
-  ST=d.s||{};lastSync=d.meta?.ts||new Date().toISOString();saveLocal();
+  ST=d.s||{};SUB=d.sub||{plan:'free',limits:{},usage:{},expires_at:''};lastSync=d.meta?.ts||new Date().toISOString();saveLocal();renderSubStatus();
 }
 function loadHash(){const h=location.hash.substring(1);if(!h)return false;try{let b=h.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';const d=JSON.parse(decodeURIComponent(escape(atob(b))));mapSnapshot(d);return true}catch(e){console.error(e);return false}}
 
@@ -2181,7 +2241,78 @@ function applyLangToUI(){
   renderFilters();renderSettingsPage();hydrateAccount();R();
 }
 function renderSettingsPage(){
-  updateLangBtns();
+  updateLangBtns();renderSubStatus();
+}
+function renderSubStatus(){
+  if(!SUB||!SUB.plan)return;
+  const p=SUB.plan;
+  const names={free:i('plan_free'),pro:i('plan_pro'),business:i('plan_biz')};
+  const colors={free:'#888',pro:'#FF8C00',business:'#FFD700'};
+  // Update status line in settings menu
+  const sl=document.getElementById('subStatusLine');
+  if(sl)sl.textContent=names[p]||p;
+  // Update plan card
+  const pn=document.getElementById('subPlanName');
+  if(pn){
+    pn.textContent=names[p]||p;
+    pn.style.color=colors[p]||'#fff';
+  }
+  const pc=document.getElementById('subPlanCard');
+  if(pc){
+    if(p==='pro')pc.style.background='linear-gradient(135deg,#2d1810 0%,#4a2c1a 100%)';
+    else if(p==='business')pc.style.background='linear-gradient(135deg,#2a2100 0%,#4a3b00 100%)';
+    else pc.style.background='linear-gradient(135deg,#1a1a2e 0%,#16213e 100%)';
+  }
+  const pe=document.getElementById('subPlanExpiry');
+  if(pe){
+    if(SUB.expires_at&&p!=='free')pe.textContent=i('expires_label')+': '+SUB.expires_at.substring(0,10);
+    else pe.textContent='';
+  }
+  // Usage meters
+  const um=document.getElementById('subUsageMeters');
+  if(um){
+    const lim=SUB.limits||{};const us=SUB.usage||{};
+    const meters=[
+      {label:i('contacts_usage'),cur:us.contacts||0,max:lim.contacts||15,key:'contacts'},
+      {label:i('ai_replies_usage'),cur:us.ai_replies||0,max:lim.ai_replies||10,key:'ai_replies',daily:true},
+      {label:i('ai_class_usage'),cur:us.ai_classifications||0,max:lim.ai_classify||20,key:'ai_classify',daily:true},
+      {label:i('voice_usage'),cur:us.voice_transcriptions||0,max:lim.voice||2,key:'voice',daily:true},
+    ];
+    um.innerHTML=meters.map(m=>{
+      const pct=m.max>=999999?0:Math.min(100,Math.round(m.cur/m.max*100));
+      const maxLabel=m.max>=999999?i('unlimited'):m.max+(m.daily?i('per_day'):'');
+      const barColor=pct>=90?'var(--ruby)':pct>=70?'var(--honey)':'var(--forest)';
+      return `<div style="background:var(--card);border-radius:14px;padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:600;color:var(--ink)">${m.label}</span>
+          <span style="font-size:13px;color:var(--ink3)">${m.cur} / ${maxLabel}</span>
+        </div>
+        <div style="height:6px;border-radius:3px;background:var(--line);overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width .3s"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // Plans grid
+  const pg=document.getElementById('subPlansGrid');
+  if(pg){
+    const plans=[
+      {id:'free',name:i('plan_free'),price:'',desc:i('plan_free_desc'),color:'#888'},
+      {id:'pro',name:i('plan_pro'),price:i('plan_pro_price'),desc:i('plan_pro_desc'),color:'#FF8C00'},
+      {id:'business',name:i('plan_biz'),price:i('plan_biz_price'),desc:i('plan_biz_desc'),color:'#FFD700'},
+    ];
+    pg.innerHTML=plans.map(pl=>{
+      const isCurrent=p===pl.id;
+      const canUpgrade=!isCurrent&&pl.id!=='free';
+      return `<div style="border:2px solid ${isCurrent?pl.color:'var(--line)'};border-radius:18px;padding:20px;background:var(--card);position:relative;${isCurrent?'box-shadow:0 0 0 1px '+pl.color:''}">
+        ${isCurrent?`<div style="position:absolute;top:12px;right:12px;background:${pl.color};color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase">${i('current_badge')}</div>`:''}
+        <div style="font-size:20px;font-weight:800;color:${pl.color};margin-bottom:4px">${pl.name}</div>
+        ${pl.price?`<div style="font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:8px">${pl.price}</div>`:'<div style="font-size:14px;color:var(--ink3);margin-bottom:8px">Free</div>'}
+        <div style="font-size:13px;color:var(--ink3);line-height:1.5;margin-bottom:14px">${pl.desc}</div>
+        ${canUpgrade?`<button onclick="upgradeFromMiniApp('${pl.id}')" style="width:100%;padding:12px;border:none;border-radius:12px;background:${pl.color};color:#fff;font-size:14px;font-weight:700;cursor:pointer">${i('upgrade_btn')} ⭐</button>`:''}
+      </div>`;
+    }).join('');
+  }
 }
 function updateLangBtns(){
   document.querySelectorAll('#langBtns .preset-btn').forEach(b=>b.classList.remove('active'));
@@ -2430,7 +2561,7 @@ pn.addEventListener('touchend',function(){if(!dragging)return;dragging=false;pn.
 
 function oAC(){document.body.classList.add('modal-open');document.getElementById('mac').classList.add('on');document.getElementById('an').focus()}
 function cAC(){document.body.classList.remove('modal-open');document.getElementById('mac').classList.remove('on');document.getElementById('an').value='';document.getElementById('au').value=''}
-async function aC(){const n=document.getElementById('an').value.trim(),u=document.getElementById('au').value.trim().replace(/^@/,'');if(!n&&!u){nt(i('name_required'));return}try{await apiFetch('/api/contact',{name:n||u,username:u});await syncSnapshot(false);cAC();nt(i('contact_added'))}catch(e){console.error(e);nt(i('contact_err'))}}
+async function aC(){const n=document.getElementById('an').value.trim(),u=document.getElementById('au').value.trim().replace(/^@/,'');if(!n&&!u){nt(i('name_required'));return}try{await apiFetch('/api/contact',{name:n||u,username:u});await syncSnapshot(false);cAC();nt(i('contact_added'))}catch(e){console.error(e);if(e.message==='contact_limit'){nt(i('contact_limit_msg'));showUpgradeHint();}else nt(i('contact_err'))}}
 function oAT(){document.getElementById('mat').classList.add('on');document.getElementById('atn').focus()}
 function cAT(){document.getElementById('mat').classList.remove('on');document.getElementById('atn').value='';document.getElementById('atd').value=''}
 async function aT(){const t=document.getElementById('atn').value.trim();if(!t){nt(i('title_ph'));return}try{await apiFetch('/api/task',{title:t,description:document.getElementById('atd').value.trim(),priority:document.getElementById('atp').value});await syncSnapshot(false);cAT();nt(i('task_created'))}catch(e){console.error(e);nt(i('task_create_err'))}}
@@ -2459,6 +2590,21 @@ document.addEventListener('pointercancel',()=>{document.querySelectorAll('.cd.pr
 function initStartup(){requestAnimationFrame(()=>{setTimeout(()=>document.body.classList.add('app-ready'),1760);setTimeout(()=>{const s=document.getElementById('startup');if(s){s.style.opacity='0';s.style.visibility='hidden';s.style.transform='scale(1.02)';}},2140);setTimeout(syncNavHighlight,2220);})}
 function initPremiumMotion(){const root=document.documentElement;const setScroll=()=>{const y=window.scrollY||document.documentElement.scrollTop||0;root.style.setProperty('--scroll-depth',Math.min(24,y*.06)+'px');root.style.setProperty('--nav-light-x',(-110+Math.min(160,y*.14))+'%');document.body.classList.toggle('scrolled',y>12);document.querySelectorAll('.hdr h1').forEach(h=>h.style.transform=`translate3d(${4+Math.min(8,y*.018)}px,0,0)`)};setScroll();let raf=0;window.addEventListener('scroll',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(setScroll);},{passive:true});window.addEventListener('resize',syncNavHighlight,{passive:true});window.addEventListener('pointermove',e=>{const x=(e.clientX/window.innerWidth-.5)*8;const y=(e.clientY/window.innerHeight-.5)*8;root.style.setProperty('--mx',x.toFixed(2));root.style.setProperty('--my',y.toFixed(2));},{passive:true});document.querySelectorAll('.cd,.sg,.acc-card,.stat,.hdr-btn,.ss,.ms,.d-btn,.nav,.nb').forEach(el=>el.classList.add('motion-card'));document.querySelectorAll('button,.nb,.ft,.ss,.hdr-btn,.d-btn,.mc,.ms').forEach(el=>{el.style.webkitTapHighlightColor='transparent';});syncNavHighlight()}
 
+function upgradeFromMiniApp(plan){
+  // Open the bot's /subscribe command via Telegram deeplink
+  if(window.Telegram?.WebApp){
+    window.Telegram.WebApp.close();
+    // User will need to tap /subscribe in the bot chat
+  }else{
+    nt(i('upgrade_hint'));
+  }
+}
+function showUpgradeHint(){
+  // Navigate to subscription page
+  const stNav=document.querySelectorAll('.nb');
+  stNav.forEach(b=>{if(b.textContent.trim()===i('settings'))b.click();});
+  setTimeout(()=>openSettingsPage('sp-subscription'),300);
+}
 function startPolling(){if(!API_BASE||(!API_TOKEN&&!TG_INIT_DATA))return;if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(()=>syncSnapshot(true), POLL*1000)}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSnapshot(true)});
 document.addEventListener('click',e=>{const el=e.target.closest('.media-open');if(el){e.preventDefault();const u=el.dataset.furl;if(u)authMedia(u).then(b=>{if(b)window.open(b,'_blank')});return}const tb=e.target.closest('.tpl-btn');if(tb){const idx=Number(tb.dataset.tplIdx);const tpls=ST.templates||[];if(tpls[idx]!=null)useTemplate(tpls[idx]);return}const wt=e.target.closest('.wh-test');if(wt&&wt.dataset.url){testWH(wt.dataset.url);return}const wd=e.target.closest('.wh-del');if(wd&&wd.dataset.id){delWH(Number(wd.dataset.id))}});
