@@ -1627,115 +1627,190 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 }
 
 /* ===================== LITE MODE ===================== */
-/* Keep layout identical + light snappy animations. Remove GPU-heavy:
-   backdrop-filter, multi-layer glows, infinite keyframes.
-   Result: premium look, smooth on any device. */
+/* Same layout, light elegant animations everywhere, no GPU-heavy effects.
+   Removes: backdrop-filter, multi-layer glows, heavy infinite keyframes.
+   Keeps: fade-ins, slide-ups, hover lifts, press feedback, subtle pulses. */
 
+/* --- Lite keyframes: super-lightweight versions --- */
+@keyframes ltFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes ltFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes ltSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes ltScaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes ltCardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes ltPopIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes ltSpin{to{transform:rotate(360deg)}}
+@keyframes ltToastIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes ltToastOut{to{opacity:0;transform:translateY(-16px) scale(.95)}}
+@keyframes ltModalIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes ltPanelUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes ltPulseNum{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes ltCheckBounce{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes ltShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes ltSlideRight{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+
+/* --- Global: kill only GPU-heavy, keep transitions fast & smooth --- */
 html.lite *,html.lite *::before,html.lite *::after{
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
   will-change:auto!important;
 }
-/* Fast snappy transitions everywhere */
-html.lite *{transition-duration:.15s!important;transition-timing-function:ease-out!important}
-/* Kill only heavy infinite keyframe animations */
-html.lite body,html.lite .pg-wrap{animation:none!important}
+html.lite *{transition-duration:.18s!important;transition-timing-function:cubic-bezier(.22,1,.36,1)!important}
 
-/* Background: elegant static gradient instead of animated layers */
-html.lite body{background:linear-gradient(165deg,#faf8f5 0%,#f5f0ea 50%,#f0ebe3 100%)!important}
+/* --- Background: static elegant gradient, no animated layers --- */
+html.lite body{
+  background:linear-gradient(165deg,#faf8f5 0%,#f5f0ea 50%,#f0ebe3 100%)!important;
+  animation:none!important;
+}
 html.lite body::before,html.lite body::after{display:none!important}
 html.lite #luxLight{display:none!important}
 
-/* Header: clean frosted look without blur */
+/* --- Page enter: light fade-up --- */
+html.lite .pg{animation:ltFadeUp .35s cubic-bezier(.22,1,.36,1) both!important}
+
+/* --- Header: slide in from top --- */
+html.lite .hdr{animation:ltFadeUp .4s cubic-bezier(.22,1,.36,1) both!important}
 html.lite .hdr::before{background:rgba(255,255,255,.92)!important;box-shadow:0 1px 6px rgba(0,0,0,.07)!important}
 
-/* Cards: clean shadows, keep subtle hover lift */
-html.lite .cd{background:rgba(255,255,255,.95)!important;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)!important}
+/* --- Sections: staggered fade-up entrance --- */
+html.lite .fb{animation:ltFadeUp .4s cubic-bezier(.22,1,.36,1) .05s both!important}
+html.lite .ls{animation:ltFadeUp .4s cubic-bezier(.22,1,.36,1) .1s both!important}
+html.lite .sg{animation:ltFadeUp .35s cubic-bezier(.22,1,.36,1) .08s both!important;background:rgba(255,255,255,.93)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+html.lite .acc-card{animation:ltFadeUp .4s cubic-bezier(.22,1,.36,1) .12s both!important}
+html.lite .widgets .widget{animation:ltCardIn .4s cubic-bezier(.22,1,.36,1) both!important}
+
+/* --- Cards: fade-in + lift, clean shadow, hover lift --- */
+html.lite .cd{
+  background:rgba(255,255,255,.95)!important;
+  box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)!important;
+  animation:ltCardIn .3s cubic-bezier(.22,1,.36,1) both!important;
+}
 html.lite .cd::before,html.lite .cd::after{display:none!important}
-html.lite .cd:hover,html.lite .cd:active{transform:translateY(-1px)!important;box-shadow:0 3px 10px rgba(0,0,0,.09)!important}
+html.lite .cd:hover,html.lite .cd:active{transform:translateY(-2px)!important;box-shadow:0 4px 12px rgba(0,0,0,.09)!important}
+html.lite .cd-swipe-wrap{animation:ltCardIn .35s cubic-bezier(.22,1,.36,1) both!important}
 
-/* Stat cards */
-html.lite .stat{background:rgba(255,255,255,.94)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+/* --- Stat cards: fade-up entrance, hover lift --- */
+html.lite .stat{
+  background:rgba(255,255,255,.94)!important;
+  box-shadow:0 1px 4px rgba(0,0,0,.05)!important;
+  animation:ltFadeUp .35s cubic-bezier(.22,1,.36,1) both!important;
+}
 html.lite .stat::after{display:none!important}
-html.lite .stat:hover{transform:translateY(-1px)!important}
+html.lite .stat:hover{transform:translateY(-2px)!important;box-shadow:0 3px 10px rgba(0,0,0,.08)!important}
+html.lite .stat .n.pop{animation:ltPulseNum .4s cubic-bezier(.22,1,.36,1)!important}
 
-/* Filter tags */
+/* --- Filter tags: scale pop on activate --- */
 html.lite .ft{background:rgba(255,255,255,.88)!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
 html.lite .ft:hover,html.lite .ft:active{transform:scale(.97)!important}
-html.lite .ft.on{box-shadow:0 1px 5px rgba(212,83,26,.13)!important}
+html.lite .ft.on{box-shadow:0 1px 5px rgba(212,83,26,.13)!important;animation:ltPopIn .25s cubic-bezier(.22,1,.36,1)!important}
 
-/* Stage groups */
-html.lite .sg{background:rgba(255,255,255,.93)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+/* --- Task cards: fade-in, hover lift --- */
+html.lite .tc{
+  background:rgba(255,255,255,.94)!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.05)!important;
+  animation:ltCardIn .3s cubic-bezier(.22,1,.36,1) both!important;
+}
+html.lite .tc:hover{transform:translateY(-2px)!important;box-shadow:0 3px 10px rgba(0,0,0,.08)!important}
 
-/* Task cards */
-html.lite .tc{background:rgba(255,255,255,.94)!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
-html.lite .tc:hover{transform:translateY(-1px)!important;box-shadow:0 2px 8px rgba(0,0,0,.08)!important}
+/* --- Overlay: fade in --- */
+html.lite .ov{background:rgba(22,19,17,.45)!important;animation:ltFadeIn .2s ease-out!important}
+html.lite .cd-ctx,html.lite .cd-ai{background:rgba(255,255,255,.96)!important;animation:ltScaleIn .2s cubic-bezier(.22,1,.36,1)!important}
 
-/* Overlay */
-html.lite .ov{background:rgba(22,19,17,.45)!important}
-html.lite .cd-ctx,html.lite .cd-ai{background:rgba(255,255,255,.96)!important}
-
-/* Buttons: keep press feedback, remove glow pseudo-elements */
+/* --- Buttons: press feedback, remove glow pseudo-elements --- */
 html.lite .hdr-btn{box-shadow:0 1px 5px rgba(0,0,0,.1)!important}
-html.lite .hdr-btn:hover,html.lite .hdr-btn:active{transform:scale(.95)!important}
+html.lite .hdr-btn:hover{transform:scale(1.05)!important}
+html.lite .hdr-btn:active{transform:scale(.93)!important}
 html.lite .hdr-btn::before,html.lite .ss::before,html.lite .ms::before,html.lite .d-btn::before,html.lite .mbs button::before{display:none!important}
 html.lite .ss{box-shadow:0 1px 5px rgba(0,0,0,.1)!important}
-html.lite .ss:hover,html.lite .ss:active{transform:scale(.97)!important}
-html.lite .d-btn:hover,html.lite .d-btn:active{transform:scale(.97)!important}
+html.lite .ss:hover{transform:scale(1.03)!important}
+html.lite .ss:active{transform:scale(.96)!important}
+html.lite .d-btn:hover{transform:scale(1.02)!important}
+html.lite .d-btn:active{transform:scale(.96)!important}
 
-/* Avatars: subtle ring instead of glow */
+/* --- Avatars: subtle ring, no glow pseudo --- */
 html.lite .av,html.lite .da{box-shadow:0 1px 4px rgba(0,0,0,.1)!important}
 html.lite .av::after,html.lite .da::after{display:none!important}
 
-/* Messages */
-html.lite .mi{background:rgba(255,255,255,.94)!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+/* --- Messages: fade-in --- */
+html.lite .mi{background:rgba(255,255,255,.94)!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important;animation:ltFadeUp .25s cubic-bezier(.22,1,.36,1) both!important}
 html.lite .bb{box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
 
-/* Stars/badges */
+/* --- Stars/badges --- */
 html.lite .cd .str{box-shadow:none!important;text-shadow:none!important}
 
-/* Tasks list */
-html.lite .tk{box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
-html.lite .tk:hover,html.lite .tk:active{transform:translateY(-1px)!important}
-html.lite .tk.done{opacity:.7!important}
+/* --- Tasks list: stagger entrance --- */
+html.lite .tk{box-shadow:0 1px 3px rgba(0,0,0,.04)!important;animation:ltCardIn .3s cubic-bezier(.22,1,.36,1) both!important}
+html.lite .tk:hover{transform:translateY(-2px)!important;box-shadow:0 3px 8px rgba(0,0,0,.07)!important}
+html.lite .tk:active{transform:scale(.98)!important}
+html.lite .tk.done{opacity:.65!important}
+html.lite .tk .tk-check input:checked+span::after{animation:ltCheckBounce .3s cubic-bezier(.22,1,.36,1)!important}
 
-/* Input focus ring */
-html.lite .si:focus,html.lite .md input:focus,html.lite .md textarea:focus{box-shadow:0 0 0 2px rgba(212,83,26,.15)!important}
+/* --- Input focus ring --- */
+html.lite .si:focus,html.lite .md input:focus,html.lite .md textarea:focus{box-shadow:0 0 0 2px rgba(212,83,26,.18)!important}
 
-/* Toast */
+/* --- Toast: slide-up entrance --- */
 html.lite .to::after{box-shadow:0 1px 4px rgba(0,0,0,.1)!important}
+html.lite .toast{box-shadow:0 2px 12px rgba(0,0,0,.1)!important;animation:ltToastIn .4s cubic-bezier(.34,1.56,.64,1) forwards!important}
 
-/* Nav bar */
-html.lite .nav{background:rgba(255,255,255,.97)!important;box-shadow:0 -1px 4px rgba(0,0,0,.06)!important}
+/* --- Nav bar: fade-in entrance --- */
+html.lite .nav{
+  background:rgba(255,255,255,.97)!important;
+  box-shadow:0 -1px 4px rgba(0,0,0,.06)!important;
+  animation:ltFadeIn .3s ease-out both!important;
+}
 
-/* Subpages */
-html.lite .sp{background:linear-gradient(165deg,#faf8f5,#f0ebe3)!important}
+/* --- Subpages: slide-up entrance --- */
+html.lite .sp{background:linear-gradient(165deg,#faf8f5,#f0ebe3)!important;animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) both!important}
+
+/* --- Detail panel: slide up --- */
 html.lite #pn{background:linear-gradient(165deg,#faf8f5,#f0ebe3)!important}
+html.lite #pn.on{animation:ltPanelUp .35s cubic-bezier(.22,1,.36,1)!important}
+html.lite #pn.on .detail-hero{animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) .05s both!important}
+html.lite #pn.on .detail-shell .ds:nth-child(1){animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) .08s both!important}
+html.lite #pn.on .detail-shell .ds:nth-child(2){animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) .12s both!important}
+html.lite #pn.on .detail-shell .ds:nth-child(3){animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) .16s both!important}
+html.lite #pn.on .detail-shell .ds:nth-child(4){animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) .2s both!important}
+html.lite #pn.on .detail-shell .ds:nth-child(5){animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) .24s both!important}
+html.lite #pn.on .detail-shell .d-acts{animation:ltFadeUp .3s cubic-bezier(.22,1,.36,1) .28s both!important}
+html.lite #pn.on .detail-top{animation:ltFadeIn .25s ease-out .03s both!important}
 
-/* Settings items */
-html.lite .stm-item{box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
-html.lite .stm-item:hover,html.lite .stm-item:active{transform:translateX(2px)!important}
+/* --- Settings items: stagger slide-right --- */
+html.lite .stm-item{box-shadow:0 1px 3px rgba(0,0,0,.04)!important;animation:ltSlideRight .3s cubic-bezier(.22,1,.36,1) both!important}
+html.lite .stm-item:hover{transform:translateX(3px)!important;box-shadow:0 2px 6px rgba(0,0,0,.06)!important}
+html.lite .stm-item:active{transform:scale(.98)!important}
 
-/* Loader spinner: keep it spinning */
-html.lite .pg{animation:lspin .8s linear infinite!important}
-@keyframes lspin{to{transform:rotate(360deg)}}
-
-/* KB board */
-html.lite .kb-col{box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
-html.lite .kb-card{box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
-html.lite .kb-card:hover{transform:translateY(-1px)!important}
-
-/* Modals */
+/* --- Modal: scale-up entrance --- */
+html.lite .mb.on .md{animation:ltModalIn .3s cubic-bezier(.22,1,.36,1)!important}
 html.lite .md-inner{box-shadow:0 4px 24px rgba(0,0,0,.12)!important;background:rgba(255,255,255,.98)!important}
+html.lite #mac.on .md-contact{animation:ltSlideUp .35s cubic-bezier(.22,1,.36,1)!important}
 
-/* Profile hero */
-html.lite .profile-hero{background:rgba(255,255,255,.95)!important;box-shadow:0 1px 6px rgba(0,0,0,.06)!important}
+/* --- Skeleton loading shimmer (lightweight) --- */
+html.lite .sk{animation:ltShimmer 1.8s ease-in-out infinite!important}
 
-/* Toast notifications */
-html.lite .toast{box-shadow:0 2px 10px rgba(0,0,0,.1)!important}
+/* --- Loader spinner --- */
+html.lite .pg-wrap .pg{animation:ltSpin .8s linear infinite!important}
 
-/* Search */
-html.lite .search-w{box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+/* --- KB board --- */
+html.lite .kb-col{box-shadow:0 1px 4px rgba(0,0,0,.05)!important;animation:ltFadeUp .35s cubic-bezier(.22,1,.36,1) both!important}
+html.lite .kb-card{box-shadow:0 1px 3px rgba(0,0,0,.04)!important;animation:ltCardIn .3s cubic-bezier(.22,1,.36,1) both!important}
+html.lite .kb-card:hover{transform:translateY(-2px)!important;box-shadow:0 3px 8px rgba(0,0,0,.07)!important}
+
+/* --- Profile hero --- */
+html.lite .profile-hero{background:rgba(255,255,255,.95)!important;box-shadow:0 1px 6px rgba(0,0,0,.06)!important;animation:ltFadeUp .4s cubic-bezier(.22,1,.36,1) both!important}
+
+/* --- Search bar --- */
+html.lite .search-w{box-shadow:0 1px 4px rgba(0,0,0,.05)!important;animation:ltFadeIn .3s ease-out both!important}
+
+/* --- Date groups: slide in --- */
+html.lite .date-group{animation:ltSlideRight .35s cubic-bezier(.22,1,.36,1) both!important}
+
+/* --- Empty state: gentle float --- */
+html.lite .empty-state{animation:ltFadeUp .5s cubic-bezier(.22,1,.36,1) both!important}
+
+/* --- Toggle bounce --- */
+html.lite .tog-wrap input:checked+.tog-track .tog-thumb{animation:ltPopIn .25s cubic-bezier(.34,1.56,.64,1)!important}
+
+/* --- Online status pulse (simplified) --- */
+html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
 </style>
 </head>
