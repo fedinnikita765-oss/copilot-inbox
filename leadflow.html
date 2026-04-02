@@ -1627,59 +1627,115 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 }
 
 /* ===================== LITE MODE ===================== */
+/* Keep layout identical + light snappy animations. Remove GPU-heavy:
+   backdrop-filter, multi-layer glows, infinite keyframes.
+   Result: premium look, smooth on any device. */
+
 html.lite *,html.lite *::before,html.lite *::after{
-  animation:none!important;
-  transition:none!important;
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
   will-change:auto!important;
 }
-html.lite body{background:#faf8f5!important;animation:none!important;background-size:100% 100%!important}
-html.lite body::before,html.lite body::after,html.lite #luxLight{display:none!important}
-html.lite .hdr::before{background:rgba(255,255,255,.88)!important;backdrop-filter:none!important;box-shadow:0 2px 8px rgba(0,0,0,.06)!important}
-html.lite .cd{background:rgba(255,255,255,.92)!important;box-shadow:0 1px 4px rgba(0,0,0,.06)!important}
+/* Fast snappy transitions everywhere */
+html.lite *{transition-duration:.15s!important;transition-timing-function:ease-out!important}
+/* Kill only heavy infinite keyframe animations */
+html.lite body,html.lite .pg-wrap{animation:none!important}
+
+/* Background: elegant static gradient instead of animated layers */
+html.lite body{background:linear-gradient(165deg,#faf8f5 0%,#f5f0ea 50%,#f0ebe3 100%)!important}
+html.lite body::before,html.lite body::after{display:none!important}
+html.lite #luxLight{display:none!important}
+
+/* Header: clean frosted look without blur */
+html.lite .hdr::before{background:rgba(255,255,255,.92)!important;box-shadow:0 1px 6px rgba(0,0,0,.07)!important}
+
+/* Cards: clean shadows, keep subtle hover lift */
+html.lite .cd{background:rgba(255,255,255,.95)!important;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)!important}
 html.lite .cd::before,html.lite .cd::after{display:none!important}
-html.lite .cd:hover,html.lite .cd:active{transform:none!important;box-shadow:0 1px 4px rgba(0,0,0,.06)!important}
-html.lite .stat{background:rgba(255,255,255,.9)!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important;backdrop-filter:none!important}
+html.lite .cd:hover,html.lite .cd:active{transform:translateY(-1px)!important;box-shadow:0 3px 10px rgba(0,0,0,.09)!important}
+
+/* Stat cards */
+html.lite .stat{background:rgba(255,255,255,.94)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
 html.lite .stat::after{display:none!important}
-html.lite .stat:hover{transform:none!important}
-html.lite .ft{background:rgba(255,255,255,.8)!important;backdrop-filter:none!important;box-shadow:none!important}
-html.lite .ft:hover,html.lite .ft:active{transform:none!important}
-html.lite .ft.on{box-shadow:none!important}
-html.lite .sg{background:rgba(255,255,255,.9)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important;backdrop-filter:none!important}
-html.lite .tc{background:rgba(255,255,255,.9)!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
-html.lite .tc:hover{transform:none!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
-html.lite .ov{backdrop-filter:none!important;background:rgba(22,19,17,.4)!important}
-html.lite .cd-ctx,html.lite .cd-ai{backdrop-filter:none!important}
-html.lite .hdr-btn{box-shadow:0 2px 6px rgba(0,0,0,.1)!important}
-html.lite .hdr-btn:hover,html.lite .hdr-btn:active{transform:none!important}
+html.lite .stat:hover{transform:translateY(-1px)!important}
+
+/* Filter tags */
+html.lite .ft{background:rgba(255,255,255,.88)!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+html.lite .ft:hover,html.lite .ft:active{transform:scale(.97)!important}
+html.lite .ft.on{box-shadow:0 1px 5px rgba(212,83,26,.13)!important}
+
+/* Stage groups */
+html.lite .sg{background:rgba(255,255,255,.93)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+
+/* Task cards */
+html.lite .tc{background:rgba(255,255,255,.94)!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
+html.lite .tc:hover{transform:translateY(-1px)!important;box-shadow:0 2px 8px rgba(0,0,0,.08)!important}
+
+/* Overlay */
+html.lite .ov{background:rgba(22,19,17,.45)!important}
+html.lite .cd-ctx,html.lite .cd-ai{background:rgba(255,255,255,.96)!important}
+
+/* Buttons: keep press feedback, remove glow pseudo-elements */
+html.lite .hdr-btn{box-shadow:0 1px 5px rgba(0,0,0,.1)!important}
+html.lite .hdr-btn:hover,html.lite .hdr-btn:active{transform:scale(.95)!important}
 html.lite .hdr-btn::before,html.lite .ss::before,html.lite .ms::before,html.lite .d-btn::before,html.lite .mbs button::before{display:none!important}
-html.lite .ss{box-shadow:0 2px 6px rgba(0,0,0,.1)!important}
-html.lite .ss:hover,html.lite .ss:active{transform:none!important}
-html.lite .d-btn:hover,html.lite .d-btn:active{transform:none!important}
-html.lite .av,html.lite .da{box-shadow:none!important}
+html.lite .ss{box-shadow:0 1px 5px rgba(0,0,0,.1)!important}
+html.lite .ss:hover,html.lite .ss:active{transform:scale(.97)!important}
+html.lite .d-btn:hover,html.lite .d-btn:active{transform:scale(.97)!important}
+
+/* Avatars: subtle ring instead of glow */
+html.lite .av,html.lite .da{box-shadow:0 1px 4px rgba(0,0,0,.1)!important}
 html.lite .av::after,html.lite .da::after{display:none!important}
-html.lite .mi{background:rgba(255,255,255,.9)!important;box-shadow:none!important}
-html.lite .bb{box-shadow:none!important}
-html.lite .cd .str{box-shadow:none!important}
-html.lite .tk{box-shadow:none!important}
-html.lite .tk:hover,html.lite .tk:active{transform:none!important}
-html.lite .tk.done{box-shadow:none!important}
+
+/* Messages */
+html.lite .mi{background:rgba(255,255,255,.94)!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+html.lite .bb{box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
+
+/* Stars/badges */
+html.lite .cd .str{box-shadow:none!important;text-shadow:none!important}
+
+/* Tasks list */
+html.lite .tk{box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+html.lite .tk:hover,html.lite .tk:active{transform:translateY(-1px)!important}
+html.lite .tk.done{opacity:.7!important}
+
+/* Input focus ring */
 html.lite .si:focus,html.lite .md input:focus,html.lite .md textarea:focus{box-shadow:0 0 0 2px rgba(212,83,26,.15)!important}
-html.lite .to::after{box-shadow:0 1px 3px rgba(0,0,0,.1)!important}
-html.lite .nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(255,255,255,.95)!important;box-shadow:0 -1px 4px rgba(0,0,0,.06)!important}
-html.lite .sp{backdrop-filter:none!important;background:#faf8f5!important}
-html.lite .stm-item{box-shadow:none!important}
-html.lite .stm-item:hover,html.lite .stm-item:active{transform:none!important}
-html.lite .pg{animation:none!important}
-html.lite #pn{backdrop-filter:none!important;background:#faf8f5!important}
-html.lite .kb-col{box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
-html.lite .kb-card{box-shadow:none!important}
-html.lite .kb-card:hover{transform:none!important}
-html.lite .md-inner{backdrop-filter:none!important;box-shadow:0 4px 16px rgba(0,0,0,.1)!important}
-html.lite .profile-hero{backdrop-filter:none!important;background:rgba(255,255,255,.9)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
-html.lite .toast{box-shadow:0 2px 8px rgba(0,0,0,.1)!important;backdrop-filter:none!important}
-html.lite .search-w{backdrop-filter:none!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+
+/* Toast */
+html.lite .to::after{box-shadow:0 1px 4px rgba(0,0,0,.1)!important}
+
+/* Nav bar */
+html.lite .nav{background:rgba(255,255,255,.97)!important;box-shadow:0 -1px 4px rgba(0,0,0,.06)!important}
+
+/* Subpages */
+html.lite .sp{background:linear-gradient(165deg,#faf8f5,#f0ebe3)!important}
+html.lite #pn{background:linear-gradient(165deg,#faf8f5,#f0ebe3)!important}
+
+/* Settings items */
+html.lite .stm-item{box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+html.lite .stm-item:hover,html.lite .stm-item:active{transform:translateX(2px)!important}
+
+/* Loader spinner: keep it spinning */
+html.lite .pg{animation:lspin .8s linear infinite!important}
+@keyframes lspin{to{transform:rotate(360deg)}}
+
+/* KB board */
+html.lite .kb-col{box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+html.lite .kb-card{box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+html.lite .kb-card:hover{transform:translateY(-1px)!important}
+
+/* Modals */
+html.lite .md-inner{box-shadow:0 4px 24px rgba(0,0,0,.12)!important;background:rgba(255,255,255,.98)!important}
+
+/* Profile hero */
+html.lite .profile-hero{background:rgba(255,255,255,.95)!important;box-shadow:0 1px 6px rgba(0,0,0,.06)!important}
+
+/* Toast notifications */
+html.lite .toast{box-shadow:0 2px 10px rgba(0,0,0,.1)!important}
+
+/* Search */
+html.lite .search-w{box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
 
 </style>
 </head>
