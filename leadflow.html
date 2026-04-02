@@ -1626,6 +1626,61 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 
+/* ===================== LITE MODE ===================== */
+html.lite *,html.lite *::before,html.lite *::after{
+  animation:none!important;
+  transition:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  will-change:auto!important;
+}
+html.lite body{background:#faf8f5!important;animation:none!important;background-size:100% 100%!important}
+html.lite body::before,html.lite body::after,html.lite #luxLight{display:none!important}
+html.lite .hdr::before{background:rgba(255,255,255,.88)!important;backdrop-filter:none!important;box-shadow:0 2px 8px rgba(0,0,0,.06)!important}
+html.lite .cd{background:rgba(255,255,255,.92)!important;box-shadow:0 1px 4px rgba(0,0,0,.06)!important}
+html.lite .cd::before,html.lite .cd::after{display:none!important}
+html.lite .cd:hover,html.lite .cd:active{transform:none!important;box-shadow:0 1px 4px rgba(0,0,0,.06)!important}
+html.lite .stat{background:rgba(255,255,255,.9)!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important;backdrop-filter:none!important}
+html.lite .stat::after{display:none!important}
+html.lite .stat:hover{transform:none!important}
+html.lite .ft{background:rgba(255,255,255,.8)!important;backdrop-filter:none!important;box-shadow:none!important}
+html.lite .ft:hover,html.lite .ft:active{transform:none!important}
+html.lite .ft.on{box-shadow:none!important}
+html.lite .sg{background:rgba(255,255,255,.9)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important;backdrop-filter:none!important}
+html.lite .tc{background:rgba(255,255,255,.9)!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
+html.lite .tc:hover{transform:none!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
+html.lite .ov{backdrop-filter:none!important;background:rgba(22,19,17,.4)!important}
+html.lite .cd-ctx,html.lite .cd-ai{backdrop-filter:none!important}
+html.lite .hdr-btn{box-shadow:0 2px 6px rgba(0,0,0,.1)!important}
+html.lite .hdr-btn:hover,html.lite .hdr-btn:active{transform:none!important}
+html.lite .hdr-btn::before,html.lite .ss::before,html.lite .ms::before,html.lite .d-btn::before,html.lite .mbs button::before{display:none!important}
+html.lite .ss{box-shadow:0 2px 6px rgba(0,0,0,.1)!important}
+html.lite .ss:hover,html.lite .ss:active{transform:none!important}
+html.lite .d-btn:hover,html.lite .d-btn:active{transform:none!important}
+html.lite .av,html.lite .da{box-shadow:none!important}
+html.lite .av::after,html.lite .da::after{display:none!important}
+html.lite .mi{background:rgba(255,255,255,.9)!important;box-shadow:none!important}
+html.lite .bb{box-shadow:none!important}
+html.lite .cd .str{box-shadow:none!important}
+html.lite .tk{box-shadow:none!important}
+html.lite .tk:hover,html.lite .tk:active{transform:none!important}
+html.lite .tk.done{box-shadow:none!important}
+html.lite .si:focus,html.lite .md input:focus,html.lite .md textarea:focus{box-shadow:0 0 0 2px rgba(212,83,26,.15)!important}
+html.lite .to::after{box-shadow:0 1px 3px rgba(0,0,0,.1)!important}
+html.lite .nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(255,255,255,.95)!important;box-shadow:0 -1px 4px rgba(0,0,0,.06)!important}
+html.lite .sp{backdrop-filter:none!important;background:#faf8f5!important}
+html.lite .stm-item{box-shadow:none!important}
+html.lite .stm-item:hover,html.lite .stm-item:active{transform:none!important}
+html.lite .pg{animation:none!important}
+html.lite #pn{backdrop-filter:none!important;background:#faf8f5!important}
+html.lite .kb-col{box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
+html.lite .kb-card{box-shadow:none!important}
+html.lite .kb-card:hover{transform:none!important}
+html.lite .md-inner{backdrop-filter:none!important;box-shadow:0 4px 16px rgba(0,0,0,.1)!important}
+html.lite .profile-hero{backdrop-filter:none!important;background:rgba(255,255,255,.9)!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+html.lite .toast{box-shadow:0 2px 8px rgba(0,0,0,.1)!important;backdrop-filter:none!important}
+html.lite .search-w{backdrop-filter:none!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important}
+
 </style>
 </head>
 <body>
@@ -1709,6 +1764,11 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
     <button class="stm-item" onclick="openSettingsPage('sp-lang')">
       <div class="stm-icon" style="background:rgba(120,100,80,.07);color:#786450">🌐</div>
       <div class="stm-text"><div class="stm-title" data-i="lang_label">Язык</div><div class="stm-sub">Language / Язык</div></div>
+      <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="stm-item" onclick="toggleLiteMode();this.querySelector('.stm-sub').textContent=document.documentElement.classList.contains('lite')?'ON':'OFF'">
+      <div class="stm-icon" style="background:rgba(100,100,120,.07);color:#666"><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div class="stm-text"><div class="stm-title" data-i="lite_mode">Лёгкий режим</div><div class="stm-sub" id="liteModeStatus">OFF</div></div>
       <svg class="stm-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
@@ -1969,6 +2029,7 @@ ru:{
   limit_reached:'Лимит достигнут',upgrade_hint:'Улучшите план для снятия ограничений',
   feature_pro:'Pro',feature_biz:'Business',
   contact_limit_msg:'Достигнут лимит контактов. Обновите план.',
+  lite_mode:'Лёгкий режим',lite_desc:'Упрощённая графика для слабых устройств',
 },
 en:{
   tg_biz:{NEW_LEAD:'Lead',QUESTION:'Question',COMPLAINT:'Complaint',FOLLOWUP:'Follow-up',PAYMENT:'Payment',SPAM:'Spam',OTHER:'Other'},
@@ -2091,6 +2152,7 @@ en:{
   limit_reached:'Limit reached',upgrade_hint:'Upgrade your plan to remove limits',
   feature_pro:'Pro',feature_biz:'Business',
   contact_limit_msg:'Contact limit reached. Upgrade your plan.',
+  lite_mode:'Lite mode',lite_desc:'Simplified graphics for slow devices',
 }
 };
 let LANG='ru';
@@ -2103,6 +2165,25 @@ function detectLang(){
   return 'ru';
 }
 LANG=detectLang();
+// Lite mode: strip heavy effects for weak devices
+function isLiteMode(){
+  const qLite=new URLSearchParams(location.search).get('lite');
+  if(qLite==='1')return true;
+  if(qLite==='0')return false;
+  const saved=localStorage.getItem('lf_lite');
+  if(saved!==null)return saved==='1';
+  return false;
+}
+function setLiteMode(on){
+  localStorage.setItem('lf_lite',on?'1':'0');
+  if(on)document.documentElement.classList.add('lite');
+  else document.documentElement.classList.remove('lite');
+}
+function toggleLiteMode(){
+  const now=document.documentElement.classList.contains('lite');
+  setLiteMode(!now);
+}
+if(isLiteMode())document.documentElement.classList.add('lite');
 function getTG(){return (ST.preset==='personal')?_L[LANG].tg_personal:_L[LANG].tg_biz;}
 function getFilters(){return (ST.preset==='personal')?_L[LANG].filter_personal:_L[LANG].filter_biz;}
 function getRM(){return _L[LANG].rm;}
@@ -2239,6 +2320,7 @@ function applyLangToUI(){
   document.querySelectorAll('[data-i]').forEach(el=>{const k=el.dataset.i;const v=i(k);if(v&&v!==k)el.textContent=v;});
   document.querySelectorAll('[data-iph]').forEach(el=>{el.placeholder=i(el.dataset.iph);});
   renderFilters();renderSettingsPage();hydrateAccount();R();
+  const ls=document.getElementById('liteModeStatus');if(ls)ls.textContent=document.documentElement.classList.contains('lite')?'ON':'OFF';
 }
 function renderSettingsPage(){
   updateLangBtns();renderSubStatus();
