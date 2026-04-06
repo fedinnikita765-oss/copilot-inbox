@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,interactive-widget=resizes-content">
 <title>LeadFlow</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' https://leadflow-bot.com https://api.telegram.org; media-src 'self' https: blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://oauth.telegram.org https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' https://leadflow-bot.com https://api.telegram.org; media-src 'self' https: blob:; frame-src https://oauth.telegram.org; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
@@ -2335,11 +2335,11 @@ const TG_BIZ=_L.ru.tg_biz;const TG_PERSONAL=_L.ru.tg_personal;const TG=TG_BIZ;
 const RM=_L[LANG].rm;
 const CO=['#d4531a','#c03030','#1a7a4c','#2563a0','#a16b07','#7c3aed','#b44d8e','#1a7a7a'];
 const qp=new URLSearchParams(location.search);
-const API_BASE=(qp.get('api')||'').replace(/\/$/,'');
+const API_BASE=(qp.get('api')||localStorage.getItem('lf_web_api')||'').replace(/\/$/,'');
 // Auth: prefer Telegram WebApp initData (cryptographic), fallback to legacy token
 const TG_INIT_DATA=(tg&&tg.initData)?tg.initData:'';
-let API_TOKEN=(!TG_INIT_DATA)?(qp.get('token')||sessionStorage.getItem('lf_token')||''):'';
-const OWNER_ID=Number(qp.get('owner')||0);
+let API_TOKEN=(!TG_INIT_DATA)?(qp.get('token')||sessionStorage.getItem('lf_token')||localStorage.getItem('lf_web_token')||''):'';
+const OWNER_ID=Number(qp.get('owner')||localStorage.getItem('lf_web_owner')||0);
 const POLL=Math.max(3, Number(qp.get('poll')||6));
 const LS_KEY=`leadflow-ai-cache-v2-${OWNER_ID||'anon'}`;
 // Strip token from URL if present (legacy links)
@@ -2916,6 +2916,131 @@ syncSnapshot(true);startPolling();
   }
   vv.addEventListener('resize', onResize, {passive:true});
   vv.addEventListener('scroll', onResize, {passive:true});
+})();
+</script>
+
+<!-- Web Login Overlay -->
+<div id="webLogin" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--cream,#faf8f5);flex-direction:column;align-items:center;justify-content:center;padding:24px;font-family:var(--body,'DM Sans',system-ui,sans-serif)">
+  <div style="text-align:center;max-width:380px">
+    <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#d4531a,#e06530);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 24px rgba(212,83,26,.2)">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/></svg>
+    </div>
+    <h1 style="font-family:var(--head,'Fraunces',Georgia,serif);font-size:28px;font-weight:700;color:var(--ink,#1c1917);margin-bottom:8px;letter-spacing:-.02em">LeadFlow</h1>
+    <p style="font-size:15px;color:var(--ink2,#57534e);margin-bottom:32px;line-height:1.5">Войдите через Telegram,<br>чтобы открыть панель управления</p>
+    <div id="tgLoginBtn" style="display:flex;justify-content:center;margin-bottom:24px"></div>
+    <p id="loginError" style="display:none;font-size:13px;color:var(--ruby,#c03030);margin-bottom:16px"></p>
+    <p id="loginNotFound" style="display:none;font-size:13px;color:var(--ink2,#57534e);background:var(--sand,#f0ece6);padding:16px;border-radius:12px;line-height:1.5">
+      Аккаунт не найден. Сначала запустите <a href="https://t.me/leadflow_crm_bot" target="_blank" style="color:var(--terra,#d4531a);font-weight:600;text-decoration:underline">@leadflow_crm_bot</a> и нажмите Start, затем вернитесь сюда.
+    </p>
+    <div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(0,0,0,.06)">
+      <a href="/" style="font-size:13px;color:var(--ink3,#a8a29e)">← Вернуться на главную</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Web auth: if not inside Telegram and no token, show login
+  const _tg = window.Telegram?.WebApp;
+  const _hasTgAuth = _tg && _tg.initData && _tg.initData.length > 0;
+  const _hasUrlToken = new URLSearchParams(location.search).get('token');
+  const _hasWebToken = localStorage.getItem('lf_web_token');
+  const _hasOwner = Number(new URLSearchParams(location.search).get('owner') || 0);
+
+  // If inside Telegram Mini App — do nothing, normal flow
+  if (_hasTgAuth) return;
+
+  // If we have a saved web session — restore it
+  if (_hasWebToken && !_hasUrlToken) {
+    const savedOwner = localStorage.getItem('lf_web_owner');
+    const savedApi = localStorage.getItem('lf_web_api');
+    if (savedOwner && savedApi) {
+      // Already on correct URL with params?
+      if (_hasOwner) {
+        // Set token for the app to use
+        if (!window._webTokenInjected) {
+          window._webTokenInjected = true;
+          // Patch API_TOKEN and sessionStorage
+          if (typeof API_TOKEN !== 'undefined' && !API_TOKEN) {
+            API_TOKEN = _hasWebToken;
+            sessionStorage.setItem('lf_token', _hasWebToken);
+          }
+        }
+        return;
+      }
+      // Redirect to app with params
+      const url = location.pathname + '?owner=' + savedOwner + '&api=' + encodeURIComponent(savedApi) + '&token=' + _hasWebToken;
+      location.replace(url);
+      return;
+    }
+  }
+
+  // If URL has token param — app will handle it normally
+  if (_hasUrlToken && _hasOwner) return;
+
+  // No auth at all — show login screen
+  const overlay = document.getElementById('webLogin');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    // Hide main app
+    document.getElementById('startup')?.remove();
+    document.body.classList.add('app-ready');
+  }
+
+  // Load Telegram Login Widget
+  window.onTelegramAuth = async function(user) {
+    const errEl = document.getElementById('loginError');
+    const nfEl = document.getElementById('loginNotFound');
+    errEl.style.display = 'none';
+    nfEl.style.display = 'none';
+
+    try {
+      const apiBase = 'https://leadflow-bot.com';
+      const resp = await fetch(apiBase + '/api/auth/telegram-login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(user)
+      });
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        if (data.error === 'user_not_found') {
+          nfEl.style.display = 'block';
+          return;
+        }
+        errEl.textContent = data.error || data.message || 'Auth failed';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      // Save web session
+      localStorage.setItem('lf_web_token', data.token);
+      localStorage.setItem('lf_web_owner', String(data.owner_id));
+      localStorage.setItem('lf_web_api', data.api_base);
+      localStorage.setItem('lf_web_name', data.name || '');
+
+      // Redirect to app with auth
+      const url = location.pathname + '?owner=' + data.owner_id + '&api=' + encodeURIComponent(data.api_base);
+      location.replace(url);
+    } catch (e) {
+      errEl.textContent = 'Connection error: ' + (e.message || e);
+      errEl.style.display = 'block';
+    }
+  };
+
+  // Insert Telegram Login Widget script
+  const container = document.getElementById('tgLoginBtn');
+  if (container) {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+    script.setAttribute('data-telegram-login', 'leadflow_crm_bot');
+    script.setAttribute('data-size', 'large');
+    script.setAttribute('data-radius', '12');
+    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+    script.setAttribute('data-request-access', 'write');
+    container.appendChild(script);
+  }
 })();
 </script>
 
