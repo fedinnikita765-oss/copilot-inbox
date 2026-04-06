@@ -2028,6 +2028,31 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 <script>
 const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
 
+// --- Web Login Gate: if no Telegram context and no saved token, stop here and show login ---
+const _qpCheck=new URLSearchParams(location.search);
+const _hasTgCtx=tg&&tg.initData&&tg.initData.length>0;
+const _hasUrlTok=_qpCheck.get('token');
+const _hasWebTok=localStorage.getItem('lf_web_token');
+const _hasOwnerP=Number(_qpCheck.get('owner')||0);
+let _webLoginMode=false;
+
+if(!_hasTgCtx){
+  // If saved web session but no URL params — redirect with params
+  if(_hasWebTok&&!_hasUrlTok&&!_hasOwnerP){
+    const _so=localStorage.getItem('lf_web_owner');
+    const _sa=localStorage.getItem('lf_web_api');
+    if(_so&&_sa){location.replace(location.pathname+'?owner='+_so+'&api='+encodeURIComponent(_sa));/*stop*/}
+  }
+  // If no token at all — login mode
+  if(!_hasUrlTok&&!_hasWebTok){
+    _webLoginMode=true;
+    // Hide startup, show login
+    const _su=document.getElementById('startup');if(_su)_su.style.display='none';
+    const _wl=document.getElementById('webLogin');if(_wl)_wl.style.display='flex';
+    document.body.classList.add('app-ready');
+  }
+}
+
 /* ===================== i18n ===================== */
 const _L={
 ru:{
@@ -2835,6 +2860,7 @@ function startPolling(){if(!API_BASE||(!API_TOKEN&&!TG_INIT_DATA))return;if(poll
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSnapshot(true)});
 document.addEventListener('click',e=>{const el=e.target.closest('.media-open');if(el){e.preventDefault();const u=el.dataset.furl;if(u)authMedia(u).then(b=>{if(b)window.open(b,'_blank')});return}const tb=e.target.closest('.tpl-btn');if(tb){const idx=Number(tb.dataset.tplIdx);const tpls=ST.templates||[];if(tpls[idx]!=null)useTemplate(tpls[idx]);return}const wt=e.target.closest('.wh-test');if(wt&&wt.dataset.url){testWH(wt.dataset.url);return}const wd=e.target.closest('.wh-del');if(wd&&wd.dataset.id){delWH(Number(wd.dataset.id))}});
 
+if(!_webLoginMode){
 hydrateAccount();
 applyLangToUI();
 initPremiumMotion();
@@ -2845,6 +2871,7 @@ const localOk=loadLocal();
 const hashOk=loadHash();
 if(!localOk && !hashOk){document.getElementById('cl').innerHTML=Array.from({length:5},(_,i)=>`<div class="sk-card" style="animation-delay:${i*.08}s"><div class="sk-row"><div class="sk sk-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk sk-line"></div><div class="sk sk-line short"></div></div></div></div>`).join('');} else {R();}
 syncSnapshot(true);startPolling();
+}
 </script>
 
 <script>
