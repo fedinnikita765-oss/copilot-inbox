@@ -2961,7 +2961,7 @@ syncSnapshot(true);startPolling();
         data-radius="12"
         data-onauth="onTelegramAuth(user)"
         data-request-access="write"></script>
-      <a id="tgLoginFallback" href="https://t.me/leadflow_crm_bot" target="_blank" style="display:none;padding:14px 32px;background:#54a9eb;color:#fff;font-size:16px;font-weight:600;border-radius:12px;text-decoration:none;transition:background .2s">
+      <a id="tgLoginFallback" href="https://oauth.telegram.org/auth?bot_id=leadflow_crm_bot&origin=https://fedinnikita765-oss.github.io&request_access=write" target="_blank" onclick="return false;" style="display:none;padding:14px 32px;background:#54a9eb;color:#fff;font-size:16px;font-weight:600;border-radius:12px;text-decoration:none;transition:background .2s;cursor:pointer">
         <span style="display:inline-flex;align-items:center;gap:8px">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.53 8.16l-1.8 8.49c-.14.6-.5.75-1.01.47l-2.8-2.06-1.35 1.3c-.15.15-.28.28-.57.28l.2-2.85 5.18-4.68c.23-.2-.05-.31-.35-.12l-6.4 4.03-2.76-.86c-.6-.19-.61-.6.13-.89l10.79-4.16c.5-.18.93.12.74.85z"/></svg>
           Войти через Telegram
@@ -3063,14 +3063,29 @@ window.onTelegramAuth = async function(user) {
     document.body.classList.add('app-ready');
   }
 
-  // Fallback: if Telegram widget doesn't render in 3s, show direct link button
-  setTimeout(function(){
-    const container = document.getElementById('tgLoginBtn');
-    if (container && !container.querySelector('iframe')) {
-      const fb = document.getElementById('tgLoginFallback');
-      if (fb) fb.style.display = 'inline-flex';
-    }
-  }, 3000);
+  // Show fallback button immediately, hide if widget iframe appears
+  const fb = document.getElementById('tgLoginFallback');
+  if (fb) {
+    fb.style.display = 'inline-flex';
+    fb.onclick = function(e) {
+      e.preventDefault();
+      // Open Telegram Login popup manually
+      const w = 550, h = 470;
+      const left = Math.round(screen.width/2 - w/2);
+      const top = Math.round(screen.height/2 - h/2);
+      window.open(
+        'https://oauth.telegram.org/auth?bot_id=leadflow_crm_bot&origin=' + encodeURIComponent(location.origin) + '&request_access=write',
+        'tg_login', 'width='+w+',height='+h+',left='+left+',top='+top
+      );
+    };
+    // If widget loads, hide fallback
+    setTimeout(function(){
+      const container = document.getElementById('tgLoginBtn');
+      if (container && container.querySelector('iframe')) {
+        fb.style.display = 'none';
+      }
+    }, 2000);
+  }
 })();
 </script>
 
