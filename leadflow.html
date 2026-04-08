@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,interactive-widget=resizes-content">
 <title>LeadFlow</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://oauth.telegram.org https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' https://leadflow-bot.com https://api.telegram.org; media-src 'self' https: blob:; frame-src https://oauth.telegram.org; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://oauth.telegram.org https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' https://leadflow-bot.com https://api.telegram.org https://oauth.telegram.org; media-src 'self' https: blob:; frame-src https://oauth.telegram.org; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
@@ -2954,7 +2954,20 @@ syncSnapshot(true);startPolling();
     </div>
     <h1 style="font-family:var(--head,'Fraunces',Georgia,serif);font-size:28px;font-weight:700;color:var(--ink,#1c1917);margin-bottom:8px;letter-spacing:-.02em">LeadFlow</h1>
     <p style="font-size:15px;color:var(--ink2,#57534e);margin-bottom:32px;line-height:1.5">Войдите через Telegram,<br>чтобы открыть панель управления</p>
-    <div id="tgLoginBtn" style="display:flex;justify-content:center;margin-bottom:24px"></div>
+    <div id="tgLoginBtn" style="display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:24px;gap:12px">
+      <script async src="https://telegram.org/js/telegram-widget.js?22"
+        data-telegram-login="leadflow_crm_bot"
+        data-size="large"
+        data-radius="12"
+        data-onauth="onTelegramAuth(user)"
+        data-request-access="write"></script>
+      <a id="tgLoginFallback" href="https://t.me/leadflow_crm_bot" target="_blank" style="display:none;padding:14px 32px;background:#54a9eb;color:#fff;font-size:16px;font-weight:600;border-radius:12px;text-decoration:none;transition:background .2s">
+        <span style="display:inline-flex;align-items:center;gap:8px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.53 8.16l-1.8 8.49c-.14.6-.5.75-1.01.47l-2.8-2.06-1.35 1.3c-.15.15-.28.28-.57.28l.2-2.85 5.18-4.68c.23-.2-.05-.31-.35-.12l-6.4 4.03-2.76-.86c-.6-.19-.61-.6.13-.89l10.79-4.16c.5-.18.93.12.74.85z"/></svg>
+          Войти через Telegram
+        </span>
+      </a>
+    </div>
     <p id="loginError" style="display:none;font-size:13px;color:var(--ruby,#c03030);margin-bottom:16px"></p>
     <p id="loginNotFound" style="display:none;font-size:13px;color:var(--ink2,#57534e);background:var(--sand,#f0ece6);padding:16px;border-radius:12px;line-height:1.5">
       Аккаунт не найден. Сначала запустите <a href="https://t.me/leadflow_crm_bot" target="_blank" style="color:var(--terra,#d4531a);font-weight:600;text-decoration:underline">@leadflow_crm_bot</a> и нажмите Start, затем вернитесь сюда.
@@ -2966,6 +2979,47 @@ syncSnapshot(true);startPolling();
 </div>
 
 <script>
+// Global Telegram auth callback — must be defined before widget loads
+window.onTelegramAuth = async function(user) {
+  const errEl = document.getElementById('loginError');
+  const nfEl = document.getElementById('loginNotFound');
+  errEl.style.display = 'none';
+  nfEl.style.display = 'none';
+
+  try {
+    const apiBase = 'https://leadflow-bot.com';
+    const resp = await fetch(apiBase + '/api/auth/telegram-login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(user)
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      if (data.error === 'user_not_found') {
+        nfEl.style.display = 'block';
+        return;
+      }
+      errEl.textContent = data.error || data.message || 'Auth failed';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Save web session
+    localStorage.setItem('lf_web_token', data.token);
+    localStorage.setItem('lf_web_owner', String(data.owner_id));
+    localStorage.setItem('lf_web_api', data.api_base);
+    localStorage.setItem('lf_web_name', data.name || '');
+
+    // Redirect to app with auth
+    const url = location.pathname + '?owner=' + data.owner_id + '&api=' + encodeURIComponent(data.api_base);
+    location.replace(url);
+  } catch (e) {
+    errEl.textContent = 'Connection error: ' + (e.message || e);
+    errEl.style.display = 'block';
+  }
+};
+
 (function(){
   // Web auth: if not inside Telegram and no token, show login
   const _tg = window.Telegram?.WebApp;
@@ -2982,12 +3036,9 @@ syncSnapshot(true);startPolling();
     const savedOwner = localStorage.getItem('lf_web_owner');
     const savedApi = localStorage.getItem('lf_web_api');
     if (savedOwner && savedApi) {
-      // Already on correct URL with params?
       if (_hasOwner) {
-        // Set token for the app to use
         if (!window._webTokenInjected) {
           window._webTokenInjected = true;
-          // Patch API_TOKEN and sessionStorage
           if (typeof API_TOKEN !== 'undefined' && !API_TOKEN) {
             API_TOKEN = _hasWebToken;
             sessionStorage.setItem('lf_token', _hasWebToken);
@@ -2995,7 +3046,6 @@ syncSnapshot(true);startPolling();
         }
         return;
       }
-      // Redirect to app with params
       const url = location.pathname + '?owner=' + savedOwner + '&api=' + encodeURIComponent(savedApi) + '&token=' + _hasWebToken;
       location.replace(url);
       return;
@@ -3009,65 +3059,18 @@ syncSnapshot(true);startPolling();
   const overlay = document.getElementById('webLogin');
   if (overlay) {
     overlay.style.display = 'flex';
-    // Hide main app
     document.getElementById('startup')?.remove();
     document.body.classList.add('app-ready');
   }
 
-  // Load Telegram Login Widget
-  window.onTelegramAuth = async function(user) {
-    const errEl = document.getElementById('loginError');
-    const nfEl = document.getElementById('loginNotFound');
-    errEl.style.display = 'none';
-    nfEl.style.display = 'none';
-
-    try {
-      const apiBase = 'https://leadflow-bot.com';
-      const resp = await fetch(apiBase + '/api/auth/telegram-login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(user)
-      });
-      const data = await resp.json();
-
-      if (!resp.ok) {
-        if (data.error === 'user_not_found') {
-          nfEl.style.display = 'block';
-          return;
-        }
-        errEl.textContent = data.error || data.message || 'Auth failed';
-        errEl.style.display = 'block';
-        return;
-      }
-
-      // Save web session
-      localStorage.setItem('lf_web_token', data.token);
-      localStorage.setItem('lf_web_owner', String(data.owner_id));
-      localStorage.setItem('lf_web_api', data.api_base);
-      localStorage.setItem('lf_web_name', data.name || '');
-
-      // Redirect to app with auth
-      const url = location.pathname + '?owner=' + data.owner_id + '&api=' + encodeURIComponent(data.api_base);
-      location.replace(url);
-    } catch (e) {
-      errEl.textContent = 'Connection error: ' + (e.message || e);
-      errEl.style.display = 'block';
+  // Fallback: if Telegram widget doesn't render in 3s, show direct link button
+  setTimeout(function(){
+    const container = document.getElementById('tgLoginBtn');
+    if (container && !container.querySelector('iframe')) {
+      const fb = document.getElementById('tgLoginFallback');
+      if (fb) fb.style.display = 'inline-flex';
     }
-  };
-
-  // Insert Telegram Login Widget script
-  const container = document.getElementById('tgLoginBtn');
-  if (container) {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://telegram.org/js/telegram-widget.js?22';
-    script.setAttribute('data-telegram-login', 'leadflow_crm_bot');
-    script.setAttribute('data-size', 'large');
-    script.setAttribute('data-radius', '12');
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-    script.setAttribute('data-request-access', 'write');
-    container.appendChild(script);
-  }
+  }, 3000);
 })();
 </script>
 
