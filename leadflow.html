@@ -3015,24 +3015,37 @@ window.onTelegramAuth = async function(user) {
   }
 };
 
-// Telegram login button click handler — always available
+// Listen for auth response from Telegram OAuth popup
+window.addEventListener('message', function(e) {
+  if (!e.origin || e.origin.indexOf('telegram.org') === -1) return;
+  try {
+    var data = (typeof e.data === 'string') ? JSON.parse(e.data) : e.data;
+    // Telegram Login Widget sends: {event: 'auth_result', result: {id, first_name, ...hash}}
+    if (data && data.event === 'auth_result' && data.result) {
+      window.onTelegramAuth(data.result);
+    } else if (data && data.id && data.hash) {
+      window.onTelegramAuth(data);
+    }
+  } catch(ex) {}
+});
+
+// Telegram login button click handler
 window._tgLoginClick = function() {
-  // Try loading widget in popup
-  const w = 550, h = 470;
-  const left = Math.round(screen.width/2 - w/2);
-  const top = Math.round(screen.height/2 - h/2);
+  var w = 550, h = 470;
+  var left = Math.round(screen.width/2 - w/2);
+  var top = Math.round(screen.height/2 - h/2);
   window.open(
-    'https://oauth.telegram.org/auth?bot_id=8535942845&origin=' + encodeURIComponent(location.origin) + '&request_access=write',
+    'https://oauth.telegram.org/auth?bot_id=8535942845&origin=' + encodeURIComponent(location.origin) + '&embed=0&request_access=write',
     'tg_login', 'width='+w+',height='+h+',left='+left+',top='+top
   );
 };
 
-// Also try loading the Telegram widget into the container
+// Also try loading the Telegram widget
 (function(){
-  const wrap = document.getElementById('tgWidgetWrap');
+  var wrap = document.getElementById('tgWidgetWrap');
   if (wrap) {
     try {
-      const s = document.createElement('script');
+      var s = document.createElement('script');
       s.async = true;
       s.src = 'https://telegram.org/js/telegram-widget.js?22';
       s.setAttribute('data-telegram-login', 'Ewqqeutibot');
