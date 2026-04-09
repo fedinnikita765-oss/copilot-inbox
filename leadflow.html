@@ -1929,17 +1929,20 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* --- Main content area --- */
   .pg{
-    margin-left:260px!important;
-    margin-right:auto!important;
-    padding:0 40px 40px!important;
+    position:relative!important;
+    left:260px!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding:0 40px 40px 40px!important;
     width:calc(100% - 260px)!important;
-    max-width:1100px!important;
+    max-width:none!important;
     box-sizing:border-box!important;
   }
 
   /* --- Header: clean flat style --- */
   .hdr{
     padding:32px 0 16px!important;
+    margin:0!important;
     background:none!important;
   }
   .hdr::before,.hdr::after{display:none!important}
@@ -1955,6 +1958,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   /* --- Stats row --- */
   .stat-row{
     margin:0!important;
+    padding:0!important;
     gap:14px!important;
   }
   .stat{
@@ -1972,7 +1976,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .fb{padding:8px 0!important}
 
   /* --- Lists --- */
-  .ls{padding:0!important}
+  .ls{padding:0!important;margin:0!important;max-width:100%!important}
 
   /* --- Cards: clean flat --- */
   .cd{
