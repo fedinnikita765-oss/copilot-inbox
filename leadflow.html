@@ -1929,12 +1929,10 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* --- Main content area --- */
   .pg{
-    position:relative!important;
-    left:260px!important;
-    margin-left:0!important;
+    margin-left:260px!important;
     margin-right:0!important;
     padding:0 40px 40px 40px!important;
-    width:calc(100% - 260px)!important;
+    width:auto!important;
     max-width:none!important;
     box-sizing:border-box!important;
   }
@@ -1993,6 +1991,15 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     box-shadow:0 0 0 1px var(--terra)!important;
     transform:none!important;
   }
+
+  /* --- Hide swipe actions on desktop --- */
+  .cd-swipe-wrap{
+    overflow:visible!important;
+    border-radius:14px!important;
+    margin-bottom:8px!important;
+  }
+  .cd-swipe-bg{display:none!important}
+  .cd-swipe-wrap .cd{margin-bottom:0!important}
 
   /* --- Widgets --- */
   .widgets{padding:8px 0!important}
@@ -2078,17 +2085,9 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   ::-webkit-scrollbar-thumb:hover{background:var(--ink3)}
 }
 
-/* 2-column grid for contacts on wide screens */
+/* Wide screens: limit contact list width for readability */
 @media (min-width:1200px){
-  #cl{
-    display:grid!important;
-    grid-template-columns:repeat(2,1fr);
-    gap:8px;
-  }
-  #cl .em{grid-column:1/-1}
-}
-@media (min-width:1600px){
-  #cl{grid-template-columns:repeat(3,1fr)!important}
+  #cl{max-width:800px}
 }
 
 </style>
