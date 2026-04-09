@@ -494,6 +494,7 @@ textarea.si{min-height:88px}
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 0 9px;background:transparent;border:0;color:var(--ink3);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--body);border-radius:18px;
   transition:transform .2s var(--ease), color .2s var(--ease), background .25s var(--ease), box-shadow .25s var(--ease)
 }
+.nb-logout{display:none}
 .nb:hover{color:var(--ink2)}
 .nb:active{transform:scale(.94)}
 .nb.on{
@@ -2049,6 +2050,19 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
   .acc-card::before,.acc-card::after{display:none!important}
 
+  /* --- Logout button: bottom of sidebar --- */
+  .nb-logout{
+    display:flex!important;
+    margin-top:auto!important;
+    margin-bottom:12px!important;
+    color:var(--ink3)!important;
+    font-size:13px!important;
+  }
+  .nb-logout:hover{
+    background:var(--ruby-s)!important;
+    color:var(--ruby)!important;
+  }
+
   /* --- Login overlay: full screen --- */
   #webLogin{left:0!important;width:100%!important}
 
@@ -2264,7 +2278,9 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 <button class="nb on" onclick="go('in',this)"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span data-i="inbox">Входящие</span></button>
 <button class="nb" onclick="go('tk',this)"><svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span data-i="tasks_tab">Задачи</span></button>
 <button class="nb" onclick="go('an',this)"><svg class="ic" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg><span data-i="analytics">Аналитика</span></button>
-<button class="nb" onclick="go('st',this)"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-i="settings">Настройки</span></button></div>
+<button class="nb" onclick="go('st',this)"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-i="settings">Настройки</span></button>
+<button class="nb nb-logout" onclick="webLogout()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Выйти</span></button>
+</div>
 
 <div class="ov" id="ov" onclick="cD()"></div>
 <div class="pn" id="pn"><div id="dc"></div></div>
@@ -2285,16 +2301,17 @@ const _hasOwnerP=Number(_qpCheck.get('owner')||0);
 let _webLoginMode=false;
 
 if(!_hasTgCtx){
-  // If saved web session but no URL params — redirect with params
-  if(_hasWebTok&&!_hasUrlTok&&!_hasOwnerP){
+  // If saved web session but no URL params — redirect with params (once)
+  if(_hasWebTok&&!_hasOwnerP){
     const _so=localStorage.getItem('lf_web_owner');
     const _sa=localStorage.getItem('lf_web_api');
-    if(_so&&_sa){location.replace(location.pathname+'?owner='+_so+'&api='+encodeURIComponent(_sa));/*stop*/}
+    if(_so&&_sa){
+      location.replace(location.pathname+'?owner='+_so+'&api='+encodeURIComponent(_sa));
+    }
   }
-  // If no token at all — login mode
-  if(!_hasUrlTok&&!_hasWebTok){
+  // If no token and no saved session — login mode
+  if(!_hasUrlTok&&!_hasWebTok&&!_hasOwnerP){
     _webLoginMode=true;
-    // Hide startup, show login
     const _su=document.getElementById('startup');if(_su)_su.style.display='none';
     const _wl=document.getElementById('webLogin');if(_wl)_wl.style.display='flex';
     document.body.classList.add('app-ready');
@@ -3261,6 +3278,16 @@ window.onTelegramAuth = async function(user) {
     errEl.textContent = 'Connection error: ' + (e.message || e);
     errEl.style.display = 'block';
   }
+};
+
+// Logout: clear session and show login
+window.webLogout = function() {
+  localStorage.removeItem('lf_web_token');
+  localStorage.removeItem('lf_web_owner');
+  localStorage.removeItem('lf_web_api');
+  localStorage.removeItem('lf_web_name');
+  sessionStorage.removeItem('lf_token');
+  location.replace(location.pathname);
 };
 
 // Listen for auth response from Telegram OAuth popup
