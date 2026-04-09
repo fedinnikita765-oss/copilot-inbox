@@ -504,7 +504,7 @@ textarea.si{min-height:88px}
 .nb .ic{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
 .nb.on .ic{transform:translateY(-1px) scale(1.12)}
 
-@media (min-width:700px){
+@media (min-width:700px) and (max-width:899px){
   body{max-width:560px;margin:0 auto}
   .mb{max-width:560px;margin:0 auto;left:50%;right:auto;transform:translateX(-50%) translateY(100%);width:100%}
 }
@@ -1385,7 +1385,7 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
 #ov.on{opacity:1;pointer-events:auto;}
 #pn{position:fixed;bottom:0;left:0;right:0;max-height:90vh;height:auto;border-radius:30px 30px 0 0;transform:translateY(calc(100% + 80px));pointer-events:none;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg, rgba(253,251,248,.985), rgba(248,244,238,.98));border-top:1px solid rgba(255,255,255,.82);box-shadow:var(--sh2);z-index:202;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;overflow-y:auto;transition:transform .38s cubic-bezier(.22,1,.36,1);}
 #pn.on{transform:translateY(0);pointer-events:auto;}
-@media(min-width:700px){#pn{max-width:560px;left:50%;right:auto;width:100%;transform:translateX(-50%) translateY(calc(100% + 80px));}#pn.on{transform:translateX(-50%) translateY(0);}}
+@media(min-width:700px) and (max-width:899px){#pn{max-width:560px;left:50%;right:auto;width:100%;transform:translateX(-50%) translateY(calc(100% + 80px));}#pn.on{transform:translateX(-50%) translateY(0);}}
 #dc{padding:0 0 calc(34px + env(safe-area-inset-bottom,0px));}
 .detail-topbar{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 18px 14px;background:linear-gradient(180deg, rgba(253,251,248,.96), rgba(253,251,248,.86));backdrop-filter:blur(18px) saturate(1.08);-webkit-backdrop-filter:blur(18px) saturate(1.08);border-bottom:1px solid rgba(110,94,81,.12);}
 .detail-topbar .ttl{font-family:var(--head);font-size:22px;font-weight:900;letter-spacing:-.04em;}
@@ -1495,13 +1495,21 @@ body.modal-open #luxLight{opacity:.75;filter:blur(34px) saturate(1.02)}
   60%{opacity:1;transform:translateY(-3px) scale(1.005)}
   100%{opacity:1;transform:none}
 }
-@media(min-width:700px){
+@media(min-width:700px) and (max-width:899px){
   #pn.on{animation:panelUp .52s cubic-bezier(.22,1,.36,1)}
   @keyframes panelUp{
     0%{transform:translateX(-50%) translateY(100%)}
     60%{transform:translateX(-50%) translateY(-2%)}
     80%{transform:translateX(-50%) translateY(.5%)}
     100%{transform:translateX(-50%) translateY(0)}
+  }
+}
+@media(min-width:900px){
+  #pn.on{animation:panelSlideIn .4s cubic-bezier(.22,1,.36,1)}
+  @keyframes panelSlideIn{
+    0%{transform:translateX(100%)}
+    70%{transform:translateX(-2%)}
+    100%{transform:translateX(0)}
   }
 }
 /* Detail hero + sections entrance for all screens */
@@ -1823,6 +1831,241 @@ html.lite .tog-wrap input:checked+.tog-track .tog-thumb{animation:ltPopIn .25s c
 
 /* --- Online status pulse (simplified) --- */
 html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
+
+/* =====================================================
+   DESKTOP LAYOUT (900px+) — sidebar nav + wide content
+   Telegram Mini App window never reaches 900px,
+   so this only applies to the web version on PC.
+   ===================================================== */
+@media (min-width:900px){
+  /* --- Body: full width --- */
+  body{
+    max-width:100%!important;
+    margin:0!important;
+  }
+
+  /* --- Nav: left sidebar --- */
+  .nav{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    bottom:0!important;
+    right:auto!important;
+    width:240px!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    border-radius:0!important;
+    padding:20px 14px!important;
+    gap:4px!important;
+    z-index:90!important;
+    background:rgba(255,255,255,.82)!important;
+    backdrop-filter:blur(24px) saturate(1.2)!important;
+    -webkit-backdrop-filter:blur(24px) saturate(1.2)!important;
+    border-right:1px solid var(--line)!important;
+    border:none!important;
+    border-right:1px solid var(--line)!important;
+    box-shadow:1px 0 24px rgba(28,25,23,.04)!important;
+    overflow-y:auto!important;
+    transform:none!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    visibility:visible!important;
+  }
+
+  /* Sidebar branding */
+  .nav::before{
+    content:'LeadFlow'!important;
+    display:block!important;
+    font-family:var(--head)!important;
+    font-size:24px!important;
+    font-weight:900!important;
+    color:var(--terra)!important;
+    padding:12px 14px 28px!important;
+    letter-spacing:-.04em!important;
+    background:none!important;
+    position:static!important;
+    height:auto!important;
+    inset:unset!important;
+    opacity:1!important;
+    pointer-events:none!important;
+    border:none!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important;
+    width:auto!important;
+  }
+  .nav::after{
+    display:none!important;
+  }
+
+  /* Hide sliding indicator on desktop */
+  .nav-active{
+    display:none!important;
+  }
+
+  /* Nav buttons: horizontal row with icon + label */
+  .nb{
+    flex:0 0 auto!important;
+    flex-direction:row!important;
+    justify-content:flex-start!important;
+    align-items:center!important;
+    gap:14px!important;
+    padding:13px 16px!important;
+    font-size:14px!important;
+    font-weight:500!important;
+    border-radius:14px!important;
+    color:var(--ink2)!important;
+    transition:all .2s var(--ease)!important;
+    background:transparent!important;
+  }
+  .nb:hover{
+    background:var(--sand)!important;
+    color:var(--ink)!important;
+  }
+  .nb.on{
+    background:var(--terra-s)!important;
+    color:var(--terra)!important;
+    font-weight:600!important;
+    box-shadow:none!important;
+  }
+  .nb .ic{
+    width:22px!important;
+    height:22px!important;
+    flex-shrink:0;
+  }
+  .nb span{
+    font-size:14px!important;
+    opacity:1!important;
+    transform:none!important;
+  }
+
+  /* --- Pages: offset for sidebar --- */
+  .pg{
+    margin-left:240px;
+    padding-bottom:32px!important;
+    width:calc(100% - 240px);
+    max-width:1200px;
+  }
+
+  /* --- Headers: wider padding --- */
+  .hdr{
+    padding:28px 32px 14px;
+  }
+  .hdr::before{
+    inset:8px 24px 0;
+  }
+
+  /* --- Lists: wider --- */
+  .ls{
+    padding-left:24px!important;
+    padding-right:24px!important;
+  }
+
+  /* --- Search bar --- */
+  .si{
+    max-width:600px;
+  }
+
+  /* --- Filters bar --- */
+  .fb{
+    padding-left:24px;
+    padding-right:24px;
+  }
+
+  /* --- Stat row: more space --- */
+  .stat-row{
+    margin:0 24px;
+  }
+
+  /* --- Contact cards: grid on wide screens --- */
+  .ls .cd{
+    max-width:100%;
+  }
+
+  /* --- Kanban: more room --- */
+  .kanban{
+    padding:10px 24px;
+    margin-left:240px;
+    width:calc(100% - 240px);
+  }
+  .kb-col{
+    min-width:240px;
+  }
+
+  /* --- Detail panel: right side sheet --- */
+  #pn{
+    max-width:560px!important;
+    left:auto!important;
+    right:0!important;
+    width:560px!important;
+    transform:translateX(100%)!important;
+    border-radius:24px 0 0 24px!important;
+  }
+  #pn.on{
+    transform:translateX(0)!important;
+  }
+
+  /* --- Overlay: offset for sidebar --- */
+  #ov{
+    left:240px;
+  }
+
+  /* --- Modals: centered with sidebar offset --- */
+  .mb{
+    left:240px!important;
+    right:0!important;
+    max-width:100%!important;
+    width:auto!important;
+  }
+  .mb .md{
+    max-width:520px;
+    margin:0 auto;
+  }
+
+  /* --- Subpages: offset sidebar --- */
+  .sp{
+    left:240px!important;
+    width:calc(100% - 240px)!important;
+  }
+
+  /* --- Settings: 2-column grid on wide screens --- */
+  .settings-panel-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  /* --- Widgets row --- */
+  .widgets{
+    padding-left:24px;
+    padding-right:24px;
+  }
+
+  /* --- Account card: wider --- */
+  .acc-card{
+    margin-left:24px;
+    margin-right:24px;
+  }
+
+  /* --- Web login overlay: full screen, no sidebar --- */
+  #webLogin{
+    left:0!important;
+    width:100%!important;
+  }
+}
+
+/* Extra-wide: 2-column contact grid */
+@media (min-width:1200px){
+  #cl{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+  #cl .em{
+    grid-column:1/-1;
+  }
+  .pg{
+    max-width:1400px;
+  }
+}
 
 </style>
 </head>
