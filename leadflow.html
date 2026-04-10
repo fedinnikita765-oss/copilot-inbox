@@ -11,6 +11,7 @@
 <style>
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2098,38 +2099,38 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 @media(min-width:900px){
 
   :root{
-    --bg:#0f0f14;--panel:#1a1a24;--panel2:#22222e;--border:#2a2a3a;
 
 
-/* ===== DESKTOP: new dark CRM design (>= 900px) ===== */
+/* ===== DESKTOP: dark CRM variables (>= 900px) ===== */
 @media(min-width:900px){
-
   :root{
-    --bg:#0f0f14;--panel:#1a1a24;--panel2:#22222e;--border:#2a2a3a;
-    --accent:#7c3aed;--accent-s:rgba(124,58,237,.12);--accent-hover:#6d28d9;
-    --text:#e4e4e7;--text2:#a1a1aa;--text3:#71717a;
-    --green:#22c55e;--green-s:rgba(34,197,94,.12);
-    --red:#ef4444;--red-s:rgba(239,68,68,.12);
-    --blue:#3b82f6;--blue-s:rgba(59,130,246,.12);
-    --yellow:#eab308;--yellow-s:rgba(234,179,8,.12);
-    --r:14px;--r2:12px;--r3:8px;
-    --cream:var(--bg);--white:var(--panel);--sand:var(--panel2);--stone:var(--border);
-    --ink:var(--text);--ink2:var(--text2);--ink3:var(--text3);
-    --terra:var(--accent);--terra-s:var(--accent-s);
-    --forest:var(--green);--forest-s:var(--green-s);
-    --ruby:var(--red);--ruby-s:var(--red-s);
-    --ocean:var(--blue);--ocean-s:var(--blue-s);
-    --honey:var(--yellow);--honey-s:var(--yellow-s);
-    --line:var(--border);--glass:var(--panel);--glass-2:var(--panel2);
+    --cream:#0f0f14;--white:#1a1a24;--sand:#22222e;--stone:#2a2a3a;
+    --ink:#e4e4e7;--ink2:#a1a1aa;--ink3:#71717a;
+    --terra:#7c3aed;--terra-s:rgba(124,58,237,.12);
+    --forest:#22c55e;--forest-s:rgba(34,197,94,.12);
+    --ruby:#ef4444;--ruby-s:rgba(239,68,68,.12);
+    --ocean:#3b82f6;--ocean-s:rgba(59,130,246,.12);
+    --honey:#eab308;--honey-s:rgba(234,179,8,.12);
+    --line:#2a2a3a;--glass:#1a1a24;--glass-2:#22222e;
     --shadow-xs:none;--sh:none;--sh2:0 8px 32px rgba(0,0,0,.4);
     --head:'Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
-    --ease:cubic-bezier(.22,1,.36,1);
-    --nav-x:0;--nav-w:0;
+    --r:14px;--r2:12px;--r3:8px;
+    --ease:cubic-bezier(.22,1,.36,1);--nav-x:0;--nav-w:0;
   }
+}
 
-  html,body{background:var(--bg)!important;color:var(--text)!important}
+@media(min-width:900px){
+
+  --bg:#0f0f14;--panel:#1a1a24;--panel2:#22222e;--border:#2a2a3a;
+  --accent:#7c3aed;--accent-s:rgba(124,58,237,.12);--accent-hover:#6d28d9;
+  --text:#e4e4e7;--text2:#a1a1aa;--text3:#71717a;
+
+  html{background:#0f0f14!important}
+  body{background:#0f0f14!important;color:#e4e4e7!important;animation:none!important}
   body::before{display:none!important}
-  body{animation:none!important}
+
+  /* Force all text to be light */
+  h1,h2,h3,h4,h5,p,span,div,label,strong,a{color:inherit}
 
   /* --- 3-column layout --- */
   .nav{
@@ -2242,11 +2243,11 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     font-size:15px!important;flex-shrink:0!important;
   }
 
-  /* --- Detail panel (chat) --- */
+  /* --- Detail panel (chat) - always visible on desktop --- */
   .ov{display:none!important}
   .pn{
     position:fixed!important;top:0;left:412px;right:0;bottom:0;
-    background:var(--bg)!important;
+    background:#0f0f14!important;
     padding:0!important;overflow:hidden!important;
     display:flex!important;flex-direction:column!important;
     transform:none!important;opacity:1!important;
@@ -2608,16 +2609,58 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* Notes textarea in detail */
   #notesInp{
-    background:var(--panel)!important;border:1px solid var(--border)!important;
-    color:var(--text)!important;border-radius:var(--r3)!important;
+    background:#1a1a24!important;border:1px solid #2a2a3a!important;
+    color:#e4e4e7!important;border-radius:8px!important;
     font-size:13px!important;
   }
 
   /* Funnel select colors */
-  .select-wrap select{font-size:13px!important}
+  .select-wrap select{font-size:13px!important;background:#1a1a24!important;color:#e4e4e7!important}
+
+  /* Override JS inline styles that set white backgrounds */
+  .sg[style]{background:#1a1a24!important;border:1px solid #2a2a3a!important;border-radius:8px!important}
+  .sg[style] h4{color:#71717a!important}
+  .stat-row[style]{background:transparent!important}
+  .stat[style]{background:#1a1a24!important;border:1px solid #2a2a3a!important;border-radius:8px!important}
+  .mg .mi[style]{background:transparent!important}
+
+  /* Override any rgba(255,255,255,...) backgrounds from inline styles */
+  [style*="background:rgba(255"],[style*="background: rgba(255"],[style*="background:#fff"],[style*="background: #fff"],[style*="background:white"]{
+    background:#1a1a24!important;
+  }
+
+  /* Force dark on all inputs/selects including inline styled ones */
+  input,textarea,select{
+    background:#22222e!important;border-color:#2a2a3a!important;color:#e4e4e7!important;
+  }
+
+  /* Canvas charts dark background */
+  canvas{filter:none}
 
   /* Hide some mobile-only things */
   #luxLight{display:none!important}
+
+  /* Inline style overrides for settings pages */
+  .sp-card [style*="background"]{background:#22222e!important}
+  .sp-card button[style]{background:#22222e!important;border-color:#2a2a3a!important;color:#e4e4e7!important}
+
+  /* AI-generated content box */
+  .cd-ai[style]{background:rgba(124,58,237,.12)!important;color:#a1a1aa!important}
+
+  /* Detail panel empty state when no contact selected */
+  .pn:not(.on){display:flex!important}
+  .pn:not(.on) #dc{
+    display:flex!important;align-items:center!important;justify-content:center!important;
+  }
+  .pn:not(.on) #dc::before{
+    content:'Select a conversation';
+    font-size:16px;color:#2a2a3a;font-weight:500;
+  }
+
+  /* All buttons dark */
+  button{color:inherit}
+  .ss{background:#7c3aed!important;color:#fff!important;border:none!important;border-radius:8px!important;padding:10px 20px!important;cursor:pointer!important;font-weight:600!important}
+  .ss:hover{background:#6d28d9!important}
 }
 
 /* Mobile: keep old design untouched */
