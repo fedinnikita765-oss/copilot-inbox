@@ -16,6 +16,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2100,7 +2101,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
 
 
-
 /* ===== DESKTOP: dark CRM variables (>= 900px) ===== */
 @media(min-width:900px){
   :root{
@@ -2254,151 +2254,167 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   #pn::before,.pn::before{display:none!important}
   #dc{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-  /* Hide generic "Contact" topbar — hero has the real name */
   .detail-topbar{display:none!important}
 
-  /* === DETAIL-SHELL: CSS Grid — chat left, settings right === */
+  /* === DETAIL-SHELL: absolute layout === */
   .detail-shell{
     position:relative!important;transform:none!important;
-    width:100%!important;flex:1!important;overflow:hidden!important;
-    display:grid!important;
-    grid-template-columns:1fr 280px!important;
-    grid-template-rows:auto 1fr auto!important;
-    border:none!important;background:#111!important;
+    width:100%!important;flex:1!important;overflow-y:auto!important;
+    display:block!important;
+    border:none!important;background:#0d0d0d!important;
   }
   .detail-shell.on{transform:none!important}
 
-  /* Hero spans full width as top bar */
+  /* Right sidebar background */
+  .detail-shell::after{
+    content:''!important;display:block!important;
+    position:fixed!important;top:0;right:0;bottom:0;width:280px;
+    background:#151515!important;border-left:1px solid #2e2e2e!important;
+    z-index:0!important;pointer-events:none!important;
+  }
+
+  /* Hero — absolute, full width top bar */
   .detail-hero{
-    grid-column:1/-1!important;grid-row:1!important;
+    position:absolute!important;top:0!important;left:0!important;right:0!important;
+    height:52px!important;z-index:3!important;
     background:#181818!important;border-bottom:1px solid #2e2e2e!important;
-    padding:8px 16px!important;flex-shrink:0!important;
-    display:flex!important;align-items:center!important;gap:10px!important;
-    min-height:50px!important;
+    padding:0 20px!important;
+    display:flex!important;align-items:center!important;gap:12px!important;
   }
   .detail-hero .dn{flex:1!important}
   .detail-hero .dn h3{color:#ddd!important;font-size:14px!important;font-weight:600!important;margin:0!important}
-  .detail-hero .dn p{color:#666!important;font-size:11px!important;margin:0!important}
+  .detail-hero .dn p{color:#555!important;font-size:11px!important;margin:0!important}
   .detail-status{display:none!important}
-  .da{width:36px!important;height:36px!important;border-radius:50%!important;font-size:14px!important;flex-shrink:0!important}
+  .da{width:34px!important;height:34px!important;border-radius:50%!important;font-size:13px!important;flex-shrink:0!important}
 
-  /* === ALL .ds sections: show in RIGHT sidebar by default === */
+  /* === SETTINGS SECTIONS — normal flow, right sidebar === */
   .detail-shell > .ds{
-    grid-column:2!important;
+    width:280px!important;
+    margin-left:auto!important;
     display:block!important;
-    padding:10px 14px!important;
-    border-bottom:1px solid #2e2e2e!important;
-    border-left:1px solid #2e2e2e!important;
-    background:#181818!important;
-    overflow-y:auto!important;
+    padding:14px 16px!important;
+    border-bottom:1px solid #252525!important;
+    background:#151515!important;
     font-size:12px!important;
+    position:relative!important;z-index:1!important;
+  }
+  /* First settings section: add top padding for hero */
+  .detail-shell > .ds:first-of-type{
+    margin-top:52px!important;
   }
   .ds h4{
-    color:#666!important;font-size:10px!important;font-weight:600!important;
-    text-transform:uppercase!important;letter-spacing:.5px!important;margin-bottom:8px!important;
+    color:#555!important;font-size:10px!important;font-weight:700!important;
+    text-transform:uppercase!important;letter-spacing:.8px!important;
+    margin:0 0 10px 0!important;
+    display:flex!important;align-items:center!important;gap:6px!important;
   }
-  .ds h4 svg{color:#666!important;width:12px!important;height:12px!important}
-  .ds .mg{background:transparent!important}
+  .ds h4 svg{color:#555!important;width:13px!important;height:13px!important}
+  .ds .mg{background:transparent!important;margin:0!important}
   .mi{
-    border-bottom:1px solid #2e2e2e!important;
-    padding:6px 0!important;color:#ddd!important;font-size:12px!important;
+    border-bottom:1px solid #222!important;
+    padding:7px 0!important;color:#ccc!important;font-size:12px!important;
     display:flex!important;justify-content:space-between!important;align-items:center!important;
   }
-  .mi label{color:#666!important;font-size:11px!important}
+  .mi label{color:#666!important;font-size:11px!important;flex-shrink:0!important}
+  .mi span{text-align:right!important}
   .mi:last-child{border-bottom:none!important}
 
-  /* Right sidebar scrollable container */
-  .detail-shell > .ds:first-of-type{
-    grid-row:2/4!important;
+  /* === D-ACTS — right sidebar === */
+  .detail-shell > .d-acts{
+    width:280px!important;margin-left:auto!important;
+    display:flex!important;
+    padding:12px 16px!important;
+    background:#151515!important;gap:6px!important;
+    position:relative!important;z-index:1!important;
+    border-bottom:1px solid #252525!important;
   }
 
-  /* === MESSAGES section — LEFT column, fills space === */
+  /* === MESSAGES — absolute, left side === */
   .detail-shell > .ds:has(.bb){
-    grid-column:1!important;grid-row:2!important;
+    position:absolute!important;
+    top:52px!important;left:0!important;
+    width:calc(100% - 281px)!important;
+    bottom:62px!important;
+    margin-left:0!important;margin-top:0!important;
     display:flex!important;flex-direction:column-reverse!important;
-    flex:1!important;overflow-y:auto!important;
+    overflow-y:auto!important;
     padding:16px 20px!important;gap:6px!important;
-    border-bottom:none!important;border-left:none!important;
+    border-bottom:none!important;
     background:#0d0d0d!important;
+    z-index:2!important;
   }
   .detail-shell > .ds:has(.bb) > h4{display:none!important}
 
-  /* === REPLY section — LEFT column, bottom === */
+  /* === REPLY — absolute, bottom left === */
   .detail-shell > .ds:has(#replyInp){
-    grid-column:1!important;grid-row:3!important;
-    display:block!important;flex-shrink:0!important;
+    position:absolute!important;
+    bottom:0!important;left:0!important;
+    width:calc(100% - 281px)!important;
+    margin-left:0!important;margin-top:0!important;
     padding:10px 16px!important;
     background:#181818!important;
     border-top:1px solid #2e2e2e!important;
-    border-bottom:none!important;border-left:none!important;
+    border-bottom:none!important;
+    z-index:2!important;
   }
   .detail-shell > .ds:has(#replyInp) > h4{display:none!important}
 
-  /* Action buttons — in right sidebar */
-  .detail-shell > .d-acts{
-    grid-column:2!important;
-    display:flex!important;
-    padding:10px 14px!important;
-    border-left:1px solid #2e2e2e!important;
-    background:#181818!important;gap:6px!important;
-  }
-
-  /* Chat bubbles — charcoal style */
+  /* Chat bubbles */
   .bb{
-    border-radius:4px!important;padding:8px 12px!important;
-    font-size:13px!important;max-width:70%!important;line-height:1.45!important;
+    border-radius:12px!important;padding:9px 14px!important;
+    font-size:13px!important;max-width:70%!important;line-height:1.5!important;
     width:fit-content!important;position:relative!important;word-wrap:break-word!important;
   }
   .bb:not(.out){
-    background:#1e1e1e!important;color:#ddd!important;
+    background:#1c1c1c!important;color:#ddd!important;
+    border-bottom-left-radius:2px!important;
     align-self:flex-start!important;
   }
   .bb.out{
     background:#7c3aed!important;color:#fff!important;
+    border-bottom-right-radius:2px!important;
     align-self:flex-end!important;margin-left:auto!important;
   }
-  .bb .bt{font-size:10px!important;color:#666!important;margin-top:2px!important;text-align:right!important}
-  .bb.out .bt{color:rgba(255,255,255,.45)!important}
+  .bb .bt{font-size:10px!important;color:#555!important;margin-top:3px!important;text-align:right!important}
+  .bb.out .bt{color:rgba(255,255,255,.4)!important}
 
   /* Reply input */
   #replyInp,.ds textarea.si{
-    background:#222!important;border:1px solid #2e2e2e!important;
-    color:#ddd!important;border-radius:4px!important;
+    background:#1c1c1c!important;border:1px solid #2e2e2e!important;
+    color:#ddd!important;border-radius:6px!important;
     font-size:13px!important;padding:10px 14px!important;resize:none!important;
   }
-  #replyInp:focus,.ds textarea.si:focus{
-    border-color:#7c3aed!important;outline:none!important;
-  }
+  #replyInp:focus,.ds textarea.si:focus{border-color:#7c3aed!important;outline:none!important}
   #replyBtn{
     background:#7c3aed!important;color:#fff!important;
-    border:none!important;border-radius:4px!important;
-    padding:10px 18px!important;font-weight:600!important;font-size:13px!important;
+    border:none!important;border-radius:6px!important;
+    padding:10px 20px!important;font-weight:600!important;font-size:13px!important;
     cursor:pointer!important;height:auto!important;width:auto!important;min-width:auto!important;
   }
   #replyBtn:hover{background:#6d28d9!important}
   .ds .ss:not(#replyBtn){
     background:#7c3aed!important;color:#fff!important;border:none!important;
-    border-radius:4px!important;padding:8px 16px!important;font-weight:600!important;
-    font-size:12px!important;cursor:pointer!important;
+    border-radius:4px!important;padding:7px 14px!important;font-weight:600!important;
+    font-size:11px!important;cursor:pointer!important;
   }
   .ds .ss:not(#replyBtn):hover{background:#6d28d9!important}
 
   .tpl-btn{
-    background:#222!important;border:1px solid #2e2e2e!important;
-    color:#999!important;border-radius:3px!important;
+    background:#1c1c1c!important;border:1px solid #2a2a2a!important;
+    color:#888!important;border-radius:4px!important;
     padding:4px 10px!important;font-size:11px!important;
   }
-  .tpl-btn:hover{color:#fff!important;background:#333!important;border-color:#444!important}
+  .tpl-btn:hover{color:#ccc!important;background:#252525!important}
 
-  /* Action buttons */
+  /* Action buttons (right sidebar) */
   .d-btn{
-    background:transparent!important;border:1px solid #2e2e2e!important;
-    color:#666!important;border-radius:3px!important;
-    padding:5px 10px!important;font-size:11px!important;
+    background:transparent!important;border:1px solid #2a2a2a!important;
+    color:#666!important;border-radius:4px!important;
+    padding:6px 12px!important;font-size:11px!important;flex:1!important;text-align:center!important;
   }
-  .d-btn:hover{border-color:#666!important;color:#999!important}
-  .d-btn.red{color:#ef4444!important;border-color:rgba(239,68,68,.3)!important}
-  .d-btn.sec{color:#22c55e!important;border-color:rgba(34,197,94,.3)!important}
+  .d-btn:hover{border-color:#555!important;color:#999!important}
+  .d-btn.red{color:#ef4444!important;border-color:rgba(239,68,68,.25)!important}
+  .d-btn.sec{color:#22c55e!important;border-color:rgba(34,197,94,.25)!important}
 
   /* Inputs global */
   select,input[type="text"],input[type="number"],textarea{
@@ -2523,8 +2539,8 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .wh-del{color:#ef4444!important;border-color:rgba(239,68,68,.3)!important;background:transparent!important}
   .wh-test{color:#7c3aed!important;border-color:rgba(124,58,237,.3)!important;background:transparent!important}
 
-  #notesInp{background:#222!important;border:1px solid #2e2e2e!important;color:#ddd!important;border-radius:4px!important;font-size:12px!important}
-  .select-wrap select{font-size:12px!important;background:#222!important;color:#ddd!important}
+  #notesInp{background:#1c1c1c!important;border:1px solid #2a2a2a!important;color:#ccc!important;border-radius:4px!important;font-size:12px!important;width:100%!important;min-height:50px!important;resize:vertical!important}
+  .select-wrap select{font-size:11px!important;background:#1c1c1c!important;color:#ccc!important;border:1px solid #2a2a2a!important;border-radius:4px!important;padding:6px 8px!important;width:100%!important}
 
   .sg[style]{background:#181818!important;border:1px solid #2e2e2e!important;border-radius:4px!important}
   .sg[style] h4{color:#666!important}
