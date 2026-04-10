@@ -27,6 +27,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2098,7 +2099,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* --- Scrollbar --- */
   ::-webkit-scrollbar{width:6px;height:6px}
-  ::-webkit-scrollbar-track{background:transparent}
 
 
 /* ===== DESKTOP: Apple-inspired dark variables (>= 900px) ===== */
@@ -2361,20 +2361,44 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     border-radius:12px!important;padding:7px 12px 5px!important;
     font-size:15px!important;max-width:480px!important;line-height:1.45!important;
     width:fit-content!important;position:relative!important;word-wrap:break-word!important;
-    margin:1px 0!important;animation:bubblePop .25s ease both!important;
+    margin:1px 0!important;animation:bubblePop .2s ease both!important;
+    transition:background .15s ease!important;cursor:default!important;
   }
   .bb:not(.out){
     background:#182533!important;color:#f5f5f5!important;
     border-bottom-left-radius:4px!important;
     align-self:flex-start!important;
   }
+  .bb:not(.out):hover{background:#1d2d3e!important}
   .bb.out{
     background:#2b5278!important;color:#fff!important;
     border-bottom-right-radius:4px!important;
     align-self:flex-end!important;margin-left:auto!important;
   }
+  .bb.out:hover{background:#346490!important}
   .bb .bt{font-size:11px!important;margin-top:3px!important;text-align:right!important;
-    line-height:1!important;opacity:.45!important;color:inherit!important}
+    line-height:1!important;opacity:.45!important;color:inherit!important;
+    display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:2px!important}
+  .bb .bt svg{opacity:.5!important;flex-shrink:0!important}
+
+  /* ── Message context menu ── */
+  .msg-ctx-menu{
+    background:#17212b!important;border:1px solid rgba(255,255,255,.08)!important;
+    border-radius:10px!important;padding:4px!important;min-width:160px!important;
+    animation:bubblePop .15s ease both!important;
+    box-shadow:0 4px 24px rgba(0,0,0,.5)!important;
+  }
+  .msg-ctx-item{
+    display:flex!important;align-items:center!important;gap:10px!important;
+    padding:10px 14px!important;border-radius:7px!important;
+    font-size:14px!important;color:#f5f5f5!important;cursor:pointer!important;
+    transition:background .12s ease!important;white-space:nowrap!important;
+  }
+  .msg-ctx-item:hover{background:rgba(255,255,255,.06)!important}
+  .msg-ctx-item svg{color:#6d7f8f!important;flex-shrink:0!important}
+  .msg-ctx-delete{color:#e53935!important}
+  .msg-ctx-delete svg{color:#e53935!important}
+  .msg-ctx-delete:hover{background:rgba(229,57,53,.1)!important}
 
   /* ── Reply composer — Telegram style ── */
   .chat-reply{
@@ -3340,6 +3364,39 @@ async function handleFileSelect(contactId, input){
   }catch(e){console.error(e);nt((LANG==='en'?'Send error: ':'Ошибка отправки: ')+(e.message||e));}
   finally{if(btn)btn.classList.remove('sending');input.value='';}
 }
+/* Message context menu */
+function showMsgMenu(e,el){
+  e.preventDefault();e.stopPropagation();
+  const old=document.getElementById('msgCtxMenu');if(old)old.remove();
+  const msgId=el.dataset.msgId;const contactId=el.dataset.contactId;
+  if(!msgId)return;
+  const isOut=el.classList.contains('out');
+  const menu=document.createElement('div');menu.id='msgCtxMenu';menu.className='msg-ctx-menu';
+  const copyText=el.innerText.replace(/\d{2}:\d{2}$/,'').trim();
+  menu.innerHTML=`<div class="msg-ctx-item" onclick="navigator.clipboard.writeText('${escHtml(copyText).replace(/'/g,"\\'")}');document.getElementById('msgCtxMenu').remove();nt('${LANG==='en'?'Copied':'Скопировано'}')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${LANG==='en'?'Copy':'Копировать'}</div><div class="msg-ctx-item msg-ctx-delete" onclick="deleteMessage(${msgId},${contactId});document.getElementById('msgCtxMenu').remove()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>${LANG==='en'?'Delete':'Удалить'}</div>`;
+  const r=el.getBoundingClientRect();const chatArea=el.closest('.chat-area')||document.body;
+  const cr=chatArea.getBoundingClientRect();
+  let top=e.clientY-cr.top;let left=e.clientX-cr.left;
+  menu.style.position='absolute';menu.style.top=top+'px';menu.style.left=left+'px';menu.style.zIndex='100';
+  chatArea.style.position='relative';chatArea.appendChild(menu);
+  requestAnimationFrame(()=>{const mr=menu.getBoundingClientRect();
+    if(mr.right>cr.right)menu.style.left=(left-(mr.right-cr.right)-8)+'px';
+    if(mr.bottom>cr.bottom)menu.style.top=(top-(mr.bottom-cr.bottom)-8)+'px';
+  });
+  const close=()=>{const m=document.getElementById('msgCtxMenu');if(m)m.remove();document.removeEventListener('click',close);document.removeEventListener('contextmenu',close);};
+  setTimeout(()=>{document.addEventListener('click',close);document.addEventListener('contextmenu',close);},50);
+}
+async function deleteMessage(msgId,contactId){
+  if(!msgId)return;
+  try{
+    await apiFetch('/api/delete-message',{message_id:msgId,contact_id:contactId});
+    const c=C.find(x=>x.id===contactId);
+    if(c){c.messages=c.messages.filter(m=>m.id!==msgId);
+      const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId)buildDetailContent(idx);}
+    await syncSnapshot(true);
+    nt(LANG==='en'?'Message deleted':'Сообщение удалено');
+  }catch(e){nt((LANG==='en'?'Error: ':'Ошибка: ')+(e.message||e));}
+}
 async function saveNotes(contactId){const inp=document.getElementById('notesInp');const text=inp?.value||'';try{await apiFetch('/api/contact/update',{contact_id:contactId,notes:text});nt(i('note_saved'));await syncSnapshot(true);}catch(e){nt(i('note_err'));}}
 async function loadStats(){const el=document.getElementById('statsContent');el.innerHTML='<div class="em"><h3>'+i('loading')+'</h3></div>';try{const data=await apiFetch('/api/stats',null,'GET');const s=data.stats;
 el.innerHTML=`
@@ -3380,7 +3437,7 @@ function loadLocal(){try{const raw=sessionStorage.getItem(LS_KEY);if(!raw)return
 try{localStorage.removeItem(LS_KEY)}catch{}
 function mapSnapshot(d){
   const prevCounts={};C.forEach(c=>{prevCounts[c.id]=c.msgCount||0;});
-  C=(d.c||[]).map(x=>{const backendMsgs=(x.ms||[]).map(m=>({dir:m.d,text:m.t,time:m.w,fileType:m.ft||'',fileId:m.fi||'',fileName:m.fn||''}));const localOuts=(_localSent[x.id]||[]).filter(lm=>!backendMsgs.some(bm=>bm.dir==='out'&&bm.text===lm.text&&Math.abs(new Date(bm.time)-new Date(lm.time))<60000));const allMsgs=[...backendMsgs,...localOuts].sort((a,b)=>new Date(a.time)-new Date(b.time));return{id:x.id,chatId:x.chat_id||null,name:x.nm||'',username:x.un||'',tag:x.tg||'OTHER',status:x.st||'open',urgency:x.ur||'medium',sentiment:x.sn||'neutral',lastMessage:x.lm||'',time:x.tm||'',draft:x.dr||'',source:x.sr||'auto',context:x.cx||'',summary:x.smy||'',msgCount:x.mc||0,replyMode:x.rm||'first_only',replyWindow:x.rw||30,linked:!!x.linked,notes:x.nt||'',blocked:!!x.bl,assignedOp:x.op||null,funnelStage:x.fs||'new',leadScore:x.ls||0,fqStatus:x.fqs||'',fqStep:x.fqstep||0,fqNext:x.fqnext||'',messages:allMsgs}});
+  C=(d.c||[]).map(x=>{const backendMsgs=(x.ms||[]).map(m=>({id:m.id||null,dir:m.d,text:m.t,time:m.w,fileType:m.ft||'',fileId:m.fi||'',fileName:m.fn||''}));const localOuts=(_localSent[x.id]||[]).filter(lm=>!backendMsgs.some(bm=>bm.dir==='out'&&bm.text===lm.text&&Math.abs(new Date(bm.time)-new Date(lm.time))<60000));const allMsgs=[...backendMsgs,...localOuts].sort((a,b)=>new Date(a.time)-new Date(b.time));return{id:x.id,chatId:x.chat_id||null,name:x.nm||'',username:x.un||'',tag:x.tg||'OTHER',status:x.st||'open',urgency:x.ur||'medium',sentiment:x.sn||'neutral',lastMessage:x.lm||'',time:x.tm||'',draft:x.dr||'',source:x.sr||'auto',context:x.cx||'',summary:x.smy||'',msgCount:x.mc||0,replyMode:x.rm||'first_only',replyWindow:x.rw||30,linked:!!x.linked,notes:x.nt||'',blocked:!!x.bl,assignedOp:x.op||null,funnelStage:x.fs||'new',leadScore:x.ls||0,fqStatus:x.fqs||'',fqStep:x.fqstep||0,fqNext:x.fqnext||'',messages:allMsgs}});
   OPS=(d.ops||[]).map(o=>({id:o.id,name:o.nm||'',username:o.un||''}));
   let hasNew=false;C.forEach(c=>{if(prevCounts[c.id]!==undefined&&c.msgCount>prevCounts[c.id])hasNew=true;});
   if(hasNew)notifyNewMessage();
@@ -3550,7 +3607,7 @@ const dc=document.getElementById('dc');
 const sm={positive:i('s_positive'),neutral:i('s_neutral'),negative:i('s_negative')};const um={high:i('u_high'),medium:i('u_medium'),low:i('u_low')};const uc={high:'var(--ruby)',medium:'var(--honey)',low:'var(--forest)'};
 const modeOpts=Object.entries(getRM()).map(([k,v])=>`<option value="${k}" ${c.replyMode===k?'selected':''}>${v}</option>`).join('');
 function renderAttach(m){if(!m.fileType)return '';const furl=`${API_BASE}/api/file?file_id=${encodeURIComponent(m.fileId)}&owner=${OWNER_ID}`;if(m.fileType==='photo')return `<img data-src="${escHtml(furl)}" style="max-width:100%;border-radius:10px;margin:4px 0;cursor:pointer" data-furl="${escHtml(furl)}" class="media-open" loading="lazy">`;if(m.fileType==='video')return `<video data-src="${escHtml(furl)}" controls style="max-width:100%;border-radius:10px;margin:4px 0"></video>`;if(m.fileType==='voice')return `<audio data-src="${escHtml(furl)}" controls style="width:100%;margin:4px 0"></audio>${m.text?'<div style="font-size:12px;color:var(--ink2);margin:2px 0 4px;font-style:italic">📝 '+escHtml(m.text)+'</div>':''}`;return `<a href="#" data-furl="${escHtml(furl)}" class="media-open" style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--card2);border-radius:10px;margin:4px 0;text-decoration:none;color:var(--ocean);font-size:13px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>${escHtml(m.fileName||m.fileType)}</a>`;}
-const messages=(c.messages&&c.messages.length)?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${i('last3')}</h4>${c.messages.slice().reverse().map(m=>`<div class="bb ${m.dir==='out'?'out':''}">${m.fileType?renderAttach(m):''}${m.text?escHtml(m.text):(!m.fileType?'':'')}<div class="bt">${m.time?new Date(m.time).toLocaleTimeString(LANG==='en'?'en':'ru',{hour:'2-digit',minute:'2-digit'}):''}</div></div>`).join('')}</div>`:`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${i('last3')}</h4><p style="font-size:14px;color:var(--ink3)">${c.linked?i('history_info'):i('unlinked_info')}</p></div>`;
+const messages=(c.messages&&c.messages.length)?`<div class="ds">${c.messages.slice().reverse().map((m,mi)=>`<div class="bb ${m.dir==='out'?'out':''}" data-msg-id="${m.id||''}" data-contact-id="${c.id}" oncontextmenu="showMsgMenu(event,this)" style="animation-delay:${Math.min(mi*.04,.4).toFixed(2)}s">${m.fileType?renderAttach(m):''}${m.text?escHtml(m.text):(!m.fileType?'':'')}<div class="bt">${m.time?new Date(m.time).toLocaleTimeString(LANG==='en'?'en':'ru',{hour:'2-digit',minute:'2-digit'}):''}${m.dir==='out'?' <svg viewBox="0 0 16 11" width="16" height="11" style="display:inline;vertical-align:middle;margin-left:2px;opacity:.5"><path d="M11.07.66L5.4 6.4 3.55 4.55l-.92.92L5.4 8.24l6.6-6.66z" fill="currentColor"/><path d="M7.93.66L2.26 6.4.41 4.55l-.92.92 2.77 2.77 6.6-6.66z" fill="currentColor"/></svg>':''}</div></div>`).join('')}</div>`:`<div class="ds"><p style="font-size:14px;color:var(--ink3);text-align:center;padding:40px 20px">${c.linked?i('history_info'):i('unlinked_info')}</p></div>`;
 dc.innerHTML=`<div class="detail-topbar"><div class="ttl">${i('contact')}</div><button class="detail-close" onclick="cD()"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="detail-shell">
 <div class="detail-hero" onclick="toggleContactSettings()">${avHtmlDetail(c)}<div class="dn"><h3>${escHtml(c.name||'—')}</h3><p>${c.username?'@'+escHtml(c.username):i('no_username')}</p></div></div>
 <div class="chat-area">${messages}
