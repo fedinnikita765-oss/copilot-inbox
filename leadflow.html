@@ -18,6 +18,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2100,7 +2101,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 }
 
 
-
 /* ===== DESKTOP: dark CRM variables (>= 900px) ===== */
 @media(min-width:900px){
   :root{
@@ -2942,7 +2942,7 @@ ru:{
   lang_label:'Язык',save_all:'Сохранить все настройки',refresh_btn:'Обновить',
   no_webhooks:'Нет вебхуков',no_operators:'Нет операторов',
   add_btn:'Добавить',test_btn:'Тест',not_assigned:'Не назначен',
-  last3:'Последние 3 сообщения',info:'Информация',tag_label:'Тег',
+  last3:'Сообщения',info:'Информация',tag_label:'Тег',
   priority:'Приоритет',sentiment_label:'Тональность',msg_count:'Сообщений',
   what_wants:'Что хочет клиент',ai_summary:'AI-сводка',notes:'Заметки',
   save_note:'Сохранить заметку',quick_reply:'Быстрый ответ',ai_settings:'Настройки AI',
@@ -3065,7 +3065,7 @@ en:{
   lang_label:'Language',save_all:'Save All Settings',refresh_btn:'Refresh',
   no_webhooks:'No webhooks',no_operators:'No operators',
   add_btn:'Add',test_btn:'Test',not_assigned:'Not assigned',
-  last3:'Last 3 messages',info:'Information',tag_label:'Tag',
+  last3:'Messages',info:'Information',tag_label:'Tag',
   priority:'Priority',sentiment_label:'Sentiment',msg_count:'Messages',
   what_wants:'What the customer wants',ai_summary:'AI Summary',notes:'Notes',
   save_note:'Save note',quick_reply:'Quick Reply',ai_settings:'AI Settings',
@@ -3150,7 +3150,8 @@ document.addEventListener('click',()=>{try{if(!audioCtx)audioCtx=new(window.Audi
 
 function nt(t){const tc=document.getElementById('toastContainer');if(tc){const d=document.createElement('div');d.className='toast';d.textContent=t;tc.appendChild(d);setTimeout(()=>{d.classList.add('out');d.addEventListener('animationend',()=>d.remove(),{once:true})},2400);if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.impactOccurred('light')}catch(e){}}else if(tg)tg.showAlert(t);else alert(t)}
 function notifyNewMessage(){try{if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');else if(navigator.vibrate)navigator.vibrate([100,50,100]);playNotifSound();}catch(e){}}
-async function sendReply(contactId){const inp=document.getElementById('replyInp');const text=(inp?.value||'').trim();if(!text)return;const btn=document.getElementById('replyBtn');btn.disabled=true;btn.textContent=i('sending');try{await apiFetch('/api/reply',{contact_id:contactId,text:text});inp.value='';await syncSnapshot(true);nt(i('msg_sent'));}catch(e){console.error(e);nt(i('send_err')+(e.message||e));}finally{btn.disabled=false;btn.textContent=i('send');}}
+const _localSent={};
+async function sendReply(contactId){const inp=document.getElementById('replyInp');const text=(inp?.value||'').trim();if(!text)return;const btn=document.getElementById('replyBtn');btn.disabled=true;btn.textContent=i('sending');try{await apiFetch('/api/reply',{contact_id:contactId,text:text});const msg={dir:'out',text:text,time:new Date().toISOString(),_local:true};if(!_localSent[contactId])_localSent[contactId]=[];_localSent[contactId].push(msg);const c=C.find(x=>x.id===contactId);if(c){c.messages.push(msg);const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId)buildDetailContent(idx);}inp.value='';await syncSnapshot(true);nt(i('msg_sent'));}catch(e){console.error(e);nt(i('send_err')+(e.message||e));}finally{btn.disabled=false;btn.textContent=i('send');}}
 function useTemplate(text){const inp=document.getElementById('replyInp');if(inp){inp.value=text;inp.focus();}}
 async function saveNotes(contactId){const inp=document.getElementById('notesInp');const text=inp?.value||'';try{await apiFetch('/api/contact/update',{contact_id:contactId,notes:text});nt(i('note_saved'));await syncSnapshot(true);}catch(e){nt(i('note_err'));}}
 async function loadStats(){const el=document.getElementById('statsContent');el.innerHTML='<div class="em"><h3>'+i('loading')+'</h3></div>';try{const data=await apiFetch('/api/stats',null,'GET');const s=data.stats;
@@ -3192,7 +3193,7 @@ function loadLocal(){try{const raw=sessionStorage.getItem(LS_KEY);if(!raw)return
 try{localStorage.removeItem(LS_KEY)}catch{}
 function mapSnapshot(d){
   const prevCounts={};C.forEach(c=>{prevCounts[c.id]=c.msgCount||0;});
-  C=(d.c||[]).map(x=>({id:x.id,chatId:x.chat_id||null,name:x.nm||'',username:x.un||'',tag:x.tg||'OTHER',status:x.st||'open',urgency:x.ur||'medium',sentiment:x.sn||'neutral',lastMessage:x.lm||'',time:x.tm||'',draft:x.dr||'',source:x.sr||'auto',context:x.cx||'',summary:x.smy||'',msgCount:x.mc||0,replyMode:x.rm||'first_only',replyWindow:x.rw||30,linked:!!x.linked,notes:x.nt||'',blocked:!!x.bl,assignedOp:x.op||null,funnelStage:x.fs||'new',leadScore:x.ls||0,fqStatus:x.fqs||'',fqStep:x.fqstep||0,fqNext:x.fqnext||'',messages:(x.ms||[]).map(m=>({dir:m.d,text:m.t,time:m.w,fileType:m.ft||'',fileId:m.fi||'',fileName:m.fn||''}))}));
+  C=(d.c||[]).map(x=>{const backendMsgs=(x.ms||[]).map(m=>({dir:m.d,text:m.t,time:m.w,fileType:m.ft||'',fileId:m.fi||'',fileName:m.fn||''}));const localOuts=(_localSent[x.id]||[]).filter(lm=>!backendMsgs.some(bm=>bm.dir==='out'&&bm.text===lm.text&&Math.abs(new Date(bm.time)-new Date(lm.time))<60000));const allMsgs=[...backendMsgs,...localOuts].sort((a,b)=>new Date(a.time)-new Date(b.time));return{id:x.id,chatId:x.chat_id||null,name:x.nm||'',username:x.un||'',tag:x.tg||'OTHER',status:x.st||'open',urgency:x.ur||'medium',sentiment:x.sn||'neutral',lastMessage:x.lm||'',time:x.tm||'',draft:x.dr||'',source:x.sr||'auto',context:x.cx||'',summary:x.smy||'',msgCount:x.mc||0,replyMode:x.rm||'first_only',replyWindow:x.rw||30,linked:!!x.linked,notes:x.nt||'',blocked:!!x.bl,assignedOp:x.op||null,funnelStage:x.fs||'new',leadScore:x.ls||0,fqStatus:x.fqs||'',fqStep:x.fqstep||0,fqNext:x.fqnext||'',messages:allMsgs}});
   OPS=(d.ops||[]).map(o=>({id:o.id,name:o.nm||'',username:o.un||''}));
   let hasNew=false;C.forEach(c=>{if(prevCounts[c.id]!==undefined&&c.msgCount>prevCounts[c.id])hasNew=true;});
   if(hasNew)notifyNewMessage();
