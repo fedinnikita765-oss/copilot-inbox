@@ -17,6 +17,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2100,7 +2101,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
 
 
-
 /* ===== DESKTOP: dark CRM variables (>= 900px) ===== */
 @media(min-width:900px){
   :root{
@@ -2252,55 +2252,108 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
   }
   #pn::before,.pn::before{display:none!important}
-  #dc{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  #dc{display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative}
 
   .detail-topbar{display:none!important}
 
-  /* === DETAIL-SHELL: absolute layout === */
+  /* === DETAIL-SHELL: chat view === */
   .detail-shell{
     position:relative!important;transform:none!important;
-    width:100%!important;flex:1!important;overflow-y:auto!important;
-    display:block!important;
+    width:100%!important;flex:1!important;overflow:hidden!important;
+    display:flex!important;flex-direction:column!important;
     border:none!important;background:#0d0d0d!important;
   }
   .detail-shell.on{transform:none!important}
+  .detail-shell::after{display:none!important}
 
-  /* Right sidebar background */
-  .detail-shell::after{
-    content:''!important;display:block!important;
-    position:fixed!important;top:0;right:0;bottom:0;width:280px;
-    background:#151515!important;border-left:1px solid #2e2e2e!important;
-    z-index:0!important;pointer-events:none!important;
-  }
-
-  /* Hero — absolute, full width top bar */
+  /* Hero — top bar with avatar (clickable for settings) */
   .detail-hero{
-    position:absolute!important;top:0!important;left:0!important;right:0!important;
-    height:52px!important;z-index:3!important;
     background:#181818!important;border-bottom:1px solid #2e2e2e!important;
-    padding:0 20px!important;
+    padding:0 20px!important;height:52px!important;flex-shrink:0!important;
     display:flex!important;align-items:center!important;gap:12px!important;
+    cursor:pointer!important;
   }
+  .detail-hero:hover{background:#1c1c1c!important}
   .detail-hero .dn{flex:1!important}
   .detail-hero .dn h3{color:#ddd!important;font-size:14px!important;font-weight:600!important;margin:0!important}
   .detail-hero .dn p{color:#555!important;font-size:11px!important;margin:0!important}
-  .detail-status{display:none!important}
+  .detail-hero .detail-status{display:none!important}
   .da{width:34px!important;height:34px!important;border-radius:50%!important;font-size:13px!important;flex-shrink:0!important}
 
-  /* === SETTINGS SECTIONS — normal flow, right sidebar === */
-  .detail-shell > .ds{
-    width:280px!important;
-    margin-left:auto!important;
-    display:block!important;
-    padding:14px 16px!important;
-    border-bottom:1px solid #252525!important;
-    background:#151515!important;
-    font-size:12px!important;
-    position:relative!important;z-index:1!important;
+  /* === CHAT AREA — full width, fills space === */
+  .chat-area{
+    flex:1!important;display:flex!important;flex-direction:column!important;
+    overflow:hidden!important;background:#0d0d0d!important;
   }
-  /* First settings section: add top padding for hero */
-  .detail-shell > .ds:first-of-type{
-    margin-top:52px!important;
+  /* Messages container inside chat-area */
+  .chat-area > .ds{
+    flex:1!important;overflow-y:auto!important;
+    display:flex!important;flex-direction:column-reverse!important;
+    padding:16px 20px!important;gap:6px!important;
+    border:none!important;
+  }
+  .chat-area > .ds > h4{display:none!important}
+  /* Reply bar pinned at bottom */
+  .chat-reply{
+    flex-shrink:0!important;
+    padding:10px 16px!important;
+    background:#181818!important;
+    border-top:1px solid #2e2e2e!important;
+  }
+  .chat-reply > .tpl-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .chat-reply > .tpl-row:empty{display:none}
+
+  /* === SETTINGS PANEL — hidden by default, slides from right === */
+  .settings-panel{
+    position:absolute!important;top:0!important;right:-340px!important;bottom:0!important;
+    width:340px!important;
+    background:#151515!important;
+    border-left:1px solid #2e2e2e!important;
+    overflow-y:auto!important;
+    transition:right .25s cubic-bezier(.4,0,.2,1)!important;
+    z-index:10!important;
+  }
+  /* Open state */
+  #dc.settings-open .settings-panel{
+    right:0!important;
+  }
+  /* Settings close button */
+  .sp-close{
+    position:sticky!important;top:0!important;z-index:2!important;
+    display:flex!important;align-items:center!important;justify-content:flex-end!important;
+    padding:14px 16px!important;background:#151515!important;
+    cursor:pointer!important;color:#555!important;
+  }
+  .sp-close:hover{color:#ddd!important}
+  /* Settings hero (large avatar + name + tags) */
+  .sp-hero{
+    padding:0 20px 16px!important;
+    display:flex!important;flex-direction:column!important;align-items:center!important;
+    text-align:center!important;border-bottom:1px solid #252525!important;
+  }
+  .sp-hero .da{width:64px!important;height:64px!important;font-size:24px!important;margin-bottom:10px!important}
+  .sp-hero .dn h3{color:#ddd!important;font-size:16px!important;font-weight:600!important;margin:0 0 2px!important}
+  .sp-hero .dn p{color:#555!important;font-size:12px!important;margin:0 0 8px!important}
+  .sp-hero .detail-status{
+    display:flex!important;gap:6px!important;flex-wrap:wrap!important;justify-content:center!important;
+    background:transparent!important;
+  }
+  .sp-hero .tg{
+    padding:3px 8px!important;border-radius:4px!important;font-size:10px!important;
+    font-weight:600!important;background:rgba(124,58,237,.15)!important;color:#7c3aed!important;
+    border:none!important;
+  }
+  .sp-hero .src-tag{
+    padding:3px 8px!important;border-radius:4px!important;font-size:10px!important;
+    background:#222!important;color:#666!important;border:none!important;
+  }
+
+  /* Settings sections */
+  .settings-panel > .ds{
+    padding:14px 20px!important;
+    border-bottom:1px solid #222!important;
+    background:transparent!important;
+    font-size:12px!important;
   }
   .ds h4{
     color:#555!important;font-size:10px!important;font-weight:700!important;
@@ -2311,53 +2364,18 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .ds h4 svg{color:#555!important;width:13px!important;height:13px!important}
   .ds .mg{background:transparent!important;margin:0!important}
   .mi{
-    border-bottom:1px solid #222!important;
-    padding:7px 0!important;color:#ccc!important;font-size:12px!important;
+    border-bottom:1px solid #1e1e1e!important;
+    padding:8px 0!important;color:#ccc!important;font-size:12px!important;
     display:flex!important;justify-content:space-between!important;align-items:center!important;
   }
   .mi label{color:#666!important;font-size:11px!important;flex-shrink:0!important}
   .mi span{text-align:right!important}
   .mi:last-child{border-bottom:none!important}
-
-  /* === D-ACTS — right sidebar === */
-  .detail-shell > .d-acts{
-    width:280px!important;margin-left:auto!important;
-    display:flex!important;
-    padding:12px 16px!important;
-    background:#151515!important;gap:6px!important;
-    position:relative!important;z-index:1!important;
-    border-bottom:1px solid #252525!important;
+  .settings-panel > .d-acts{
+    padding:16px 20px!important;
+    display:flex!important;gap:8px!important;
+    background:transparent!important;
   }
-
-  /* === MESSAGES — absolute, left side === */
-  .detail-shell > .ds:has(.bb){
-    position:absolute!important;
-    top:52px!important;left:0!important;
-    width:calc(100% - 281px)!important;
-    bottom:62px!important;
-    margin-left:0!important;margin-top:0!important;
-    display:flex!important;flex-direction:column-reverse!important;
-    overflow-y:auto!important;
-    padding:16px 20px!important;gap:6px!important;
-    border-bottom:none!important;
-    background:#0d0d0d!important;
-    z-index:2!important;
-  }
-  .detail-shell > .ds:has(.bb) > h4{display:none!important}
-
-  /* === REPLY — absolute, bottom left === */
-  .detail-shell > .ds:has(#replyInp){
-    position:absolute!important;
-    bottom:0!important;left:0!important;
-    width:calc(100% - 281px)!important;
-    margin-left:0!important;margin-top:0!important;
-    padding:10px 16px!important;
-    background:#181818!important;
-    border-top:1px solid #2e2e2e!important;
-    border-bottom:none!important;
-    z-index:2!important;
-  }
-  .detail-shell > .ds:has(#replyInp) > h4{display:none!important}
 
   /* Chat bubbles */
   .bb{
@@ -3346,16 +3364,21 @@ const modeOpts=Object.entries(getRM()).map(([k,v])=>`<option value="${k}" ${c.re
 function renderAttach(m){if(!m.fileType)return '';const furl=`${API_BASE}/api/file?file_id=${encodeURIComponent(m.fileId)}&owner=${OWNER_ID}`;if(m.fileType==='photo')return `<img data-src="${escHtml(furl)}" style="max-width:100%;border-radius:10px;margin:4px 0;cursor:pointer" data-furl="${escHtml(furl)}" class="media-open" loading="lazy">`;if(m.fileType==='video')return `<video data-src="${escHtml(furl)}" controls style="max-width:100%;border-radius:10px;margin:4px 0"></video>`;if(m.fileType==='voice')return `<audio data-src="${escHtml(furl)}" controls style="width:100%;margin:4px 0"></audio>${m.text?'<div style="font-size:12px;color:var(--ink2);margin:2px 0 4px;font-style:italic">📝 '+escHtml(m.text)+'</div>':''}`;return `<a href="#" data-furl="${escHtml(furl)}" class="media-open" style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--card2);border-radius:10px;margin:4px 0;text-decoration:none;color:var(--ocean);font-size:13px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>${escHtml(m.fileName||m.fileType)}</a>`;}
 const messages=(c.messages&&c.messages.length)?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${i('last3')}</h4>${c.messages.slice().reverse().map(m=>`<div class="bb ${m.dir==='out'?'out':''}">${m.fileType?renderAttach(m):''}${m.text?escHtml(m.text):(!m.fileType?'':'')}<div class="bt">${m.time?new Date(m.time).toLocaleTimeString(LANG==='en'?'en':'ru',{hour:'2-digit',minute:'2-digit'}):''}</div></div>`).join('')}</div>`:`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${i('last3')}</h4><p style="font-size:14px;color:var(--ink3)">${c.linked?i('history_info'):i('unlinked_info')}</p></div>`;
 dc.innerHTML=`<div class="detail-topbar"><div class="ttl">${i('contact')}</div><button class="detail-close" onclick="cD()"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="detail-shell">
-<div class="detail-hero">${avHtmlDetail(c)}<div class="dn"><h3>${escHtml(c.name||'—')}</h3><p>${c.username?'@'+escHtml(c.username):i('no_username')}</p><div class="detail-status"><span class="tg ${c.tag}"><span class="dot"></span>${getTG()[c.tag]||c.tag}</span><span class="src-tag">${c.linked?'🔗 '+i('linked_label'):'📝 '+i('manual_contact')}</span><span class="src-tag">${c.status==='closed'?i('archived'):i('active')}</span></div></div></div>
+<div class="detail-hero" onclick="toggleContactSettings()">${avHtmlDetail(c)}<div class="dn"><h3>${escHtml(c.name||'—')}</h3><p>${c.username?'@'+escHtml(c.username):i('no_username')}</p></div></div>
+<div class="chat-area">${messages}
+${c.linked?`<div class="chat-reply"><div class="tpl-row">${(ST.templates||[]).length?`${(ST.templates||[]).map((t,ti)=>`<button class="ft tpl-btn" data-tpl-idx="${ti}" style="font-size:11px;padding:8px 12px">${escHtml(t.length>30?t.slice(0,30)+'…':t)}</button>`).join('')}`:''}</div><div style="display:flex;gap:8px;align-items:flex-end"><textarea id="replyInp" class="si" placeholder="${i('reply_ph')}" style="min-height:48px;max-height:120px;resize:vertical;flex:1"></textarea><button id="replyBtn" class="ss" onclick="sendReply(${c.id})" style="margin:0;white-space:nowrap;height:48px">${i('send')}</button></div></div>`:''}</div>
+<div class="settings-panel"><div class="sp-close" onclick="toggleContactSettings()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
+<div class="sp-hero">${avHtmlDetail(c)}<div class="dn"><h3>${escHtml(c.name||'—')}</h3><p>${c.username?'@'+escHtml(c.username):i('no_username')}</p><div class="detail-status"><span class="tg ${c.tag}"><span class="dot"></span>${getTG()[c.tag]||c.tag}</span><span class="src-tag">${c.linked?'🔗 '+i('linked_label'):'📝 '+i('manual_contact')}</span><span class="src-tag">${c.status==='closed'?i('archived'):i('active')}</span></div></div></div>
 <div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>${i('info')}</h4><div class="mg"><div class="mi"><label>${i('tag_label')}</label><span>${getTG()[c.tag]||c.tag}</span></div><div class="mi"><label>${i('priority')}</label><span style="color:${uc[c.urgency]||'inherit'}">${um[c.urgency]||'—'}</span></div><div class="mi"><label>${i('sentiment_label')}</label><span>${sm[c.sentiment]||'—'}</span></div><div class="mi"><label>${i('msg_count')}</label><span>${c.msgCount||0}</span></div><div class="mi"><label>${i('lead_score')}</label><span style="font-weight:800;color:${scoreColor(c.leadScore)}">${c.leadScore||0}/100 ${c.leadScore>=80?'🔥':''}</span></div><div class="mi select-wrap"><label>${i('funnel_stage')}</label><select onchange="updateFunnel(${c.id},this.value)" style="width:100%;margin-top:4px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:600;color:${FUNNEL_COLORS[c.funnelStage]||'var(--ink)'}">${FUNNEL_KEYS.map(k=>`<option value="${k}" ${c.funnelStage===k?'selected':''}>${i('f_'+k)}</option>`).join('')}</select></div></div>${c.fqStatus?`<div style="margin-top:10px;padding:8px 14px;border-radius:12px;background:${c.fqStatus==='active'?'rgba(26,122,76,.07)':'rgba(161,107,7,.07)'};font-size:12px;display:flex;align-items:center;gap:6px"><span style="font-size:14px">${c.fqStatus==='active'?'⏳':'⏸'}</span><span style="font-weight:600;color:${c.fqStatus==='active'?'var(--forest)':'var(--honey)'}">${c.fqStatus==='active'?i('followup_active'):i('followup_paused')}</span>${c.fqStep?` <span style="color:var(--ink3)">· ${i('followup_step')} ${c.fqStep}</span>`:''}</div>`:''}</div>
 ${c.context?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${i('what_wants')}</h4><p style="font-size:14px;line-height:1.68;color:var(--ocean)">${escHtml(c.context)}</p></div>`:''}
 ${c.summary?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M2 12h20"/><path d="M2 6h20"/><path d="M2 18h12"/></svg>${i('ai_summary')}</h4><p style="font-size:14px;line-height:1.68;color:var(--ink2)">${escHtml(c.summary)}</p></div>`:''}
 <div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>${i('notes')}</h4><textarea id="notesInp" class="si" placeholder="${i('notes_ph')}" style="min-height:64px;resize:vertical">${escHtml(c.notes||'')}</textarea><button class="ss" onclick="saveNotes(${c.id})" style="margin-top:8px">${i('save_note')}</button></div>
-${messages}
-${c.linked?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4z"/></svg>${i('quick_reply')}</h4>${(ST.templates||[]).length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${(ST.templates||[]).map((t,ti)=>`<button class="ft tpl-btn" data-tpl-idx="${ti}" style="font-size:11px;padding:8px 12px">${escHtml(t.length>30?t.slice(0,30)+'…':t)}</button>`).join('')}</div>`:''}<div style="display:flex;gap:8px;align-items:flex-end"><textarea id="replyInp" class="si" placeholder="${i('reply_ph')}" style="min-height:48px;max-height:120px;resize:vertical;flex:1"></textarea><button id="replyBtn" class="ss" onclick="sendReply(${c.id})" style="margin:0;white-space:nowrap;height:48px">${i('send')}</button></div></div>`:''}
 <div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>${i('ai_settings')}</h4><div class="ai-grid"><div class="mi select-wrap"><label>${i('reply_mode_label')}</label><select id="rmSel" style="width:100%;margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff">${modeOpts}</select></div><div class="mi"><label>${i('window_min')}</label><input id="rwInp" type="number" min="1" value="${Number(c.replyWindow)||30}" style="width:100%;margin-top:8px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff"></div><div class="mi"><label>${i('status_label')}</label><span>${c.linked?i('linked_tg'):i('awaiting')}</span></div></div><div class="d-acts"><button class="d-btn" onclick="saveMode(${idx})">${i('save_mode')}</button></div></div>
 ${c.draft?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 1 4 4c0 1.95-2 3-2 8h-4c0-5-2-6.05-2-8a4 4 0 0 1 4-4z"/><line x1="10" y1="22" x2="14" y2="22"/><line x1="10" y1="18" x2="14" y2="18"/></svg>${i('last_ai')}</h4><div class="cd-ai" style="margin:0">${escHtml(c.draft)}</div></div>`:''}
-${OPS.length?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${i('operator')}</h4><select onchange="assignOp(${c.id},this.value?Number(this.value):null)" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff"><option value="">${i('not_assigned')}</option>${OPS.map(o=>`<option value="${o.id}" ${c.assignedOp===o.id?'selected':''}>${escHtml(o.name)}${o.username?' @'+escHtml(o.username):''}</option>`).join('')}</select></div>`:''}<div class="d-acts"><button class="d-btn sec" onclick="tCC(${idx})">${c.status==='closed'?i('open_action'):i('close_action')}</button><button class="d-btn ${c.blocked?'sec':'red'}" onclick="toggleBlock(${idx})" style="min-width:auto">${c.blocked?i('unblock'):i('block')}</button><button class="d-btn red" onclick="dCC(${idx})">${i('delete_btn')}</button></div></div>`;observeSecureImgs(dc);}
+${OPS.length?`<div class="ds"><h4><svg class="ic ic-s" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${i('operator')}</h4><select onchange="assignOp(${c.id},this.value?Number(this.value):null)" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff"><option value="">${i('not_assigned')}</option>${OPS.map(o=>`<option value="${o.id}" ${c.assignedOp===o.id?'selected':''}>${escHtml(o.name)}${o.username?' @'+escHtml(o.username):''}</option>`).join('')}</select></div>`:''}
+<div class="d-acts"><button class="d-btn sec" onclick="tCC(${idx})">${c.status==='closed'?i('open_action'):i('close_action')}</button><button class="d-btn ${c.blocked?'sec':'red'}" onclick="toggleBlock(${idx})" style="min-width:auto">${c.blocked?i('unblock'):i('block')}</button><button class="d-btn red" onclick="dCC(${idx})">${i('delete_btn')}</button></div>
+</div></div>`;observeSecureImgs(dc);}
+function toggleContactSettings(){if(window.innerWidth<900)return;const dc=document.getElementById('dc');if(dc)dc.classList.toggle('settings-open');}
 function isMobile(){return window.innerWidth<700}
 function oD(idx){const c=C[idx];if(!c)return;openDetailId=c.id;
 const pn=document.getElementById('pn');const ov=document.getElementById('ov');const dc=document.getElementById('dc');
