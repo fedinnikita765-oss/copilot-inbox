@@ -12,6 +12,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2098,7 +2099,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 /* ===== DESKTOP: new dark CRM design (>= 900px) ===== */
 @media(min-width:900px){
 
-  :root{
 
 
 /* ===== DESKTOP: dark CRM variables (>= 900px) ===== */
@@ -2131,6 +2131,17 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* Force all text to be light */
   h1,h2,h3,h4,h5,p,span,div,label,strong,a{color:inherit}
+
+  /* Kill white glass overlays from old mobile CSS */
+  .hdr::before,.acc-card::before,.stat::before,.cd::before,.sec::before,
+  .mc::before,.mb::before,.ov::before,.pn::before,#pn::before,
+  .d-btn::before,.nb::before,.tk::before,.em-hero::before{
+    display:none!important;
+  }
+  .hdr,.acc-card,.stat,.cd,.sec,.mc,.mb,.ov,.pn,#pn,.d-btn,.nb,.tk,.em-hero{
+    box-shadow:none!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  }
 
   /* --- 3-column layout --- */
   .nav{
@@ -2245,15 +2256,19 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* --- Detail panel (chat) - always visible on desktop --- */
   .ov{display:none!important}
-  .pn{
-    position:fixed!important;top:0;left:412px;right:0;bottom:0;
+  #pn,#pn.on,.pn,.pn.on{
+    position:fixed!important;top:0!important;left:412px!important;right:0!important;bottom:0!important;
     background:#0f0f14!important;
     padding:0!important;overflow:hidden!important;
     display:flex!important;flex-direction:column!important;
     transform:none!important;opacity:1!important;
-    z-index:50;
+    pointer-events:auto!important;
+    z-index:50!important;
+    max-height:100vh!important;height:100vh!important;
+    border-radius:0!important;border:none!important;
+    box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
   }
-  .pn.on{transform:none!important}
+  #pn::before,.pn::before{display:none!important}
   #dc{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
   /* Top bar with contact name */
