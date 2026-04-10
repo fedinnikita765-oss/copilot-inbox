@@ -14,6 +14,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2098,7 +2099,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
 
 /* ===== DESKTOP: new dark CRM design (>= 900px) ===== */
-@media(min-width:900px){
 
 
 /* ===== DESKTOP: dark CRM variables (>= 900px) ===== */
@@ -2276,107 +2276,100 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     display:none!important;
   }
 
-  /* Main scrollable content - Telegram chat layout */
+  /* Main content - Telegram chat layout */
   .detail-shell{
     position:relative!important;transform:none!important;
     width:100%!important;flex:1!important;
-    background:var(--bg)!important;
+    background:#0e1621!important;
     overflow:hidden!important;display:flex!important;flex-direction:column!important;
     border:none!important;box-shadow:none!important;
   }
   .detail-shell.on{transform:none!important}
 
-  /* Contact info header - compact bar style like Telegram */
+  /* Contact header - Telegram style top bar */
   .detail-hero{
-    background:var(--panel)!important;border-bottom:1px solid var(--border)!important;
-    padding:10px 24px!important;flex-shrink:0!important;
+    background:#17212b!important;border-bottom:1px solid #101921!important;
+    padding:8px 20px!important;flex-shrink:0!important;
     display:flex!important;align-items:center!important;gap:12px!important;
+    min-height:54px!important;
   }
   .detail-hero .dn{flex:1!important}
-  .detail-hero .dn h3{color:var(--text)!important;font-size:15px!important;font-weight:600!important;margin:0!important}
-  .detail-hero .dn p{color:var(--text3)!important;font-size:12px!important;margin:0!important}
+  .detail-hero .dn h3{color:#e4e4e7!important;font-size:15px!important;font-weight:500!important;margin:0!important}
+  .detail-hero .dn p{color:#6d8299!important;font-size:12px!important;margin:0!important}
   .detail-status{display:none!important}
   .da{
-    width:36px!important;height:36px!important;border-radius:50%!important;
-    font-size:14px!important;flex-shrink:0!important;
+    width:40px!important;height:40px!important;border-radius:50%!important;
+    font-size:15px!important;flex-shrink:0!important;
   }
 
-  /* === TELEGRAM CHAT VIEW: hide non-chat sections === */
-  /* Hide: Info section (has .mg grid) */
-  .detail-shell > .ds:has(.mg){display:none!important}
-  /* Hide: Context section (has ocean-colored p) */
-  .detail-shell > .ds:has(p[style*="color:var(--ocean)"]){display:none!important}
-  /* Hide: AI Summary */
-  .detail-shell > .ds:has(p[style*="color:var(--ink2)"]){display:none!important}
-  /* Hide: Notes (has #notesInp) */
-  .detail-shell > .ds:has(#notesInp){display:none!important}
-  /* Hide: AI settings (has #rmSel) */
-  .detail-shell > .ds:has(#rmSel){display:none!important}
-  /* Hide: AI draft (has .cd-ai) */
-  .detail-shell > .ds:has(.cd-ai){display:none!important}
-  /* Hide: Operator section (last ds before d-acts, has select with assignOp) */
-  .detail-shell > .ds:has(select[onchange*="assignOp"]){display:none!important}
-  /* Hide action buttons */
+  /* === TELEGRAM CHAT VIEW === */
+  /* Hide ALL .ds sections and .d-acts by default */
+  .detail-shell > .ds,
   .detail-shell > .d-acts{display:none!important}
 
-  /* Messages section - fill available space like Telegram chat */
+  /* Show ONLY messages section (contains .bb chat bubbles) */
   .detail-shell > .ds:has(.bb){
-    display:flex!important;flex-direction:column!important;
+    display:flex!important;flex-direction:column-reverse!important;
     flex:1!important;overflow-y:auto!important;
-    padding:16px 24px!important;gap:6px!important;
+    padding:20px 24px!important;gap:8px!important;
     border-bottom:none!important;
+    background:
+      radial-gradient(circle at 20% 80%, rgba(124,58,237,.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(59,130,246,.03) 0%, transparent 50%),
+      #0e1621!important;
   }
-  .detail-shell > .ds:has(.bb) h4{display:none!important}
+  .detail-shell > .ds:has(.bb) > h4{display:none!important}
 
-  /* Reply section - pinned at bottom like Telegram */
+  /* Show ONLY reply section (contains #replyInp) */
   .detail-shell > .ds:has(#replyInp){
-    display:flex!important;flex-direction:column!important;
+    display:block!important;
     flex-shrink:0!important;
-    padding:12px 24px 16px!important;
-    background:var(--panel)!important;
-    border-top:1px solid var(--border)!important;
+    padding:10px 16px 14px!important;
+    background:#1a1a24!important;
+    border-top:1px solid #2a2a3a!important;
     border-bottom:none!important;
   }
-  .detail-shell > .ds:has(#replyInp) h4{display:none!important}
+  .detail-shell > .ds:has(#replyInp) > h4{display:none!important}
 
-  /* Messages / chat bubbles - Telegram style */
+  /* Messages / chat bubbles - Telegram dark style */
   .bb{
-    border-radius:16px!important;padding:10px 14px!important;
-    font-size:13px!important;max-width:65%!important;line-height:1.5!important;
-    width:fit-content!important;
+    border-radius:18px!important;padding:8px 14px!important;
+    font-size:14px!important;max-width:70%!important;line-height:1.45!important;
+    width:fit-content!important;position:relative!important;
+    word-wrap:break-word!important;
   }
   .bb:not(.out){
-    background:var(--panel)!important;color:var(--text)!important;
+    background:#182533!important;color:#e4e4e7!important;
     border-bottom-left-radius:4px!important;
     align-self:flex-start!important;
   }
   .bb.out{
-    background:var(--accent)!important;color:#fff!important;
+    background:#2b5278!important;color:#fff!important;
     border-bottom-right-radius:4px!important;
     align-self:flex-end!important;margin-left:auto!important;
   }
-  .bb .bt{font-size:10px!important;color:var(--text3)!important;margin-top:3px!important}
-  .bb.out .bt{color:rgba(255,255,255,.5)!important}
+  .bb .bt{font-size:10px!important;color:rgba(255,255,255,.4)!important;margin-top:2px!important;text-align:right!important}
+  .bb:not(.out) .bt{color:rgba(255,255,255,.35)!important}
 
   /* Reply area - Telegram style input bar */
-  .ds textarea.si,#replyInp{
-    background:var(--panel2)!important;border:1px solid var(--border)!important;
-    color:var(--text)!important;border-radius:20px!important;
-    font-size:13px!important;padding:10px 16px!important;
+  #replyInp,.ds textarea.si{
+    background:#242f3d!important;border:none!important;
+    color:#e4e4e7!important;border-radius:22px!important;
+    font-size:14px!important;padding:10px 18px!important;
     resize:none!important;
   }
-  .ds textarea.si:focus,#replyInp:focus{
-    border-color:var(--accent)!important;
+  #replyInp:focus,.ds textarea.si:focus{
+    background:#2b3845!important;
     box-shadow:none!important;outline:none!important;
   }
   #replyBtn{
-    background:var(--accent)!important;color:#fff!important;
+    background:#5288c1!important;color:#fff!important;
     border:none!important;border-radius:50%!important;
     width:44px!important;height:44px!important;min-width:44px!important;
-    padding:0!important;font-weight:600!important;font-size:13px!important;
+    padding:0!important;font-weight:600!important;font-size:14px!important;
     cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:center!important;
   }
-  #replyBtn:hover{background:var(--accent-hover)!important}
+  #replyBtn:hover{background:#4a7ab5!important}
   .ds .ss:not(#replyBtn){
     background:var(--accent)!important;color:#fff!important;
     border:none!important;border-radius:var(--r3)!important;
@@ -2387,11 +2380,11 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* Template buttons */
   .tpl-btn{
-    background:var(--panel2)!important;border:1px solid var(--border)!important;
-    color:var(--text3)!important;border-radius:16px!important;
-    padding:4px 10px!important;font-size:11px!important;
+    background:#242f3d!important;border:none!important;
+    color:#8cafcf!important;border-radius:16px!important;
+    padding:5px 12px!important;font-size:12px!important;
   }
-  .tpl-btn:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:var(--accent-s)!important}
+  .tpl-btn:hover{color:#fff!important;background:#2b5278!important}
 
   /* Action buttons in detail - hidden in chat view */
   .d-acts{display:none!important}
