@@ -24,6 +24,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2098,7 +2099,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:var(--stone);border-radius:3px}
   ::-webkit-scrollbar-thumb:hover{background:var(--ink3)}
-}
 
 
 /* ===== DESKTOP: Apple-inspired dark variables (>= 900px) ===== */
@@ -2620,6 +2620,9 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   canvas{filter:none}
   #luxLight{display:none!important}
+
+  /* Hide chat when on non-inbox pages */
+  #pn.chat-hidden,.pn.chat-hidden,#ov.chat-hidden{display:none!important}
 
   /* Empty state */
   .pn:not(.on){display:flex!important}
@@ -3328,7 +3331,7 @@ async function syncSnapshot(silent=true){
 }
 
 const pgOrder=['in','tk','an','st'];
-function go(p,b){const next=document.getElementById('p-'+p);const current=document.querySelector('.pg.on');if(current===next){window.scrollTo({top:0,behavior:'smooth'});return;}document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));b.classList.add('on');syncNavHighlight();if(p==='an')loadStats();if(p==='st'){document.querySelectorAll('.sp.on').forEach(s=>s.classList.remove('on'));document.querySelector('.nav').style.transform='';}/* Hide/show chat panel on page switch */const pnEl=document.getElementById('pn');const ovEl=document.getElementById('ov');if(pnEl){if(p==='in'){pnEl.style.display='';if(ovEl)ovEl.style.display='';}else{pnEl.style.display='none';if(ovEl)ovEl.style.display='none';}}const ci=pgOrder.indexOf(current?.id?.replace('p-','')||'in');const ni=pgOrder.indexOf(p);const goRight=ni>ci;if(current){current.classList.add(goRight?'slide-out-left':'slide-out-right');current.classList.remove('is-settled');setTimeout(()=>{current.classList.remove('on','slide-out-left','slide-out-right','is-settled');next.classList.add('on',goRight?'slide-in-right':'slide-in-left');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('slide-in-right','slide-in-left');next.classList.add('is-settled');}));},200);}else{next.classList.add('on','is-settled');}window.scrollTo({top:0,behavior:'smooth'})}
+function go(p,b){const next=document.getElementById('p-'+p);const current=document.querySelector('.pg.on');if(current===next){window.scrollTo({top:0,behavior:'smooth'});return;}document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));b.classList.add('on');syncNavHighlight();if(p==='an')loadStats();if(p==='st'){document.querySelectorAll('.sp.on').forEach(s=>s.classList.remove('on'));document.querySelector('.nav').style.transform='';}/* Hide/show chat panel on page switch */const pnEl=document.getElementById('pn');const ovEl=document.getElementById('ov');if(pnEl){if(p==='in'){pnEl.classList.remove('chat-hidden');if(ovEl)ovEl.classList.remove('chat-hidden');}else{pnEl.classList.add('chat-hidden');if(ovEl)ovEl.classList.add('chat-hidden');}}const ci=pgOrder.indexOf(current?.id?.replace('p-','')||'in');const ni=pgOrder.indexOf(p);const goRight=ni>ci;if(current){current.classList.add(goRight?'slide-out-left':'slide-out-right');current.classList.remove('is-settled');setTimeout(()=>{current.classList.remove('on','slide-out-left','slide-out-right','is-settled');next.classList.add('on',goRight?'slide-in-right':'slide-in-left');requestAnimationFrame(()=>requestAnimationFrame(()=>{next.classList.remove('slide-in-right','slide-in-left');next.classList.add('is-settled');}));},200);}else{next.classList.add('on','is-settled');}window.scrollTo({top:0,behavior:'smooth'})}
 function applyLangToUI(){
   document.querySelectorAll('[data-i]').forEach(el=>{const k=el.dataset.i;const v=i(k);if(v&&v!==k)el.textContent=v;});
   document.querySelectorAll('[data-iph]').forEach(el=>{el.placeholder=i(el.dataset.iph);});
