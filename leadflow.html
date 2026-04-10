@@ -26,6 +26,7 @@
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
 /* ===== MOBILE: original design (< 900px) ===== */
+/* ===== MOBILE: original design (< 900px) ===== */
 :root{
   --cream:#faf8f5;--white:#fff;--sand:#f0ece6;--stone:#e2ddd5;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
   --terra:#d4531a;--terra-s:rgba(212,83,26,.07);
@@ -2098,7 +2099,6 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   /* --- Scrollbar --- */
   ::-webkit-scrollbar{width:6px;height:6px}
   ::-webkit-scrollbar-track{background:transparent}
-  ::-webkit-scrollbar-thumb{background:var(--stone);border-radius:3px}
 
 
 /* ===== DESKTOP: Apple-inspired dark variables (>= 900px) ===== */
@@ -2132,6 +2132,9 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
   @keyframes settingsIn{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:none}}
+  @keyframes centerPopIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+  @keyframes centerPopOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.92)}}
+  @keyframes spSlideIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
   @keyframes bubblePop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
   @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
   @keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(135,116,225,.3)}50%{box-shadow:0 0 12px 2px rgba(135,116,225,.15)}}
@@ -2431,19 +2434,24 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
   .ds .ss:not(#replyBtn):hover{background:#9b8ce8!important}
 
-  /* ── SETTINGS PANEL — slide from right, premium look ── */
+  /* ── SETTINGS PANEL — center pop-in overlay ── */
   .settings-panel{
-    position:absolute!important;top:0!important;left:auto!important;right:-420px!important;bottom:0!important;
-    height:100%!important;width:420px!important;max-width:100%!important;
+    position:absolute!important;top:0!important;left:0!important;right:0!important;bottom:0!important;
+    height:100%!important;width:100%!important;
     background:#17212b!important;
-    border:none!important;border-left:1px solid rgba(255,255,255,.06)!important;
+    border:none!important;
     overflow-y:auto!important;
-    transition:right .35s cubic-bezier(.4,0,.2,1)!important;
     z-index:10!important;
+    opacity:0!important;
+    transform:scale(.92)!important;
+    pointer-events:none!important;
+    transition:all .3s cubic-bezier(.4,0,.2,1)!important;
   }
   .settings-panel::-webkit-scrollbar{width:5px}
   .settings-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
-  #dc.settings-open .settings-panel{right:0!important}
+  #dc.settings-open .settings-panel{
+    opacity:1!important;transform:scale(1)!important;pointer-events:auto!important;
+  }
 
   .sp-close{
     position:sticky!important;top:0!important;z-index:2!important;
@@ -2620,14 +2628,31 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .stm-icon{background:#242f3d!important;border-radius:10px!important}
   .st-help{color:#4a5568!important}
 
-  /* Settings sub-pages */
-  .sp{background:#0e1621!important;margin-left:68px!important;width:calc(100% - 68px)!important;animation:fadeIn .3s ease!important}
-  .sp-head{background:#17212b!important;border-bottom:none!important}
-  .sp-head h2,.sp-head h3{color:#f5f5f5!important}
+  /* Settings sub-pages — overlay centered on settings area */
+  .sp{
+    background:#0e1621!important;
+    position:fixed!important;top:0!important;left:68px!important;right:0!important;bottom:0!important;
+    width:auto!important;margin-left:0!important;
+    z-index:200!important;
+    display:none!important;
+    justify-content:center!important;align-items:flex-start!important;
+    overflow-y:auto!important;
+  }
+  .sp.on{display:flex!important;animation:spSlideIn .3s cubic-bezier(.4,0,.2,1) both!important}
+  .sp-head{
+    background:#17212b!important;border-bottom:1px solid rgba(255,255,255,.06)!important;
+    position:sticky!important;top:0!important;z-index:2!important;
+    display:flex!important;align-items:center!important;gap:12px!important;
+    padding:14px 20px!important;
+    max-width:600px!important;width:100%!important;margin:0 auto!important;
+  }
+  .sp-head h2,.sp-head h3{color:#f5f5f5!important;font-size:17px!important;font-weight:600!important}
   .sp-back{background:#242f3d!important;border:none!important;color:#f5f5f5!important;border-radius:10px!important;
-    transition:all .2s ease!important}
+    transition:all .2s ease!important;width:36px!important;height:36px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important}
   .sp-back:hover{background:#2b3a4c!important}
-  .sp-body{background:#0e1621!important}
+  .sp-back svg{width:18px!important;height:18px!important}
+  .sp-body{background:transparent!important;max-width:600px!important;width:100%!important;margin:0 auto!important;padding:16px 20px 40px!important}
   .sp-card{background:#17212b!important;border:none!important;border-radius:14px!important}
   .sp-card h4{color:#f5f5f5!important}
   .sp-field label{color:#6d7f8f!important}
@@ -3767,8 +3792,8 @@ function hydrateAccount(){
   Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.textContent=val;});
 }
 function syncNavHighlight(){const nav=document.querySelector('.nav');const active=document.querySelector('.nb.on');if(!nav||!active)return;const r=nav.getBoundingClientRect();const a=active.getBoundingClientRect();nav.style.setProperty('--nav-x',(a.left-r.left)+'px');nav.style.setProperty('--nav-w',a.width+'px')}
-function openSettingsPage(id){const sp=document.getElementById(id);if(!sp)return;sp.classList.add('on');document.querySelector('.nav').style.transform='translateY(100px)';if(id==='sp-team'){loadWebhooks();loadOperators();}sp.scrollTo(0,0);}
-function closeSettingsPage(id){const sp=document.getElementById(id);if(!sp)return;sp.classList.remove('on');if(!document.querySelector('.sp.on'))document.querySelector('.nav').style.transform='';}
+function openSettingsPage(id){const sp=document.getElementById(id);if(!sp)return;sp.classList.add('on');if(id==='sp-team'){loadWebhooks();loadOperators();}sp.scrollTo(0,0);}
+function closeSettingsPage(id){const sp=document.getElementById(id);if(!sp)return;sp.classList.remove('on');}
 function initPressFX(){document.querySelectorAll('button,.nb,.ft,.ss,.hdr-btn,.d-btn,.mc,.ms,.tk,.to').forEach(el=>{const on=()=>el.classList.add('is-pressed');const off=()=>el.classList.remove('is-pressed');el.addEventListener('pointerdown',on,{passive:true});el.addEventListener('pointerup',off,{passive:true});el.addEventListener('pointercancel',off,{passive:true});el.addEventListener('pointerleave',off,{passive:true});});
 /* Card press-to-open: visual press then open detail */
 document.addEventListener('pointerdown',e=>{const cd=e.target.closest('.cd');if(cd)cd.classList.add('pressed')},{passive:true});
