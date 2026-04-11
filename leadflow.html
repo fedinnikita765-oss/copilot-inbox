@@ -2807,6 +2807,53 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     font-size:10px!important;padding:1px 6px!important;border-radius:4px!important;
     font-weight:600!important;letter-spacing:.02em!important;
   }
+
+  /* ---------- KILL LEGACY WHITE STYLES ---------- */
+  /* Contact modal (.md-contact) had a cream/white gradient from mobile design */
+  .md-contact{
+    background:#262626!important;
+    border:1px solid rgba(255,255,255,.06)!important;
+    box-shadow:0 12px 40px rgba(0,0,0,.5)!important;
+    color:#fff!important;
+  }
+  .md-contact::before{display:none!important}
+  .md-contact h3{color:#fff!important}
+  .md-sub{color:rgb(170,170,170)!important}
+  .md-chip{
+    background:rgba(135,116,225,.16)!important;
+    border:1px solid rgba(135,116,225,.25)!important;
+    color:#C8BAFF!important;
+    box-shadow:none!important;
+  }
+  .md-chip::before{
+    background:linear-gradient(180deg,#C8BAFF,#8774E1)!important;
+    box-shadow:0 0 0 4px rgba(135,116,225,.18)!important;
+  }
+  .md-inner{background:#262626!important;box-shadow:0 12px 40px rgba(0,0,0,.5)!important}
+
+  /* Legacy .settings-panel-* white card classes from mobile bleeding into desktop */
+  .settings-panel,
+  .settings-panel-grid > .settings-panel{
+    background:transparent!important;border:none!important;box-shadow:none!important;
+  }
+  .settings-panel-icon{
+    background:rgba(135,116,225,.16)!important;
+    color:#C8BAFF!important;
+    box-shadow:none!important;border:none!important;
+  }
+  .settings-panel-head h4{color:#fff!important}
+  .settings-panel-head p{color:rgb(170,170,170)!important}
+  .settings-toggle-card .tr{
+    background:#262626!important;
+    border:1px solid rgba(255,255,255,.06)!important;
+  }
+
+  /* ---------- KILL ANIMATIONS THAT RETRIGGER ON REFRESH ---------- */
+  /* These elements get re-rendered on every poll, so animations flash constantly */
+  .cd-swipe-wrap,.cd,.bb,.tk,.stat,.sg,.profile-hero-card,.sp-card,.stm-item,.tk.just-done{
+    animation:none!important;
+  }
+  /* Keep page-level fade-in only on initial open (.pg.on uses fadeIn .2s — that's fine) */
 }
 
 /* Mobile: keep old design untouched */
@@ -3628,7 +3675,7 @@ async function changeLang(l){
   setLang(l);
   if(API_BASE&&API_TOKEN&&OWNER_ID){try{await apiFetch('/api/lang',{lang:l})}catch(e){console.error(e)}}
 }
-function R(){renderFilters();rC();if(currentView==='kanban')renderKanban();rT();uS();lS(false);saveLocal();observeSecureImgs();if(openDetailId!==null&&document.getElementById('pn').classList.contains('on')){const idx=C.findIndex(c=>c.id===openDetailId);if(idx>=0){const scrollPos=document.getElementById('pn').scrollTop;buildDetailContent(idx);document.getElementById('pn').scrollTop=scrollPos;}}}
+function R(){renderFilters();rC();if(currentView==='kanban')renderKanban();rT();uS();lS(false);saveLocal();observeSecureImgs();if(openDetailId!==null&&document.getElementById('pn').classList.contains('on')){const idx=C.findIndex(c=>c.id===openDetailId);if(idx>=0){const _inp=document.getElementById('replyInp');const _val=_inp?_inp.value:'';const _ss=_inp?_inp.selectionStart:0;const _se=_inp?_inp.selectionEnd:0;const _focused=_inp&&document.activeElement===_inp;const _ds=document.querySelector('.chat-area > .ds, #dc .ds');const _dsScroll=_ds?_ds.scrollTop:0;const scrollPos=document.getElementById('pn').scrollTop;buildDetailContent(idx);document.getElementById('pn').scrollTop=scrollPos;const _ni=document.getElementById('replyInp');if(_ni){if(_val){_ni.value=_val;try{_ni.setSelectionRange(_ss,_se);}catch(e){}}if(_focused)_ni.focus();}const _ds2=document.querySelector('.chat-area > .ds, #dc .ds');if(_ds2&&_dsScroll)_ds2.scrollTop=_dsScroll;}}}
 function uS(){animateCount(document.getElementById('sa'),C.length);animateCount(document.getElementById('si'),C.filter(c=>c.source!=='manual').length);animateCount(document.getElementById('sm'),C.filter(c=>c.source==='manual').length);animateCount(document.getElementById('so'),C.filter(c=>c.status!=='closed').length);animateCount(document.getElementById('to2'),T.filter(t=>!t.done).length);animateCount(document.getElementById('td2'),T.filter(t=>t.done).length);animateCount(document.getElementById('tt2'),T.length)}
 
 function dateGroup(t){if(!t)return i('date_earlier');const d=new Date(t),now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),yest=new Date(today-864e5);if(d>=today)return i('date_today');if(d>=yest)return i('date_yesterday');return i('date_earlier');}
