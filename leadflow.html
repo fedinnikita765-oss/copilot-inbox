@@ -2601,6 +2601,214 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.1)!important}
 }
 
+/* ============================================================
+   DESKTOP REFINEMENT v2 — fix monotone, unify panels, color nav
+   Goal: keep Telegram-style chat, add visual variety to nav,
+         make all pages share consistent header/card/spacing.
+   ============================================================ */
+@media(min-width:900px){
+
+  /* ---------- LEFT NAV: vibrant restored look ---------- */
+  .nav{
+    width:72px!important;
+    background:linear-gradient(180deg,#1f1f1f 0%,#181818 100%)!important;
+    border-right:1px solid rgba(255,255,255,.06)!important;
+    padding:14px 6px 12px!important;gap:4px!important;
+  }
+  .nav-active{display:none!important}
+  .nb{
+    width:60px!important;height:60px!important;
+    padding:8px 0 5px!important;border-radius:14px!important;
+    color:#9aa0a6!important;gap:4px!important;
+    background:transparent!important;
+    transition:transform .15s var(--ease),background .15s ease,box-shadow .2s ease!important;
+    position:relative!important;
+  }
+  .nb svg,.nb .ic{width:22px!important;height:22px!important;stroke-width:2!important;
+    transition:transform .15s var(--ease),color .15s ease,filter .2s ease!important;color:inherit!important}
+  .nb span{font-size:9.5px!important;font-weight:600!important;letter-spacing:.01em!important;opacity:.9!important;line-height:11px!important}
+
+  /* Per-button color tints on hover (preview the page accent) */
+  .nb:nth-of-type(1):hover{color:#7CC2FF!important}                /* Inbox — blue */
+  .nb:nth-of-type(2):hover{color:#5DD39E!important}                /* Tasks — green */
+  .nb:nth-of-type(3):hover{color:#FFB454!important}                /* Analytics — amber */
+  .nb:nth-of-type(4):hover{color:#C896FF!important}                /* Settings — purple */
+  .nb-logout:hover{color:#FF7B7B!important}
+
+  .nb:hover{background:rgba(255,255,255,.05)!important;transform:translateY(-1px)!important}
+
+  /* Active state — vivid purple pill */
+  .nb.on,.nb.nav-active{
+    background:linear-gradient(180deg,rgba(135,116,225,.28) 0%,rgba(135,116,225,.12) 100%)!important;
+    color:#fff!important;
+    box-shadow:inset 0 0 0 1px rgba(135,116,225,.42),0 6px 18px rgba(135,116,225,.22)!important;
+  }
+  .nb.on svg,.nb.nav-active svg{color:#C8BAFF!important;filter:drop-shadow(0 2px 6px rgba(135,116,225,.5))!important}
+  .nb.on span,.nb.nav-active span{color:#fff!important;opacity:1!important}
+
+  .nb-logout{margin-top:auto!important}
+
+  /* Page container shifted for wider nav */
+  .pg{margin-left:72px!important}
+
+  /* ---------- UNIFIED PAGE BACKGROUND ---------- */
+  /* All pages share same #1c1c1c base (slightly darker than sidebar #212121
+     so the active page stands out, but no more pure-black gap) */
+  body,html{background:#1c1c1c!important}
+  #p-tk.on,#p-an.on,#p-st.on{background:#1c1c1c!important}
+  .sp{background:#1c1c1c!important}
+
+  /* Sidebar gets a marginally lighter tint to differentiate from chat area */
+  #p-in .hdr,#p-in #cl,#p-in .fb{background:#212121!important}
+  #p-in::after{background:rgba(255,255,255,.05)!important;left:345px!important}
+
+  /* ---------- UNIFIED PAGE HEADERS (56px MiddleHeader pattern) ---------- */
+  #p-tk,#p-an,#p-st{padding:0!important;max-width:none!important;margin:0!important;width:100%!important}
+  #p-tk.on,#p-an.on,#p-st.on{align-items:stretch!important;justify-content:flex-start!important;flex-direction:column!important}
+
+  #p-tk .hdr,#p-an .hdr,#p-st .hdr{
+    position:sticky!important;top:0!important;z-index:5!important;
+    background:#212121!important;
+    border-bottom:1px solid rgba(255,255,255,.06)!important;
+    padding:0 32px!important;height:56px!important;max-width:none!important;width:100%!important;
+    display:flex!important;align-items:center!important;justify-content:space-between!important;
+    margin:0!important;flex-shrink:0!important;
+  }
+  #p-tk .hdr-row,#p-an .hdr-row,#p-st .hdr-row{
+    width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;
+  }
+  #p-tk .hdr h1,#p-an .hdr h1,#p-st .hdr h1{
+    font-size:20px!important;font-weight:600!important;letter-spacing:0!important;
+    font-family:'Nunito',sans-serif!important;color:#fff!important;margin:0!important;line-height:24px!important;
+  }
+  #p-st .hdr{padding:0 32px!important}
+
+  /* Page body: scroll container with consistent padding & centered content */
+  #p-tk > *:not(.hdr),#p-an > *:not(.hdr),#p-st > *:not(.hdr){
+    max-width:760px!important;width:100%!important;margin:0 auto!important;
+  }
+  #p-tk #tasksList{padding:20px 32px 40px!important}
+  #p-tk .fb{padding:16px 32px 8px!important;background:transparent!important;border:none!important}
+  #p-an #statsContent{padding:24px 32px 40px!important}
+  .st-shell{padding:24px 32px 40px!important}
+
+  /* ---------- UNIFIED CARD STYLE ---------- */
+  /* All cards: #262626 surface, soft border, radius 14, gentle hover */
+  .tk,
+  #p-an .stat,
+  #p-an .sg,
+  .profile-hero-card,
+  .sp-card{
+    background:#262626!important;
+    border:1px solid rgba(255,255,255,.05)!important;
+    border-radius:14px!important;
+    transition:transform .15s ease,background .15s ease,border-color .15s ease!important;
+    box-shadow:0 1px 2px rgba(0,0,0,.2)!important;
+  }
+  .tk{padding:14px 16px!important;margin:6px 0!important}
+  .tk:hover,#p-an .stat:hover,.profile-hero-card:hover{
+    background:#2c2c2c!important;
+    border-color:rgba(255,255,255,.08)!important;
+  }
+
+  /* Settings list items get card treatment too */
+  .stm-grid{padding:0!important;gap:6px!important;display:flex!important;flex-direction:column!important}
+  .profile-hero-card{margin:0 0 16px!important;padding:18px 20px!important}
+  .stm-item{
+    background:#262626!important;
+    border:1px solid rgba(255,255,255,.05)!important;
+    border-radius:12px!important;
+    padding:14px 16px!important;margin:0!important;
+    transition:background .15s ease,border-color .15s ease,transform .15s ease!important;
+  }
+  .stm-item:hover{background:#2c2c2c!important;border-color:rgba(255,255,255,.10)!important;transform:none!important}
+  .stm-icon{
+    background:linear-gradient(180deg,rgba(135,116,225,.22),rgba(135,116,225,.10))!important;
+    color:#C8BAFF!important;
+    border-radius:10px!important;
+    width:38px!important;height:38px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+  }
+  .stm-icon svg{color:inherit!important}
+
+  /* ---------- ANALYTICS: stat cards with colored accent strips ---------- */
+  #p-an .stat-row{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:12px!important;background:transparent!important;padding:0!important;margin-bottom:20px!important}
+  #p-an .stat{
+    position:relative!important;overflow:hidden!important;
+    padding:18px 20px 16px 24px!important;
+    display:flex!important;flex-direction:column!important;gap:6px!important;
+  }
+  #p-an .stat::before{
+    content:""!important;position:absolute!important;left:0;top:0;bottom:0;width:3px;
+    background:#8774E1!important;display:block!important;
+  }
+  #p-an .stat-row .stat:nth-child(4n+1)::before{background:#7CC2FF!important}  /* blue */
+  #p-an .stat-row .stat:nth-child(4n+2)::before{background:#5DD39E!important}  /* green */
+  #p-an .stat-row .stat:nth-child(4n+3)::before{background:#FFB454!important}  /* amber */
+  #p-an .stat-row .stat:nth-child(4n+4)::before{background:#FF7B9C!important}  /* pink */
+  #p-an .stat .n{color:#fff!important;font-size:24px!important;font-weight:700!important}
+  #p-an .stat .l{color:rgb(170,170,170)!important;font-size:11px!important;font-weight:600!important;text-transform:uppercase;letter-spacing:.06em}
+
+  /* Analytics chart group cards */
+  #p-an .sg{padding:18px 20px!important;margin-bottom:14px!important}
+
+  /* ---------- SECTION HEADERS (h4) — accent color ---------- */
+  .ds h4,.sg h4,.sp-card h4{
+    color:#C8BAFF!important;
+    font-size:11px!important;font-weight:700!important;
+    text-transform:uppercase!important;letter-spacing:.1em!important;
+    padding:0 0 10px 0!important;margin:0 0 12px 0!important;
+    border-bottom:1px solid rgba(255,255,255,.06)!important;
+    display:flex!important;align-items:center!important;gap:8px!important;
+  }
+  .ds h4 svg,.sg h4 svg{color:#C8BAFF!important;width:14px!important;height:14px!important}
+
+  /* ---------- TASKS: pill-style folder tabs ---------- */
+  #p-tk .fb{display:flex!important;gap:6px!important;flex-wrap:wrap!important;border:none!important}
+  #p-tk .fb .ft{
+    background:#262626!important;border:1px solid rgba(255,255,255,.05)!important;
+    color:rgb(170,170,170)!important;border-radius:18px!important;
+    padding:7px 14px!important;font-size:13px!important;font-weight:500!important;
+    transition:all .15s ease!important;
+  }
+  #p-tk .fb .ft:hover{background:#2c2c2c!important;color:#fff!important;border-color:rgba(255,255,255,.10)!important}
+  #p-tk .fb .ft.on{background:var(--accent)!important;color:#fff!important;border-color:transparent!important}
+
+  /* ---------- CHAT ROW: keep Telegram look but soften active state ---------- */
+  /* User wanted variety, the full purple fill was visually heavy */
+  .cd.active,.cd[data-active="true"]{
+    background:linear-gradient(90deg,rgba(135,116,225,.45) 0%,rgba(135,116,225,.28) 100%)!important;
+    box-shadow:inset 3px 0 0 #B6A4FF!important;
+  }
+
+  /* ---------- CHAT AREA: subtle gradient bg instead of flat ---------- */
+  .chat-area{
+    background:linear-gradient(180deg,#1f1f1f 0%,#1a1a1a 100%)!important;
+  }
+
+  /* ---------- COMPOSER: lighter pill so it stands out from gradient ---------- */
+  .chat-reply > div:last-child{
+    background:#262626!important;
+    box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.04)!important;
+  }
+
+  /* Sidebar header divider */
+  #p-in .fb{border-bottom:1px solid rgba(255,255,255,.06)!important}
+
+  /* Settings sub-page (.sp) shares same bg */
+  .sp{left:72px!important}
+  .sp-head{background:#212121!important;border-bottom:1px solid rgba(255,255,255,.06)!important}
+  .sp-card{padding:18px 20px!important;margin-bottom:14px!important}
+
+  /* ---------- TAGS in chat list — restore color hints ---------- */
+  .cd-tags{display:flex!important;gap:4px!important;margin-top:0!important}
+  .cd-tags .tg{
+    background:rgba(135,116,225,.16)!important;color:#C8BAFF!important;border:none!important;
+    font-size:10px!important;padding:1px 6px!important;border-radius:4px!important;
+    font-weight:600!important;letter-spacing:.02em!important;
+  }
+}
+
 /* Mobile: keep old design untouched */
 @media(max-width:899px){
   .nb-logout{display:none}
