@@ -1909,23 +1909,34 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .mc::before,.mb::before,.ov::before,.pn::before,#pn::before,
   .d-btn::before,.nb::before,.tk::before,.em-hero::before{display:none!important}
   *{box-shadow:none!important}
+  /* Allow box-shadows back ONLY on elements that need depth (v3 will set them) */
+  .bb,.bb.out,.bb:not(.out),.bb:hover,.bb.out:hover,
+  .da,.detail-hero,.chat-reply > div:last-child,.chat-reply:focus-within > div:last-child,
+  .msg-ctx-menu,.toast,#scrollBottomBtn,#scrollBottomBtn:hover,
+  .em-icon-wrap,.d-btn,.send-circle:hover,#replyBtn:hover,
+  .nb .n.pulse,.sp-hero .da,
+  .bb img:not(.av img),
+  .bb.bb-new.out,.bb.bb-new:not(.out){box-shadow:revert!important}
 
   .tpl-row,.tpl-btn{display:none!important}
 
-  /* -- LEFT NAV (64px) -- */
+  /* -- LEFT NAV (72px) -- */
   .nav{
-    position:fixed!important;top:0;left:0;bottom:0;width:64px!important;
+    position:fixed!important;top:0;left:0;bottom:0;width:72px!important;
     flex-direction:column!important;justify-content:flex-start!important;align-items:center!important;
-    border-top:none!important;border-right:1px solid var(--border)!important;
-    background:var(--bg-primary)!important;backdrop-filter:none!important;
-    padding:12px 0!important;gap:2px!important;z-index:100;
+    border-top:none!important;border-right:1px solid rgba(255,255,255,.06)!important;
+    background:linear-gradient(180deg,#1a1a1a 0%,#181818 100%)!important;backdrop-filter:none!important;
+    padding:14px 0!important;gap:2px!important;z-index:100;
   }
   .nav::before{display:none!important}
   .nb{
     flex-direction:column!important;align-items:center!important;gap:3px!important;
     padding:10px 4px 7px!important;border-radius:8px!important;font-size:9.5px!important;
-    color:var(--text-tertiary)!important;width:48px!important;
+    color:var(--text-tertiary)!important;width:52px!important;
     transition:all .15s var(--ease)!important;position:relative!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    border:none!important;outline:none!important;
+    overflow:visible!important;
   }
   .nb svg{width:20px!important;height:20px!important;color:inherit!important;stroke-width:1.8!important;
     transition:all .15s var(--ease)!important}
@@ -1942,7 +1953,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* -- PAGE CONTAINER -- */
   .pg{
-    margin-left:64px!important;padding:0!important;min-height:100vh!important;
+    margin-left:72px!important;padding:0!important;min-height:100vh!important;
     display:none!important;opacity:1!important;
   }
   .pg.on{display:flex!important;flex-direction:row!important;animation:fadeIn .2s var(--ease)!important}
@@ -1953,11 +1964,11 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
 
   /* -- SIDEBAR (LeftColumn analog): 345px, bg #212121 — matches web.telegram.org/a/ -- */
-  #p-in{position:relative;background:#212121!important;width:345px!important;min-width:345px!important;flex-shrink:0!important}
+  #p-in{position:relative;background:linear-gradient(180deg,#222 0%,#1e1e1e 100%)!important;width:345px!important;min-width:345px!important;flex-shrink:0!important;border-right:1px solid rgba(255,255,255,.04)!important}
   /* Sidebar header — matches SidebarHeader: height 56, padding 6px 13px 8px */
   #p-in .hdr{
     position:absolute!important;top:0;left:0;width:345px;
-    background:var(--bg-primary)!important;border-bottom:none!important;
+    background:linear-gradient(180deg,#282828 0%,#232323 100%)!important;border-bottom:1px solid rgba(255,255,255,.04)!important;
     backdrop-filter:none!important;padding:0!important;z-index:10;
     height:56px!important;display:flex!important;align-items:center!important;
   }
@@ -2042,9 +2053,12 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     background:transparent!important;padding:8px 9px!important;height:auto!important;min-height:52px!important;
     cursor:pointer!important;transition:background-color .15s ease!important;
     border-bottom:none!important;display:flex!important;align-items:center!important;gap:0!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;outline:none!important;
+    overflow:visible!important;
   }
-  .cd:hover{background:var(--bg-secondary)!important}
-  .cd:active{background:var(--bg-secondary)!important;transform:none!important}
+  .cd::before,.cd::after{display:none!important;content:none!important}
+  .cd:hover{background:rgba(255,255,255,.04)!important}
+  .cd:active{background:rgba(255,255,255,.06)!important;transform:none!important}
   .cd-top{margin-bottom:0!important;gap:8px!important;display:flex!important;align-items:center!important;height:24px!important}
   .cd-user{font-size:16px!important;font-weight:500!important;color:#fff!important;line-height:24px!important;flex:1!important;min-width:0!important;display:flex!important;align-items:center!important;gap:4px!important}
   .cd-user .un{font-weight:500!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:#fff!important;font-size:16px!important;line-height:24px!important}
@@ -2053,8 +2067,8 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .cd-msg{display:none!important}
   .cd-tags,.cd-ai,.cd-ctx,.cd .str{display:none!important}
 
-  /* Active / selected chat — full purple fill (var(--tg-chat-active)) */
-  .cd.active,.cd[data-active="true"]{background:var(--chat-active)!important;border-right:none!important}
+  /* Active / selected chat — gradient purple fill */
+  .cd.active,.cd[data-active="true"]{background:linear-gradient(90deg,rgba(135,116,225,.22) 0%,rgba(135,116,225,.12) 100%)!important;border-right:none!important;border-left:3px solid #8774E1!important;border-radius:0 10px 10px 0!important}
   .cd.active .cd-user,.cd[data-active="true"] .cd-user,
   .cd.active .cd-user .un,.cd[data-active="true"] .cd-user .un,
   .cd.active .un,.cd[data-active="true"] .un{color:#fff!important}
@@ -2470,7 +2484,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   .sp{
     background:var(--bg-deep)!important;
-    position:fixed!important;top:0!important;left:64px!important;right:0!important;bottom:0!important;
+    position:fixed!important;top:0!important;left:72px!important;right:0!important;bottom:0!important;
     width:auto!important;margin-left:0!important;z-index:200!important;
     display:none!important;justify-content:center!important;align-items:flex-start!important;overflow-y:auto!important;
   }
@@ -2610,37 +2624,39 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
   .nav-active{display:none!important}
   .nb{
-    width:60px!important;height:60px!important;
-    padding:8px 0 5px!important;border-radius:14px!important;
+    width:56px!important;height:56px!important;
+    padding:8px 0 5px!important;border-radius:12px!important;
     color:#9aa0a6!important;gap:4px!important;
     background:transparent!important;
     transition:transform .15s var(--ease),background .15s ease,box-shadow .2s ease!important;
     position:relative!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    border:none!important;outline:none!important;overflow:visible!important;
   }
   .nb svg,.nb .ic{width:22px!important;height:22px!important;stroke-width:1.8!important;
     transition:color .15s ease!important;color:inherit!important;filter:none!important}
   .nb span{font-size:9px!important;font-weight:500!important;letter-spacing:.02em!important;opacity:.7!important;line-height:11px!important}
   /* Kill ALL legacy glow/sweep effects from mobile styles */
   .nb::after,.nb::before{display:none!important;content:none!important}
-  .nb:active{transform:none!important}
+  .nb:active{transform:scale(.95)!important}
 
   /* Per-button color tints on hover */
-  .nb:nth-of-type(1):hover{color:#7CC2FF!important}
-  .nb:nth-of-type(2):hover{color:#5DD39E!important}
-  .nb:nth-of-type(3):hover{color:#FFB454!important}
-  .nb:nth-of-type(4):hover{color:#C896FF!important}
-  .nb-logout:hover{color:#FF7B7B!important}
+  .nb:nth-of-type(1):hover{color:#7CC2FF!important;background:rgba(124,194,255,.08)!important}
+  .nb:nth-of-type(2):hover{color:#5DD39E!important;background:rgba(93,211,158,.08)!important}
+  .nb:nth-of-type(3):hover{color:#FFB454!important;background:rgba(255,180,84,.08)!important}
+  .nb:nth-of-type(4):hover{color:#C896FF!important;background:rgba(200,150,255,.08)!important}
+  .nb-logout:hover{color:#FF7B7B!important;background:rgba(255,123,123,.08)!important}
 
-  .nb:hover{background:rgba(255,255,255,.04)!important;transform:none!important}
+  .nb:hover{transform:none!important}
   .nb:hover span{opacity:1!important}
 
-  /* Active state — clean highlight, no glow/shadow */
+  /* Active state — subtle accent glow */
   .nb.on,.nb.nav-active{
-    background:rgba(135,116,225,.15)!important;
+    background:linear-gradient(180deg,rgba(135,116,225,.18),rgba(135,116,225,.10))!important;
     color:#C8BAFF!important;
-    box-shadow:none!important;
+    border:none!important;
   }
-  .nb.on svg,.nb.nav-active svg{color:#C8BAFF!important;filter:none!important}
+  .nb.on svg,.nb.nav-active svg{color:#C8BAFF!important;filter:drop-shadow(0 0 6px rgba(135,116,225,.35))!important}
   .nb.on span,.nb.nav-active span{color:#C8BAFF!important;opacity:1!important}
 
   .nb-logout{margin-top:auto!important}
@@ -2841,28 +2857,34 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
 
   /* ---------- KILL ANIMATIONS THAT RETRIGGER ON REFRESH ---------- */
-  /* These elements get re-rendered on every poll, so animations flash constantly */
-  .cd-swipe-wrap,.cd,.bb,.tk,.stat,.sg,.profile-hero-card,.sp-card,.stm-item,.tk.just-done{
+  .cd-swipe-wrap,.cd,.tk,.stat,.sg,.profile-hero-card,.sp-card,.stm-item,.tk.just-done{
     animation:none!important;
   }
-  /* New sent messages: fly-up + elastic bounce */
+  /* Messages: no animation by default (poll re-renders), but allow bb-new */
+  .bb{animation:none!important}
+
+  /* New sent messages: premium fly-up + elastic bounce + glow */
   @keyframes msgSendFly{
-    0%{opacity:0;transform:translateY(40px) scale(.85)}
-    40%{opacity:1;transform:translateY(-6px) scale(1.03)}
-    70%{transform:translateY(2px) scale(.99)}
+    0%{opacity:0;transform:translateY(30px) scale(.88)}
+    50%{opacity:1;transform:translateY(-4px) scale(1.02)}
+    75%{transform:translateY(1px) scale(.995)}
     100%{opacity:1;transform:none}
   }
   @keyframes msgSendGlow{
-    0%{box-shadow:0 2px 8px rgba(135,116,225,.5),0 0 20px rgba(135,116,225,.3)}
+    0%{box-shadow:0 4px 20px rgba(135,116,225,.6),0 0 30px rgba(135,116,225,.25)}
     100%{box-shadow:0 2px 8px rgba(118,106,200,.35),0 1px 3px rgba(0,0,0,.2)}
   }
+  @keyframes msgReceiveFly{
+    0%{opacity:0;transform:translateY(20px) scale(.92)}
+    60%{opacity:1;transform:translateY(-2px) scale(1.01)}
+    100%{opacity:1;transform:none}
+  }
   .bb.bb-new.out{
-    animation:msgSendFly .45s cubic-bezier(.22,1,.36,1) both, msgSendGlow .6s ease .3s both!important;
+    animation:msgSendFly .5s cubic-bezier(.22,1,.36,1) both, msgSendGlow .7s ease .2s both!important;
   }
   .bb.bb-new:not(.out){
-    animation:msgSendFly .4s cubic-bezier(.22,1,.36,1) both!important;
+    animation:msgReceiveFly .45s cubic-bezier(.22,1,.36,1) both!important;
   }
-  /* Keep page-level fade-in only on initial open (.pg.on uses fadeIn .2s — that's fine) */
 }
 
 /* ============================================================
@@ -3161,8 +3183,28 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     border:none!important;
     transition:transform .1s ease, box-shadow .15s ease!important;
     cursor:default!important;
+    position:relative!important;
   }
   .bb:hover{transform:scale(1.005)!important}
+
+  /* Hover action buttons on messages */
+  .bb .msg-actions{
+    display:none;position:absolute;top:-8px;
+    gap:2px;z-index:5;
+    background:rgba(30,30,30,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 4px 16px rgba(0,0,0,.4);
+  }
+  .bb:not(.out) .msg-actions{right:8px}
+  .bb.out .msg-actions{left:8px}
+  .bb:hover .msg-actions{display:flex}
+  .msg-actions button{
+    width:28px;height:28px;border:none;background:transparent;color:rgba(255,255,255,.5);
+    cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    transition:all .12s ease;padding:0;
+  }
+  .msg-actions button:hover{background:rgba(255,255,255,.1);color:#fff}
+  .msg-actions button.msg-del-btn:hover{background:rgba(229,57,53,.15);color:#FF7B7B}
 
   /* Incoming bubbles */
   .bb:not(.out){
@@ -3955,11 +3997,19 @@ function showMsgMenu(e,el){
 }
 async function deleteMessage(msgId,contactId){
   if(!msgId)return;
+  /* Animate bubble out before removing */
+  const bubble=document.querySelector(`.bb[data-msg-id="${msgId}"]`);
+  if(bubble){
+    bubble.style.transition='all .3s cubic-bezier(.4,0,1,1)';
+    bubble.style.opacity='0';bubble.style.transform='scale(.85) translateY(10px)';
+    bubble.style.maxHeight=bubble.offsetHeight+'px';
+    setTimeout(()=>{bubble.style.maxHeight='0';bubble.style.padding='0';bubble.style.margin='0'},150);
+  }
   try{
     await apiFetch('/api/delete-message',{message_id:msgId,contact_id:contactId});
     const c=C.find(x=>x.id===contactId);
     if(c){c.messages=c.messages.filter(m=>m.id!==msgId);
-      const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId)buildDetailContent(idx);}
+      const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId)setTimeout(()=>buildDetailContent(idx),350);}
     await syncSnapshot(true);
     nt(LANG==='en'?'Message deleted':'Сообщение удалено');
   }catch(e){nt((LANG==='en'?'Error: ':'Ошибка: ')+(e.message||e));}
@@ -4174,7 +4224,7 @@ const dc=document.getElementById('dc');
 const sm={positive:i('s_positive'),neutral:i('s_neutral'),negative:i('s_negative')};const um={high:i('u_high'),medium:i('u_medium'),low:i('u_low')};const uc={high:'var(--ruby)',medium:'var(--honey)',low:'var(--forest)'};
 const modeOpts=Object.entries(getRM()).map(([k,v])=>`<option value="${k}" ${c.replyMode===k?'selected':''}>${v}</option>`).join('');
 function renderAttach(m){if(!m.fileType)return '';const furl=`${API_BASE}/api/file?file_id=${encodeURIComponent(m.fileId)}&owner=${OWNER_ID}`;if(m.fileType==='photo')return `<img data-src="${escHtml(furl)}" style="max-width:100%;border-radius:10px;margin:4px 0;cursor:pointer" data-furl="${escHtml(furl)}" class="media-open" loading="lazy">`;if(m.fileType==='video')return `<video data-src="${escHtml(furl)}" controls style="max-width:100%;border-radius:10px;margin:4px 0"></video>`;if(m.fileType==='voice')return `<audio data-src="${escHtml(furl)}" controls style="width:100%;margin:4px 0"></audio>${m.text?'<div style="font-size:12px;color:var(--ink2);margin:2px 0 4px;font-style:italic">📝 '+escHtml(m.text)+'</div>':''}`;return `<a href="#" data-furl="${escHtml(furl)}" class="media-open" style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--card2);border-radius:10px;margin:4px 0;text-decoration:none;color:var(--ocean);font-size:13px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>${escHtml(m.fileName||m.fileType)}</a>`;}
-const messages=(c.messages&&c.messages.length)?`<div class="ds">${c.messages.slice().reverse().map((m,mi)=>`<div class="bb ${m.dir==='out'?'out':''}" data-msg-id="${m.id||''}" data-contact-id="${c.id}" oncontextmenu="showMsgMenu(event,this)" style="animation-delay:${Math.min(mi*.04,.4).toFixed(2)}s">${m.fileType?renderAttach(m):''}${m.text?escHtml(m.text):(!m.fileType?'':'')}<div class="bt">${m.time?new Date(m.time).toLocaleTimeString(LANG==='en'?'en':'ru',{hour:'2-digit',minute:'2-digit'}):''}${m.dir==='out'?' <svg viewBox="0 0 16 11" width="16" height="11" style="display:inline;vertical-align:middle;margin-left:2px;opacity:.5"><path d="M11.07.66L5.4 6.4 3.55 4.55l-.92.92L5.4 8.24l6.6-6.66z" fill="currentColor"/><path d="M7.93.66L2.26 6.4.41 4.55l-.92.92 2.77 2.77 6.6-6.66z" fill="currentColor"/></svg>':''}</div></div>`).join('')}</div>`:`<div class="ds"><p style="font-size:14px;color:var(--ink3);text-align:center;padding:40px 20px">${c.linked?i('history_info'):i('unlinked_info')}</p></div>`;
+const messages=(c.messages&&c.messages.length)?`<div class="ds">${c.messages.slice().reverse().map((m,mi)=>`<div class="bb ${m.dir==='out'?'out':''}" data-msg-id="${m.id||''}" data-contact-id="${c.id}" oncontextmenu="showMsgMenu(event,this)" style="animation-delay:${Math.min(mi*.04,.4).toFixed(2)}s">${m.id?`<div class="msg-actions"><button title="${LANG==='en'?'Copy':'Копировать'}" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.bb').innerText.replace(/\\d{2}:\\d{2}$/,'').trim());nt('${LANG==='en'?'Copied':'Скопировано'}')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button><button class="msg-del-btn" title="${LANG==='en'?'Delete':'Удалить'}" onclick="event.stopPropagation();deleteMessage(${m.id},${c.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`:''}<div class="msg-text-wrap">${m.fileType?renderAttach(m):''}${m.text?escHtml(m.text):(!m.fileType?'':'')}</div><div class="bt">${m.time?new Date(m.time).toLocaleTimeString(LANG==='en'?'en':'ru',{hour:'2-digit',minute:'2-digit'}):''}${m.dir==='out'?' <svg viewBox="0 0 16 11" width="16" height="11" style="display:inline;vertical-align:middle;margin-left:2px;opacity:.5"><path d="M11.07.66L5.4 6.4 3.55 4.55l-.92.92L5.4 8.24l6.6-6.66z" fill="currentColor"/><path d="M7.93.66L2.26 6.4.41 4.55l-.92.92 2.77 2.77 6.6-6.66z" fill="currentColor"/></svg>':''}</div></div>`).join('')}</div>`:`<div class="ds"><p style="font-size:14px;color:var(--ink3);text-align:center;padding:40px 20px">${c.linked?i('history_info'):i('unlinked_info')}</p></div>`;
 dc.innerHTML=`<div class="detail-topbar"><div class="ttl">${i('contact')}</div><button class="detail-close" onclick="cD()"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="detail-shell">
 <div class="detail-hero" onclick="toggleContactSettings()">${avHtmlDetail(c)}<div class="dn"><h3>${escHtml(c.name||'—')}</h3><p>${c.username?'@'+escHtml(c.username):i('no_username')}</p></div></div>
 <div class="chat-area">${messages}
