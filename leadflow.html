@@ -1953,7 +1953,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
 
   /* -- SIDEBAR (LeftColumn analog): 345px, bg #212121 — matches web.telegram.org/a/ -- */
-  #p-in{position:relative}
+  #p-in{position:relative;background:#212121!important;width:345px!important;min-width:345px!important;flex-shrink:0!important}
   /* Sidebar header — matches SidebarHeader: height 56, padding 6px 13px 8px */
   #p-in .hdr{
     position:absolute!important;top:0;left:0;width:345px;
@@ -2039,7 +2039,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .cd-swipe-bg{display:none!important}
   .cd{
     margin:0 8px 0 0!important;border-radius:10px!important;border:none!important;
-    background:transparent!important;padding:9px!important;height:72px!important;
+    background:transparent!important;padding:8px 9px!important;height:auto!important;min-height:52px!important;
     cursor:pointer!important;transition:background-color .15s ease!important;
     border-bottom:none!important;display:flex!important;align-items:center!important;gap:0!important;
   }
@@ -2050,10 +2050,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .cd-user .un{font-weight:500!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:#fff!important;font-size:16px!important;line-height:24px!important}
   .cd-user .uh{display:none!important}
   .cd-time{font-size:14px!important;color:rgb(170,170,170)!important;font-weight:400!important;line-height:14px!important;flex-shrink:0!important}
-  .cd-msg{font-size:16px!important;color:rgb(170,170,170)!important;line-height:24px!important;
-    -webkit-line-clamp:1!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
-    font-weight:400!important;height:24px!important;display:block!important;
-  }
+  .cd-msg{display:none!important}
   .cd-tags,.cd-ai,.cd-ctx,.cd .str{display:none!important}
 
   /* Active / selected chat — full purple fill (var(--tg-chat-active)) */
@@ -2849,6 +2846,13 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .cd-swipe-wrap,.cd,.bb,.tk,.stat,.sg,.profile-hero-card,.sp-card,.stm-item,.tk.just-done{
     animation:none!important;
   }
+  /* BUT: new sent messages get a pop-in animation */
+  @keyframes msgSendPop{
+    0%{opacity:0;transform:translateY(12px) scale(.92)}
+    60%{opacity:1;transform:translateY(-2px) scale(1.01)}
+    100%{opacity:1;transform:none}
+  }
+  .bb.bb-new{animation:msgSendPop .3s cubic-bezier(.22,1,.36,1) both!important}
   /* Keep page-level fade-in only on initial open (.pg.on uses fadeIn .2s — that's fine) */
 }
 
@@ -3889,7 +3893,7 @@ document.addEventListener('click',()=>{try{if(!audioCtx)audioCtx=new(window.Audi
 function nt(t){const tc=document.getElementById('toastContainer');if(tc){const d=document.createElement('div');d.className='toast';d.textContent=t;tc.appendChild(d);setTimeout(()=>{d.classList.add('out');d.addEventListener('animationend',()=>d.remove(),{once:true})},2400);if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.impactOccurred('light')}catch(e){}}else if(tg)tg.showAlert(t);else alert(t)}
 function notifyNewMessage(){try{if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');else if(navigator.vibrate)navigator.vibrate([100,50,100]);playNotifSound();}catch(e){}}
 const _localSent={};
-async function sendReply(contactId){const inp=document.getElementById('replyInp');const text=(inp?.value||'').trim();if(!text)return;const btn=document.getElementById('replyBtn');btn.disabled=true;btn.textContent=i('sending');try{await apiFetch('/api/reply',{contact_id:contactId,text:text});const msg={dir:'out',text:text,time:new Date().toISOString(),_local:true};if(!_localSent[contactId])_localSent[contactId]=[];_localSent[contactId].push(msg);const c=C.find(x=>x.id===contactId);if(c){c.messages.push(msg);const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId)buildDetailContent(idx);}inp.value='';await syncSnapshot(true);nt(i('msg_sent'));}catch(e){console.error(e);nt(i('send_err')+(e.message||e));}finally{btn.disabled=false;btn.textContent=i('send');}}
+async function sendReply(contactId){const inp=document.getElementById('replyInp');const text=(inp?.value||'').trim();if(!text)return;const btn=document.getElementById('replyBtn');btn.disabled=true;btn.textContent=i('sending');try{await apiFetch('/api/reply',{contact_id:contactId,text:text});const msg={dir:'out',text:text,time:new Date().toISOString(),_local:true};if(!_localSent[contactId])_localSent[contactId]=[];_localSent[contactId].push(msg);const c=C.find(x=>x.id===contactId);if(c){c.messages.push(msg);const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId){buildDetailContent(idx);const _bbs=document.querySelectorAll('.bb.out');const _lb=_bbs.length?_bbs[_bbs.length-1]:null;if(_lb){_lb.classList.add('bb-new');setTimeout(()=>_lb.classList.remove('bb-new'),400);}const _ds=document.querySelector('.chat-area .ds');if(_ds)_ds.scrollTop=_ds.scrollHeight;}}inp.value='';await syncSnapshot(true);nt(i('msg_sent'));}catch(e){console.error(e);nt(i('send_err')+(e.message||e));}finally{btn.disabled=false;btn.textContent=i('send');}}
 function useTemplate(text){const inp=document.getElementById('replyInp');if(inp){inp.value=text;inp.focus();}}
 async function handleFileSelect(contactId, input){
   const file=input.files&&input.files[0];if(!file)return;
