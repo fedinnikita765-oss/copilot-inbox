@@ -2617,27 +2617,31 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     transition:transform .15s var(--ease),background .15s ease,box-shadow .2s ease!important;
     position:relative!important;
   }
-  .nb svg,.nb .ic{width:22px!important;height:22px!important;stroke-width:2!important;
-    transition:transform .15s var(--ease),color .15s ease,filter .2s ease!important;color:inherit!important}
-  .nb span{font-size:9.5px!important;font-weight:600!important;letter-spacing:.01em!important;opacity:.9!important;line-height:11px!important}
+  .nb svg,.nb .ic{width:22px!important;height:22px!important;stroke-width:1.8!important;
+    transition:color .15s ease!important;color:inherit!important;filter:none!important}
+  .nb span{font-size:9px!important;font-weight:500!important;letter-spacing:.02em!important;opacity:.7!important;line-height:11px!important}
+  /* Kill ALL legacy glow/sweep effects from mobile styles */
+  .nb::after,.nb::before{display:none!important;content:none!important}
+  .nb:active{transform:none!important}
 
-  /* Per-button color tints on hover (preview the page accent) */
-  .nb:nth-of-type(1):hover{color:#7CC2FF!important}                /* Inbox — blue */
-  .nb:nth-of-type(2):hover{color:#5DD39E!important}                /* Tasks — green */
-  .nb:nth-of-type(3):hover{color:#FFB454!important}                /* Analytics — amber */
-  .nb:nth-of-type(4):hover{color:#C896FF!important}                /* Settings — purple */
+  /* Per-button color tints on hover */
+  .nb:nth-of-type(1):hover{color:#7CC2FF!important}
+  .nb:nth-of-type(2):hover{color:#5DD39E!important}
+  .nb:nth-of-type(3):hover{color:#FFB454!important}
+  .nb:nth-of-type(4):hover{color:#C896FF!important}
   .nb-logout:hover{color:#FF7B7B!important}
 
-  .nb:hover{background:rgba(255,255,255,.05)!important;transform:translateY(-1px)!important}
+  .nb:hover{background:rgba(255,255,255,.04)!important;transform:none!important}
+  .nb:hover span{opacity:1!important}
 
-  /* Active state — vivid purple pill */
+  /* Active state — clean highlight, no glow/shadow */
   .nb.on,.nb.nav-active{
-    background:linear-gradient(180deg,rgba(135,116,225,.28) 0%,rgba(135,116,225,.12) 100%)!important;
-    color:#fff!important;
-    box-shadow:inset 0 0 0 1px rgba(135,116,225,.42),0 6px 18px rgba(135,116,225,.22)!important;
+    background:rgba(135,116,225,.15)!important;
+    color:#C8BAFF!important;
+    box-shadow:none!important;
   }
-  .nb.on svg,.nb.nav-active svg{color:#C8BAFF!important;filter:drop-shadow(0 2px 6px rgba(135,116,225,.5))!important}
-  .nb.on span,.nb.nav-active span{color:#fff!important;opacity:1!important}
+  .nb.on svg,.nb.nav-active svg{color:#C8BAFF!important;filter:none!important}
+  .nb.on span,.nb.nav-active span{color:#C8BAFF!important;opacity:1!important}
 
   .nb-logout{margin-top:auto!important}
 
@@ -2846,13 +2850,23 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .cd-swipe-wrap,.cd,.bb,.tk,.stat,.sg,.profile-hero-card,.sp-card,.stm-item,.tk.just-done{
     animation:none!important;
   }
-  /* BUT: new sent messages get a pop-in animation */
-  @keyframes msgSendPop{
-    0%{opacity:0;transform:translateY(12px) scale(.92)}
-    60%{opacity:1;transform:translateY(-2px) scale(1.01)}
+  /* New sent messages: fly-up + elastic bounce */
+  @keyframes msgSendFly{
+    0%{opacity:0;transform:translateY(40px) scale(.85)}
+    40%{opacity:1;transform:translateY(-6px) scale(1.03)}
+    70%{transform:translateY(2px) scale(.99)}
     100%{opacity:1;transform:none}
   }
-  .bb.bb-new{animation:msgSendPop .3s cubic-bezier(.22,1,.36,1) both!important}
+  @keyframes msgSendGlow{
+    0%{box-shadow:0 2px 8px rgba(135,116,225,.5),0 0 20px rgba(135,116,225,.3)}
+    100%{box-shadow:0 2px 8px rgba(118,106,200,.35),0 1px 3px rgba(0,0,0,.2)}
+  }
+  .bb.bb-new.out{
+    animation:msgSendFly .45s cubic-bezier(.22,1,.36,1) both, msgSendGlow .6s ease .3s both!important;
+  }
+  .bb.bb-new:not(.out){
+    animation:msgSendFly .4s cubic-bezier(.22,1,.36,1) both!important;
+  }
   /* Keep page-level fade-in only on initial open (.pg.on uses fadeIn .2s — that's fine) */
 }
 
@@ -3893,7 +3907,7 @@ document.addEventListener('click',()=>{try{if(!audioCtx)audioCtx=new(window.Audi
 function nt(t){const tc=document.getElementById('toastContainer');if(tc){const d=document.createElement('div');d.className='toast';d.textContent=t;tc.appendChild(d);setTimeout(()=>{d.classList.add('out');d.addEventListener('animationend',()=>d.remove(),{once:true})},2400);if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.impactOccurred('light')}catch(e){}}else if(tg)tg.showAlert(t);else alert(t)}
 function notifyNewMessage(){try{if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');else if(navigator.vibrate)navigator.vibrate([100,50,100]);playNotifSound();}catch(e){}}
 const _localSent={};
-async function sendReply(contactId){const inp=document.getElementById('replyInp');const text=(inp?.value||'').trim();if(!text)return;const btn=document.getElementById('replyBtn');btn.disabled=true;btn.textContent=i('sending');try{await apiFetch('/api/reply',{contact_id:contactId,text:text});const msg={dir:'out',text:text,time:new Date().toISOString(),_local:true};if(!_localSent[contactId])_localSent[contactId]=[];_localSent[contactId].push(msg);const c=C.find(x=>x.id===contactId);if(c){c.messages.push(msg);const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId){buildDetailContent(idx);const _bbs=document.querySelectorAll('.bb.out');const _lb=_bbs.length?_bbs[_bbs.length-1]:null;if(_lb){_lb.classList.add('bb-new');setTimeout(()=>_lb.classList.remove('bb-new'),400);}const _ds=document.querySelector('.chat-area .ds');if(_ds)_ds.scrollTop=_ds.scrollHeight;}}inp.value='';await syncSnapshot(true);nt(i('msg_sent'));}catch(e){console.error(e);nt(i('send_err')+(e.message||e));}finally{btn.disabled=false;btn.textContent=i('send');}}
+async function sendReply(contactId){const inp=document.getElementById('replyInp');const text=(inp?.value||'').trim();if(!text)return;const btn=document.getElementById('replyBtn');btn.disabled=true;btn.textContent=i('sending');try{await apiFetch('/api/reply',{contact_id:contactId,text:text});const msg={dir:'out',text:text,time:new Date().toISOString(),_local:true};if(!_localSent[contactId])_localSent[contactId]=[];_localSent[contactId].push(msg);const c=C.find(x=>x.id===contactId);if(c){c.messages.push(msg);const idx=C.indexOf(c);if(idx>=0&&openDetailId===contactId){buildDetailContent(idx);setTimeout(()=>{const _bbs=document.querySelectorAll('.chat-area .bb.out');const _lb=_bbs.length?_bbs[_bbs.length-1]:null;if(_lb){_lb.classList.add('bb-new');setTimeout(()=>_lb.classList.remove('bb-new'),800);}const _ds=document.querySelector('.chat-area .ds');if(_ds)_ds.scrollTop=0;},30);}}inp.value='';await syncSnapshot(true);nt(i('msg_sent'));}catch(e){console.error(e);nt(i('send_err')+(e.message||e));}finally{btn.disabled=false;btn.textContent=i('send');}}
 function useTemplate(text){const inp=document.getElementById('replyInp');if(inp){inp.value=text;inp.focus();}}
 async function handleFileSelect(contactId, input){
   const file=input.files&&input.files[0];if(!file)return;
@@ -4766,11 +4780,25 @@ window._tgLoginClick = function() {
     }
   }
   // Re-inject after buildDetailContent
+  let _prevMsgCount = 0;
   const _origBuild = window.buildDetailContent;
   if(typeof _origBuild === 'function'){
     window.buildDetailContent = function(){
+      const prevCount = _prevMsgCount;
       _origBuild.apply(this, arguments);
       setTimeout(injectScrollBtn, 50);
+      // Animate new incoming messages
+      setTimeout(()=>{
+        const allBb = document.querySelectorAll('.chat-area .bb');
+        if(allBb.length > prevCount && prevCount > 0){
+          const newest = allBb[allBb.length - 1];
+          if(newest && !newest.classList.contains('bb-new')){
+            newest.classList.add('bb-new');
+            setTimeout(()=>newest.classList.remove('bb-new'), 800);
+          }
+        }
+        _prevMsgCount = allBb.length;
+      }, 40);
     };
   }
 
