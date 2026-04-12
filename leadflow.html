@@ -2031,12 +2031,8 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   #p-in #cl::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.3)}
   #p-in #kanban{display:none!important}
 
-  /* Vertical divider between sidebar and chat area */
-  #p-in::after{
-    content:""!important;position:absolute!important;top:0!important;bottom:0!important;
-    left:345px!important;width:1px!important;
-    background:var(--border)!important;z-index:9!important;pointer-events:none!important;
-  }
+  /* Vertical divider — removed (user request) */
+  #p-in::after{display:none!important}
 
   /* -- CHAT ROW (.cd) — matches ChatItem in clone exactly: 72px / 9px pad / 10px radius -- */
   .cd-swipe-wrap{margin:0!important;padding:0!important;animation:fadeIn .25s var(--ease) both!important}
@@ -2092,7 +2088,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   /* -- DETAIL / CHAT PANEL -- */
   .ov{display:none!important}
   #pn,#pn.on,.pn,.pn.on{
-    position:fixed!important;top:0!important;left:410px!important;right:0!important;bottom:0!important;
+    position:fixed!important;top:0!important;left:417px!important;right:0!important;bottom:0!important;
     background:var(--bg-primary)!important;
     padding:0!important;overflow:hidden!important;
     display:flex!important;flex-direction:column!important;
@@ -2660,7 +2656,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* Sidebar gets a marginally lighter tint to differentiate from chat area */
   #p-in .hdr,#p-in #cl,#p-in .fb{background:#212121!important}
-  #p-in::after{background:rgba(255,255,255,.05)!important;left:345px!important}
+  #p-in::after{display:none!important}
 
   /* ---------- UNIFIED PAGE HEADERS (56px MiddleHeader pattern) ---------- */
   #p-tk,#p-an,#p-st{padding:0!important;max-width:none!important;margin:0!important;width:100%!important}
@@ -3069,19 +3065,33 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
      CHAT PREMIUM REDESIGN — maximum product feel
      ========================================================== */
 
-  /* -- CHAT AREA: textured background with subtle pattern -- */
+  /* -- CHAT AREA: Telegram-style wallpaper -- */
   .chat-area{
-    background:#181818!important;
+    background:#0d0d0e!important;
     position:relative!important;
+    overflow:hidden!important;
   }
+  /* Layer 1: ambient color blobs (like Telegram dark wallpaper) */
+  .chat-area::before{
+    content:""!important;display:block!important;
+    position:absolute!important;inset:0!important;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 85%, rgba(135,116,225,.10) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 85% 15%, rgba(92,175,250,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 55% 45% at 50% 50%, rgba(93,211,158,.05) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 55% at 75% 75%, rgba(251,191,36,.04) 0%, transparent 70%)!important;
+    pointer-events:none!important;z-index:0!important;
+    opacity:1!important;
+  }
+  /* Layer 2: Telegram-style doodle pattern (subtle icons/shapes) */
   .chat-area::after{
     content:""!important;display:block!important;
     position:absolute!important;inset:0!important;
-    background-image:
-      radial-gradient(circle at 1px 1px, rgba(255,255,255,.018) 1px, transparent 0),
-      linear-gradient(180deg, rgba(135,116,225,.03) 0%, transparent 30%, transparent 70%, rgba(135,116,225,.02) 100%)!important;
-    background-size: 20px 20px, 100% 100%!important;
+    opacity:.035!important;
     pointer-events:none!important;z-index:0!important;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='%23fff' fill-opacity='1'%3E%3Ccircle cx='20' cy='20' r='4'/%3E%3Ccircle cx='100' cy='30' r='3'/%3E%3Ccircle cx='170' cy='55' r='5'/%3E%3Ccircle cx='50' cy='90' r='3'/%3E%3Ccircle cx='140' cy='100' r='4'/%3E%3Ccircle cx='30' cy='150' r='3'/%3E%3Ccircle cx='180' cy='140' r='4'/%3E%3Ccircle cx='90' cy='170' r='5'/%3E%3Ccircle cx='160' cy='185' r='3'/%3E%3Cpath d='M65 45l4-8 4 8-8-5h9z' fill-rule='evenodd'/%3E%3Cpath d='M125 75l3-6 3 6-6-4h7z' fill-rule='evenodd'/%3E%3Cpath d='M45 130l3-6 3 6-6-4h7z' fill-rule='evenodd'/%3E%3Cpath d='M155 160l4-8 4 8-8-5h9z' fill-rule='evenodd'/%3E%3Cpath d='M75 15 L80 5 L85 15 L75 15 Z'/%3E%3Cpath d='M110 140 L115 130 L120 140 L110 140 Z'/%3E%3Crect x='95' y='60' width='6' height='6' rx='1' transform='rotate(45 98 63)'/%3E%3Crect x='15' y='70' width='5' height='5' rx='1' transform='rotate(30 17 72)'/%3E%3Crect x='170' y='110' width='6' height='6' rx='1' transform='rotate(20 173 113)'/%3E%3Cpath d='M60 175 Q65 168 70 175 Q65 170 60 175Z'/%3E%3Cpath d='M135 25 Q140 18 145 25 Q140 20 135 25Z'/%3E%3Cpath d='M25 40 Q30 33 35 40 Q30 35 25 40Z'/%3E%3Cpath d='M175 80 Q180 73 185 80 Q180 75 175 80Z'/%3E%3C/g%3E%3C/svg%3E")!important;
+    background-repeat:repeat!important;
+    background-size:200px 200px!important;
   }
   .chat-area > .ds{
     z-index:1!important;position:relative!important;
