@@ -1924,7 +1924,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .nav{
     position:fixed!important;top:0;left:0;bottom:0;width:72px!important;
     flex-direction:column!important;justify-content:flex-start!important;align-items:center!important;
-    border-top:none!important;border-right:1px solid rgba(255,255,255,.06)!important;
+    border-top:none!important;border-right:none!important;
     background:linear-gradient(180deg,#1a1a1a 0%,#181818 100%)!important;backdrop-filter:none!important;
     padding:14px 0!important;gap:2px!important;z-index:100;
   }
@@ -1964,11 +1964,11 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
 
   /* -- SIDEBAR (LeftColumn analog): 345px, bg #212121 — matches web.telegram.org/a/ -- */
-  #p-in{position:relative;background:linear-gradient(180deg,#222 0%,#1e1e1e 100%)!important;width:345px!important;min-width:345px!important;flex-shrink:0!important;border-right:1px solid rgba(255,255,255,.04)!important}
+  #p-in{position:relative;background:linear-gradient(180deg,#222 0%,#1e1e1e 100%)!important;width:345px!important;min-width:345px!important;flex-shrink:0!important;border-right:none!important}
   /* Sidebar header — matches SidebarHeader: height 56, padding 6px 13px 8px */
   #p-in .hdr{
     position:absolute!important;top:0;left:0;width:345px;
-    background:linear-gradient(180deg,#282828 0%,#232323 100%)!important;border-bottom:1px solid rgba(255,255,255,.04)!important;
+    background:linear-gradient(180deg,#282828 0%,#232323 100%)!important;border-bottom:none!important;
     backdrop-filter:none!important;padding:0!important;z-index:10;
     height:56px!important;display:flex!important;align-items:center!important;
   }
@@ -2050,16 +2050,16 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .cd-swipe-bg{display:none!important}
   .cd{
     margin:0 8px 0 0!important;border-radius:10px!important;border:none!important;
-    background:transparent!important;padding:8px 9px!important;height:auto!important;min-height:52px!important;
+    background:transparent!important;padding:12px 14px!important;height:auto!important;min-height:62px!important;
     cursor:pointer!important;transition:background-color .15s ease!important;
-    border-bottom:none!important;display:flex!important;align-items:center!important;gap:0!important;
+    border-bottom:none!important;border:none!important;display:flex!important;align-items:center!important;gap:0!important;
     backdrop-filter:none!important;-webkit-backdrop-filter:none!important;outline:none!important;
-    overflow:visible!important;
+    overflow:visible!important;margin:0!important;border-radius:10px!important;
   }
   .cd::before,.cd::after{display:none!important;content:none!important}
   .cd:hover{background:rgba(255,255,255,.04)!important}
   .cd:active{background:rgba(255,255,255,.06)!important;transform:none!important}
-  .cd-top{margin-bottom:0!important;gap:8px!important;display:flex!important;align-items:center!important;height:24px!important}
+  .cd-top{margin-bottom:0!important;gap:10px!important;display:flex!important;align-items:center!important;height:auto!important}
   .cd-user{font-size:16px!important;font-weight:500!important;color:#fff!important;line-height:24px!important;flex:1!important;min-width:0!important;display:flex!important;align-items:center!important;gap:4px!important}
   .cd-user .un{font-weight:500!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:#fff!important;font-size:16px!important;line-height:24px!important}
   .cd-user .uh{display:none!important}
@@ -2082,9 +2082,9 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     font-family:'Roboto',sans-serif!important;
   }
   /* Avatar — 54×54, Nunito 23, font-weight 700, white text (clone ChatItem spec) */
-  .cd .av,#cl .av{width:54px!important;height:54px!important;border-radius:50%!important;
-    font-size:23px!important;font-family:'Nunito',-apple-system,sans-serif!important;font-weight:700!important;
-    flex-shrink:0!important;margin-right:8px!important;line-height:1!important;color:#fff!important;
+  .cd .av,#cl .av{width:58px!important;height:58px!important;border-radius:50%!important;
+    font-size:24px!important;font-family:'Nunito',-apple-system,sans-serif!important;font-weight:700!important;
+    flex-shrink:0!important;margin-right:10px!important;line-height:1!important;color:#fff!important;
     display:flex!important;align-items:center!important;justify-content:center!important;
     transition:transform .15s ease!important;
   }
@@ -2619,7 +2619,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .nav{
     width:72px!important;
     background:linear-gradient(180deg,#1f1f1f 0%,#181818 100%)!important;
-    border-right:1px solid rgba(255,255,255,.06)!important;
+    border-right:none!important;
     padding:14px 6px 12px!important;gap:4px!important;
   }
   .nav-active{display:none!important}
@@ -2806,7 +2806,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
 
   /* Sidebar header divider */
-  #p-in .fb{border-bottom:1px solid rgba(255,255,255,.06)!important}
+  #p-in .fb{border-bottom:none!important}
 
   /* Settings sub-page (.sp) shares same bg */
   .sp{left:72px!important}
@@ -2893,13 +2893,8 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
    ============================================================ */
 @media(min-width:900px){
 
-  /* ---------- TOP ACCENT STRIPE (Linear/GitHub style) ---------- */
-  body::before{
-    content:""!important;display:block!important;position:fixed!important;
-    top:0!important;left:0!important;right:0!important;height:2px!important;
-    background:linear-gradient(90deg,#8774E1,#6C5EC7 30%,#5CAFFA 60%,#5DD39E 100%)!important;
-    z-index:9999!important;pointer-events:none!important;
-  }
+  /* ---------- TOP ACCENT STRIPE — hidden for cleaner look ---------- */
+  body::before{display:none!important}
 
   /* ---------- CONTACT PANEL: proper dark background ---------- */
   .settings-panel{
@@ -3137,7 +3132,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   .detail-hero{
     background:linear-gradient(180deg,#2a2a2a 0%,#242424 100%)!important;
     border-bottom:none!important;
-    box-shadow:0 1px 0 rgba(255,255,255,.04), 0 4px 16px rgba(0,0,0,.3)!important;
+    box-shadow:none!important;
     padding:6px 16px 6px 20px!important;height:60px!important;
     z-index:3!important;
   }
@@ -3396,15 +3391,12 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   /* But still kill on specific elements that shouldn't have mobile shadows */
   body.theme-light .cd-swipe-wrap,body.theme-light .cd-swipe-bg{box-shadow:none!important}
 
-  /* Accent stripe — warm */
-  body.theme-light::before{
-    background:linear-gradient(90deg,#d4531a,#e06530 30%,#2563a0 60%,#1a7a4c 100%)!important;
-  }
+  body.theme-light::before{display:none!important}
 
   /* ===== NAV — mobile glassmorphism style ===== */
   body.theme-light .nav{
     background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.72))!important;
-    border-right:1px solid rgba(0,0,0,.06)!important;
+    border-right:none!important;
     backdrop-filter:blur(18px) saturate(145%)!important;-webkit-backdrop-filter:blur(18px) saturate(145%)!important;
   }
   body.theme-light .nb{
@@ -3450,7 +3442,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   /* ===== SIDEBAR (contact list) ===== */
   body.theme-light #p-in{
     background:linear-gradient(180deg,#fdfbf8,#faf8f5)!important;
-    border-right:1px solid rgba(0,0,0,.06)!important;
+    border-right:none!important;
   }
   body.theme-light #p-in .hdr,
   body.theme-light #p-in #cl,
@@ -3459,7 +3451,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
   body.theme-light #p-in .hdr{
     background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.72))!important;
-    border-bottom:1px solid rgba(0,0,0,.06)!important;
+    border-bottom:none!important;
     backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
   }
   body.theme-light #p-in .hdr .ttl{color:#1c1917!important}
@@ -3492,30 +3484,26 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
 
   /* Contact cards */
   body.theme-light .cd{
-    background:linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.45))!important;
-    border:1px solid rgba(255,255,255,.7)!important;
-    border-radius:16px!important;
-    box-shadow:0 4px 12px rgba(28,25,23,.04)!important;
-    margin:0 8px 6px 0!important;padding:10px 12px!important;
-    backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;
+    background:transparent!important;
+    border:none!important;
+    border-radius:10px!important;
+    box-shadow:none!important;
+    margin:0!important;padding:12px 14px!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
   }
-  body.theme-light .cd::before{
-    display:block!important;content:""!important;
-    position:absolute!important;inset:0!important;pointer-events:none!important;
-    background:linear-gradient(180deg, rgba(255,255,255,.3), transparent 50%)!important;
-    opacity:.6!important;border-radius:16px!important;
-  }
+  body.theme-light .cd::before,.cd::after{display:none!important;content:none!important}
   body.theme-light .cd:hover{
-    background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.65))!important;
-    box-shadow:0 8px 24px rgba(28,25,23,.07)!important;
-    transform:translateY(-1px)!important;
+    background:rgba(0,0,0,.03)!important;
+    box-shadow:none!important;
+    transform:none!important;
   }
-  body.theme-light .cd:active{transform:scale(.98)!important}
+  body.theme-light .cd:active{transform:none!important;background:rgba(0,0,0,.05)!important}
   body.theme-light .cd.active,body.theme-light .cd[data-active="true"]{
-    background:linear-gradient(180deg, rgba(212,83,26,.12), rgba(212,83,26,.06))!important;
-    border-color:rgba(212,83,26,.2)!important;
+    background:linear-gradient(90deg,rgba(212,83,26,.10) 0%,rgba(212,83,26,.04) 100%)!important;
+    border:none!important;
     border-left:3px solid #d4531a!important;
-    box-shadow:0 10px 24px rgba(212,83,26,.1)!important;
+    box-shadow:none!important;
+    border-radius:0 10px 10px 0!important;
   }
   body.theme-light .cd-user .un{color:#1c1917!important}
   body.theme-light .cd-time{color:#a8a29e!important}
@@ -3529,8 +3517,8 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   /* Chat header */
   body.theme-light .detail-hero{
     background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.78))!important;
-    border-bottom:1px solid rgba(0,0,0,.06)!important;
-    box-shadow:0 4px 16px rgba(28,25,23,.04)!important;
+    border-bottom:none!important;
+    box-shadow:none!important;
     backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
   }
   body.theme-light .detail-hero:hover{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.85))!important}
@@ -3544,7 +3532,7 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   }
   body.theme-light .detail-close{color:#78716c!important}
   body.theme-light .detail-close:hover{color:#1c1917!important}
-  body.theme-light .detail-topbar{background:rgba(255,255,255,.9)!important;border-bottom:1px solid rgba(0,0,0,.06)!important}
+  body.theme-light .detail-topbar{background:rgba(255,255,255,.9)!important;border-bottom:none!important}
   body.theme-light .detail-topbar .ttl{color:#1c1917!important}
 
   /* Chat wallpaper */
