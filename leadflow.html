@@ -3065,6 +3065,241 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
     max-width:340px!important;
   }
 
+  /* ==========================================================
+     CHAT PREMIUM REDESIGN — maximum product feel
+     ========================================================== */
+
+  /* -- CHAT AREA: textured background with subtle pattern -- */
+  .chat-area{
+    background:#181818!important;
+    position:relative!important;
+  }
+  .chat-area::after{
+    content:""!important;display:block!important;
+    position:absolute!important;inset:0!important;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,.018) 1px, transparent 0),
+      linear-gradient(180deg, rgba(135,116,225,.03) 0%, transparent 30%, transparent 70%, rgba(135,116,225,.02) 100%)!important;
+    background-size: 20px 20px, 100% 100%!important;
+    pointer-events:none!important;z-index:0!important;
+  }
+  .chat-area > .ds{
+    z-index:1!important;position:relative!important;
+    padding:12px 0 8px!important;gap:2px!important;
+  }
+
+  /* -- CHAT HEADER: premium gradient + bottom glow -- */
+  .detail-hero{
+    background:linear-gradient(180deg,#2a2a2a 0%,#242424 100%)!important;
+    border-bottom:none!important;
+    box-shadow:0 1px 0 rgba(255,255,255,.04), 0 4px 16px rgba(0,0,0,.3)!important;
+    padding:6px 16px 6px 20px!important;height:60px!important;
+    z-index:3!important;
+  }
+  .detail-hero:hover{background:linear-gradient(180deg,#2e2e2e 0%,#282828 100%)!important}
+
+  /* Header avatar — ring + shadow */
+  .da{
+    width:42px!important;height:42px!important;font-size:17px!important;
+    box-shadow:0 2px 8px rgba(0,0,0,.3), inset 0 0 0 1px rgba(255,255,255,.08)!important;
+  }
+
+  /* Header name — bolder */
+  .detail-hero .dn h3{
+    font-size:15px!important;font-weight:600!important;
+    letter-spacing:-.01em!important;
+  }
+  /* Online status text — accent for "online" */
+  .detail-hero .dn p{
+    font-size:13px!important;color:rgb(140,140,140)!important;
+  }
+
+  /* Settings toggle (gear) button in header */
+  .detail-hero button,
+  .detail-hero .hdr-btn{
+    width:36px!important;height:36px!important;border-radius:50%!important;
+    background:rgba(255,255,255,.04)!important;border:none!important;
+    color:rgb(170,170,170)!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    transition:background .15s ease,color .15s ease!important;
+    cursor:pointer!important;flex-shrink:0!important;
+  }
+  .detail-hero button:hover,
+  .detail-hero .hdr-btn:hover{
+    background:rgba(255,255,255,.08)!important;color:#fff!important;
+  }
+
+  /* -- BUBBLES: premium feel -- */
+  .bb{
+    padding:7px 12px 8px!important;
+    font-size:15px!important;line-height:22px!important;
+    margin:2px 16px!important;
+    letter-spacing:.01em!important;
+    border:none!important;
+    transition:transform .1s ease, box-shadow .15s ease!important;
+    cursor:default!important;
+  }
+  .bb:hover{transform:scale(1.005)!important}
+
+  /* Incoming bubbles */
+  .bb:not(.out){
+    background:linear-gradient(180deg,#333 0%,#2c2c2c 100%)!important;
+    border-radius:18px 18px 18px 6px!important;
+    margin-left:16px!important;margin-right:auto!important;
+    max-width:440px!important;
+    box-shadow:0 1px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04)!important;
+  }
+  .bb:not(.out):hover{
+    background:linear-gradient(180deg,#383838 0%,#303030 100%)!important;
+  }
+
+  /* Own bubbles — gradient purple */
+  .bb.out{
+    background:linear-gradient(135deg,#8774E1 0%,#7161c7 50%,#6454b0 100%)!important;
+    border-radius:18px 18px 6px 18px!important;
+    margin-right:16px!important;margin-left:auto!important;
+    max-width:440px!important;
+    box-shadow:0 2px 8px rgba(118,106,200,.35), 0 1px 3px rgba(0,0,0,.2)!important;
+    color:#fff!important;
+  }
+  .bb.out:hover{
+    background:linear-gradient(135deg,#9080ed 0%,#7a6ad0 50%,#6c5cba 100%)!important;
+    box-shadow:0 4px 16px rgba(118,106,200,.4), 0 1px 3px rgba(0,0,0,.2)!important;
+  }
+
+  /* Timestamp — refined */
+  .bb .bt{
+    font-size:11px!important;margin-top:3px!important;margin-left:10px!important;
+    color:rgba(255,255,255,.4)!important;line-height:14px!important;
+    font-weight:400!important;letter-spacing:.02em!important;
+  }
+  .bb.out .bt{color:rgba(255,255,255,.65)!important}
+  .bb .bt svg{width:15px!important;height:10px!important;opacity:.7!important}
+  .bb.out .bt svg{opacity:1!important}
+
+  /* Links in messages */
+  .bb a{color:#93c5fd!important;text-decoration:none!important;font-weight:500!important}
+  .bb a:hover{text-decoration:underline!important}
+  .bb.out a{color:rgba(255,255,255,.9)!important;text-decoration:underline!important}
+
+  /* AI response indicator (border-left accent on AI replies) */
+  .bb.ai-reply,.cd-ai{
+    border-left:3px solid #C8BAFF!important;
+    background:linear-gradient(90deg,rgba(135,116,225,.08) 0%,#2c2c2c 24px)!important;
+    border-radius:4px 18px 18px 4px!important;
+    padding-left:12px!important;
+  }
+
+  /* -- DATE SEPARATORS: frosted glass pills -- */
+  .chat-area .date-label,
+  .chat-area h4,
+  .chat-area > .ds > .date-group{
+    display:flex!important;justify-content:center!important;
+    padding:8px 0!important;margin:4px 0!important;
+    font-size:12px!important;font-weight:600!important;
+    color:rgba(255,255,255,.6)!important;
+    letter-spacing:.03em!important;
+  }
+  .chat-area .date-label span,
+  .chat-area h4 span{
+    background:rgba(30,30,30,.85)!important;
+    backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+    padding:4px 14px!important;border-radius:999px!important;
+    border:1px solid rgba(255,255,255,.06)!important;
+    font-size:12px!important;
+  }
+
+  /* -- COMPOSER: premium glass pill -- */
+  .chat-reply{
+    padding:8px 16px 16px!important;
+    max-width:700px!important;
+  }
+  .chat-reply > div:last-child{
+    background:linear-gradient(180deg,#2a2a2a 0%,#252525 100%)!important;
+    border-radius:14px!important;min-height:50px!important;
+    box-shadow:0 2px 12px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.03)!important;
+    border:1px solid rgba(255,255,255,.04)!important;
+  }
+  .chat-reply:focus-within > div:last-child{
+    box-shadow:0 2px 12px rgba(0,0,0,.3), 0 0 0 2px rgba(135,116,225,.3), inset 0 1px 0 rgba(255,255,255,.03)!important;
+    border-color:rgba(135,116,225,.25)!important;
+  }
+
+  /* Composer input */
+  #replyInp,.ds textarea.si{
+    font-size:15px!important;padding:13px 10px!important;
+    line-height:22px!important;
+  }
+  #replyInp::placeholder{color:rgba(170,170,170,.5)!important;font-size:14px!important}
+
+  /* Attach btn */
+  .attach-btn,#attachBtn{
+    width:44px!important;height:44px!important;min-width:44px!important;
+    color:rgba(170,170,170,.6)!important;
+    transition:color .15s ease,background .15s ease,transform .1s ease!important;
+  }
+  .attach-btn:hover,#attachBtn:hover{
+    color:rgba(170,170,170,.9)!important;
+    background:rgba(255,255,255,.05)!important;
+  }
+  .attach-btn:active,#attachBtn:active{transform:scale(.9)!important}
+
+  /* Send btn — accent fill on hover */
+  .send-circle,#replyBtn{
+    width:44px!important;height:44px!important;min-width:44px!important;
+    color:var(--accent)!important;
+    transition:all .15s ease!important;
+  }
+  .send-circle:hover,#replyBtn:hover{
+    background:var(--accent)!important;color:#fff!important;
+    border-radius:50%!important;
+    box-shadow:0 2px 8px rgba(135,116,225,.4)!important;
+  }
+  .send-circle:active,#replyBtn:active{transform:scale(.88)!important}
+
+  /* -- CONTEXT MENU: frosted glass -- */
+  .msg-ctx-menu{
+    background:rgba(40,40,40,.92)!important;
+    backdrop-filter:blur(16px) saturate(1.2)!important;
+    -webkit-backdrop-filter:blur(16px) saturate(1.2)!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    border-radius:12px!important;padding:5px!important;min-width:180px!important;
+    box-shadow:0 12px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03)!important;
+  }
+  .msg-ctx-item{
+    padding:9px 14px!important;border-radius:8px!important;
+    font-size:13.5px!important;font-weight:500!important;
+    gap:12px!important;
+    transition:background .1s ease!important;
+  }
+  .msg-ctx-item:hover{background:rgba(255,255,255,.07)!important}
+  .msg-ctx-delete:hover{background:rgba(229,57,53,.12)!important}
+
+  /* -- SCROLL-TO-BOTTOM: glass effect -- */
+  #scrollBottomBtn{
+    background:rgba(40,40,40,.85)!important;
+    backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    box-shadow:0 4px 16px rgba(0,0,0,.4)!important;
+    bottom:80px!important;right:16px!important;
+    width:38px!important;height:38px!important;
+  }
+  #scrollBottomBtn:hover{
+    background:rgba(60,60,60,.9)!important;
+    box-shadow:0 4px 20px rgba(0,0,0,.5)!important;
+  }
+
+  /* -- VOICE NOTE WAVEFORM (if present) -- */
+  .voice-wave{border-radius:12px!important;background:rgba(255,255,255,.04)!important}
+  .voice-wave canvas{border-radius:12px!important}
+
+  /* -- IMAGE MESSAGES -- */
+  .bb img:not(.av img){
+    border-radius:12px!important;
+    box-shadow:0 2px 8px rgba(0,0,0,.3)!important;
+    max-width:100%!important;
+  }
+
   /* ---------- PRINT-FRIENDLY ANALYTICS ---------- */
   @media print{
     .nav,.settings-panel,.chat-reply,.nb,.sp,.mb{display:none!important}
