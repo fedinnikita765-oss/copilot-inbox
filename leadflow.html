@@ -2856,6 +2856,226 @@ html.lite .online-dot{box-shadow:0 0 0 2px rgba(76,175,80,.3)!important}
   /* Keep page-level fade-in only on initial open (.pg.on uses fadeIn .2s — that's fine) */
 }
 
+/* ============================================================
+   DESKTOP v3 — production polish: depth, micro-interactions,
+   contact panel bg, welcome screen, scroll shadows, glow, etc.
+   ============================================================ */
+@media(min-width:900px){
+
+  /* ---------- TOP ACCENT STRIPE (Linear/GitHub style) ---------- */
+  body::before{
+    content:""!important;display:block!important;position:fixed!important;
+    top:0!important;left:0!important;right:0!important;height:2px!important;
+    background:linear-gradient(90deg,#8774E1,#6C5EC7 30%,#5CAFFA 60%,#5DD39E 100%)!important;
+    z-index:9999!important;pointer-events:none!important;
+  }
+
+  /* ---------- CONTACT PANEL: proper dark background ---------- */
+  .settings-panel{
+    background:#1e1e1e!important;
+  }
+  .sp-close{
+    background:#262626!important;
+    border-bottom:1px solid rgba(255,255,255,.06)!important;
+    padding:12px 20px!important;height:48px!important;
+  }
+  .sp-close::after{
+    content:"Contact Info"!important;font-size:15px!important;font-weight:600!important;
+    color:#fff!important;font-family:'Nunito','Roboto',sans-serif!important;letter-spacing:0!important;
+  }
+  .sp-hero{
+    padding:28px 24px 22px!important;
+    background:linear-gradient(180deg,rgba(135,116,225,.10) 0%,transparent 100%)!important;
+    border-bottom:1px solid rgba(255,255,255,.06)!important;
+  }
+  .sp-hero .da{
+    width:80px!important;height:80px!important;font-size:30px!important;
+    margin-bottom:16px!important;
+    box-shadow:0 4px 20px rgba(0,0,0,.4)!important;
+  }
+  .sp-hero .dn h3{font-size:18px!important;font-weight:700!important;margin:0 0 4px!important;letter-spacing:-.01em!important}
+  .sp-hero .dn p{font-size:13px!important;color:rgb(170,170,170)!important}
+
+  .settings-panel > .ds{
+    padding:12px 20px!important;
+    background:#222!important;
+    margin:0!important;
+    border-bottom:1px solid rgba(255,255,255,.05)!important;
+  }
+  .settings-panel > .ds:last-of-type{border-bottom:none!important}
+
+  /* Action buttons — colored icons */
+  .d-btn{
+    background:#262626!important;border:1px solid rgba(255,255,255,.06)!important;
+    border-radius:10px!important;padding:10px 14px!important;font-size:13px!important;
+    font-weight:500!important;
+    transition:background .15s ease,border-color .15s ease,transform .1s ease!important;
+  }
+  .d-btn:active{transform:scale(.97)!important}
+  .d-btn.sec{
+    background:rgba(0,199,62,.08)!important;color:#5DD39E!important;
+    border-color:rgba(0,199,62,.15)!important;
+  }
+  .d-btn.sec:hover{background:rgba(0,199,62,.14)!important}
+  .d-btn.red{
+    background:rgba(229,57,53,.08)!important;color:#FF7B7B!important;
+    border-color:rgba(229,57,53,.15)!important;
+  }
+  .d-btn.red:hover{background:rgba(229,57,53,.14)!important}
+
+  /* ---------- SCROLL SHADOWS (indicate more content) ---------- */
+  #p-in #cl{
+    mask-image:linear-gradient(to bottom,transparent 0,#000 8px,#000 calc(100% - 8px),transparent 100%)!important;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 8px,#000 calc(100% - 8px),transparent 100%)!important;
+  }
+  .chat-area > .ds{
+    mask-image:linear-gradient(to bottom,transparent 0,#000 6px,#000 calc(100% - 6px),transparent 100%)!important;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 6px,#000 calc(100% - 6px),transparent 100%)!important;
+  }
+
+  /* ---------- COMPOSER GLOW ON FOCUS ---------- */
+  .chat-reply:focus-within > div:last-child{
+    box-shadow:0 2px 8px rgba(0,0,0,.3),0 0 0 2px rgba(135,116,225,.35)!important;
+    border-color:rgba(135,116,225,.3)!important;
+  }
+
+  /* ---------- CHAT HEADER: subtle gradient ---------- */
+  .detail-hero{
+    background:linear-gradient(180deg,#272727 0%,#212121 100%)!important;
+    border-bottom:1px solid rgba(255,255,255,.04)!important;
+  }
+
+  /* ---------- WELCOME SCREEN (no chat selected) ---------- */
+  .pn:not(.on) #dc{
+    background:linear-gradient(180deg,#1e1e1e 0%,#1a1a1a 100%)!important;
+    flex-direction:column!important;gap:12px!important;
+  }
+  .pn:not(.on) #dc::before{
+    content:'LeadFlow'!important;
+    font-size:28px!important;font-weight:800!important;color:#fff!important;
+    font-family:'Nunito','Roboto',sans-serif!important;
+    letter-spacing:-.02em!important;
+    padding:0!important;background:none!important;backdrop-filter:none!important;
+    border:none!important;border-radius:0!important;
+  }
+  .pn:not(.on) #dc::after{
+    content:'Select a chat to start messaging'!important;
+    font-size:14px!important;color:rgba(255,255,255,.45)!important;
+    font-weight:400!important;font-family:'Roboto',sans-serif!important;
+    padding:6px 16px!important;
+    background:rgba(135,116,225,.08)!important;
+    border:1px solid rgba(135,116,225,.15)!important;
+    border-radius:999px!important;
+  }
+
+  /* ---------- SCROLL-TO-BOTTOM BUTTON ---------- */
+  #scrollBottomBtn{
+    position:absolute!important;bottom:76px!important;right:20px!important;
+    width:40px!important;height:40px!important;border-radius:50%!important;
+    background:#303030!important;border:1px solid rgba(255,255,255,.08)!important;
+    color:rgb(170,170,170)!important;cursor:pointer!important;
+    display:none!important;align-items:center!important;justify-content:center!important;
+    z-index:5!important;
+    box-shadow:0 4px 12px rgba(0,0,0,.4)!important;
+    transition:background .15s ease,color .15s ease,transform .1s ease!important;
+  }
+  #scrollBottomBtn:hover{background:#3a3a3a!important;color:#fff!important}
+  #scrollBottomBtn:active{transform:scale(.92)!important}
+  #scrollBottomBtn.visible{display:flex!important}
+  #scrollBottomBtn .scroll-badge{
+    position:absolute;top:-6px;right:-6px;
+    background:var(--accent);color:#fff;font-size:10px;font-weight:700;
+    min-width:18px;height:18px;line-height:18px;text-align:center;
+    border-radius:9px;padding:0 4px;
+  }
+
+  /* ---------- SKELETON SHIMMER (loading state) ---------- */
+  @keyframes skeletonShimmer{
+    0%{background-position:-200% 0}
+    100%{background-position:200% 0}
+  }
+  .skeleton-row{
+    display:flex!important;align-items:center!important;gap:12px!important;
+    padding:9px!important;margin:0 8px 2px 0!important;
+  }
+  .skeleton-av{
+    width:54px;height:54px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(90deg,#2a2a2a 25%,#333 50%,#2a2a2a 75%);
+    background-size:200% 100%;animation:skeletonShimmer 1.5s ease infinite;
+  }
+  .skeleton-lines{flex:1;display:flex;flex-direction:column;gap:8px}
+  .skeleton-line{
+    height:12px;border-radius:6px;
+    background:linear-gradient(90deg,#2a2a2a 25%,#333 50%,#2a2a2a 75%);
+    background-size:200% 100%;animation:skeletonShimmer 1.5s ease infinite;
+  }
+  .skeleton-line:nth-child(1){width:65%}
+  .skeleton-line:nth-child(2){width:85%}
+
+  /* ---------- BADGE PULSE on nav ---------- */
+  @keyframes badgePulse{
+    0%{box-shadow:0 0 0 0 rgba(229,57,53,.5)}
+    70%{box-shadow:0 0 0 8px rgba(229,57,53,0)}
+    100%{box-shadow:0 0 0 0 rgba(229,57,53,0)}
+  }
+  .nb .n.pulse{animation:badgePulse .8s ease-out!important}
+
+  /* ---------- EMPTY STATES ---------- */
+  .em{
+    display:flex!important;flex-direction:column!important;align-items:center!important;
+    justify-content:center!important;text-align:center!important;
+    padding:60px 24px!important;min-height:300px!important;
+  }
+  .em-hero{margin-bottom:20px!important}
+  .em h3,.em-copy h3{
+    font-size:20px!important;font-weight:700!important;color:#fff!important;
+    font-family:'Nunito',sans-serif!important;margin:0 0 8px!important;letter-spacing:-.02em!important;
+  }
+  .em p,.em-copy p{
+    font-size:14px!important;color:rgb(170,170,170)!important;max-width:360px!important;
+    margin:0 auto!important;line-height:1.6!important;
+  }
+  .em-icon-wrap{
+    width:72px!important;height:72px!important;border-radius:20px!important;
+    background:linear-gradient(180deg,rgba(135,116,225,.2),rgba(135,116,225,.06))!important;
+    border:1px solid rgba(135,116,225,.2)!important;
+    display:grid!important;place-items:center!important;
+    box-shadow:0 8px 24px rgba(0,0,0,.3)!important;
+  }
+  .em-ic-fancy{width:32px!important;height:32px!important;color:#C8BAFF!important;filter:none!important}
+
+  /* ---------- PAGE TRANSITIONS ---------- */
+  .pg.slide-out-left{opacity:0!important;transform:translateX(-12px)!important;transition:all .15s ease!important}
+  .pg.slide-out-right{opacity:0!important;transform:translateX(12px)!important;transition:all .15s ease!important}
+  .pg.slide-in-left{opacity:1!important;transform:none!important;transition:all .15s ease .05s!important}
+  .pg.slide-in-right{opacity:1!important;transform:none!important;transition:all .15s ease .05s!important}
+  .pg.is-settled{transition:none!important;transform:none!important}
+
+  /* ---------- TOAST NOTIFICATIONS — app-quality ---------- */
+  .toast-container{
+    position:fixed!important;top:12px!important;right:12px!important;
+    z-index:10000!important;display:flex!important;flex-direction:column!important;gap:6px!important;
+  }
+  .toast{
+    background:#303030!important;color:#fff!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    border-radius:10px!important;padding:10px 16px!important;font-size:13px!important;
+    box-shadow:0 8px 30px rgba(0,0,0,.4)!important;
+    font-family:'Roboto',sans-serif!important;font-weight:500!important;
+    max-width:340px!important;
+  }
+
+  /* ---------- PRINT-FRIENDLY ANALYTICS ---------- */
+  @media print{
+    .nav,.settings-panel,.chat-reply,.nb,.sp,.mb{display:none!important}
+    body,html,.pg,.pg.on,#p-an,#p-an.on{background:#fff!important;color:#000!important}
+    .stat{background:#f5f5f5!important;color:#000!important;border:1px solid #ddd!important;-webkit-print-color-adjust:exact!important}
+    .stat .n{color:#000!important}.stat .l{color:#666!important}
+    .sg{background:#fff!important;border:1px solid #ddd!important}
+    canvas{max-width:100%!important}
+  }
+}
+
 /* Mobile: keep old design untouched */
 @media(max-width:899px){
   .nb-logout{display:none}
@@ -4215,5 +4435,174 @@ window._tgLoginClick = function() {
 })();
 </script>
 
+<!-- ============ DESKTOP v3: production JS polish ============ -->
+<script>
+(function(){
+  if(window.innerWidth < 900) return; // desktop-only
+
+  /* ---------- FAVICON BADGE ---------- */
+  const _favCanvas = document.createElement('canvas');
+  _favCanvas.width = 32; _favCanvas.height = 32;
+  const _favCtx = _favCanvas.getContext('2d');
+  const _origFavicon = document.querySelector('link[rel="icon"]')?.href || '';
+  let _lastBadgeCount = -1;
+
+  function updateFavicon(count){
+    if(count === _lastBadgeCount) return;
+    _lastBadgeCount = count;
+    _favCtx.clearRect(0,0,32,32);
+    // Draw LF circle
+    _favCtx.beginPath();_favCtx.arc(16,16,15,0,Math.PI*2);
+    _favCtx.fillStyle='#8774E1';_favCtx.fill();
+    _favCtx.fillStyle='#fff';_favCtx.font='bold 16px Nunito,sans-serif';
+    _favCtx.textAlign='center';_favCtx.textBaseline='middle';
+    _favCtx.fillText('LF',16,17);
+    if(count > 0){
+      // Red badge
+      const t = count > 99 ? '99+' : String(count);
+      _favCtx.beginPath();_favCtx.arc(26,6,8,0,Math.PI*2);
+      _favCtx.fillStyle='#e53935';_favCtx.fill();
+      _favCtx.fillStyle='#fff';_favCtx.font='bold 10px sans-serif';
+      _favCtx.fillText(t,26,7);
+    }
+    let link = document.querySelector('link[rel="icon"]');
+    if(!link){link=document.createElement('link');link.rel='icon';document.head.appendChild(link);}
+    link.href = _favCanvas.toDataURL('image/png');
+  }
+
+  /* ---------- TITLE + BADGE UPDATE ---------- */
+  function updateTitleBadge(){
+    const total = (typeof C !== 'undefined' ? C : []).filter(c => c.unread > 0).length;
+    document.title = total > 0 ? `LeadFlow (${total})` : 'LeadFlow';
+    updateFavicon(total);
+    // Pulse badge on nav inbox button
+    const badge = document.querySelector('.nb:first-of-type .n');
+    if(badge && total > 0 && !badge.classList.contains('pulse')){
+      badge.classList.add('pulse');
+      setTimeout(()=>badge.classList.remove('pulse'), 900);
+    }
+  }
+  // Hook into R() — poll after each render
+  const _origR = window.R;
+  if(typeof _origR === 'function'){
+    window.R = function(){
+      _origR.apply(this, arguments);
+      try{ updateTitleBadge(); }catch(e){}
+    };
+  }
+  // Initial
+  setTimeout(updateTitleBadge, 2000);
+
+  /* ---------- SCROLL-TO-BOTTOM BUTTON ---------- */
+  function injectScrollBtn(){
+    const area = document.querySelector('.chat-area');
+    if(!area || document.getElementById('scrollBottomBtn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'scrollBottomBtn';
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+    btn.onclick = function(){
+      const ds = area.querySelector('.ds');
+      if(ds) ds.scrollTop = ds.scrollHeight;
+    };
+    area.style.position = 'relative';
+    area.appendChild(btn);
+
+    const ds = area.querySelector('.ds');
+    if(ds){
+      ds.addEventListener('scroll', function(){
+        // column-reverse: scrollTop 0 = bottom, negative = scrolled up
+        const scrolledUp = ds.scrollTop < -80;
+        btn.classList.toggle('visible', scrolledUp);
+      });
+    }
+  }
+  // Re-inject after buildDetailContent
+  const _origBuild = window.buildDetailContent;
+  if(typeof _origBuild === 'function'){
+    window.buildDetailContent = function(){
+      _origBuild.apply(this, arguments);
+      setTimeout(injectScrollBtn, 50);
+    };
+  }
+
+  /* ---------- KEYBOARD SHORTCUTS ---------- */
+  document.addEventListener('keydown', function(e){
+    const tag = (e.target.tagName||'').toLowerCase();
+    const isInput = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+    // Enter to send (Shift+Enter = newline)
+    if(e.key === 'Enter' && !e.shiftKey && e.target.id === 'replyInp'){
+      e.preventDefault();
+      const btn = document.getElementById('replyBtn');
+      if(btn) btn.click();
+      return;
+    }
+
+    // Escape — close settings panel / detail panel / modals
+    if(e.key === 'Escape'){
+      // Close modal first
+      const modal = document.querySelector('.mb.on');
+      if(modal){
+        document.body.classList.remove('modal-open');
+        modal.classList.remove('on');
+        return;
+      }
+      // Close settings sub-page
+      const sp = document.querySelector('.sp.on');
+      if(sp){ sp.classList.remove('on'); return; }
+      // Close contact settings panel
+      const dc = document.getElementById('dc');
+      if(dc && dc.classList.contains('settings-open')){
+        dc.classList.remove('settings-open'); return;
+      }
+      // Close chat detail
+      if(typeof cD === 'function' && typeof openDetailId !== 'undefined' && openDetailId !== null){
+        cD(); return;
+      }
+    }
+
+    // Ctrl+K or Cmd+K — focus search
+    if((e.ctrlKey || e.metaKey) && e.key === 'k'){
+      e.preventDefault();
+      const si = document.getElementById('searchInp');
+      if(si){
+        // Switch to inbox tab first
+        const inBtn = document.querySelector('.nb:first-of-type');
+        if(inBtn && !inBtn.classList.contains('on')){
+          if(typeof go === 'function') go('in', inBtn);
+        }
+        si.focus(); si.select();
+      }
+      return;
+    }
+
+    // 1-4 number keys (no input focus) — switch tabs
+    if(!isInput && !e.ctrlKey && !e.metaKey && !e.altKey){
+      const num = parseInt(e.key);
+      if(num >= 1 && num <= 4){
+        const tabs = ['in','tk','an','st'];
+        const btns = document.querySelectorAll('.nb:not(.nb-logout)');
+        if(btns[num-1] && typeof go === 'function'){
+          go(tabs[num-1], btns[num-1]);
+        }
+      }
+    }
+  });
+
+  /* ---------- SKELETON LOADER ---------- */
+  function showSkeleton(){
+    const cl = document.getElementById('cl');
+    if(!cl || cl.children.length > 0) return;
+    let html = '';
+    for(let i = 0; i < 6; i++){
+      html += '<div class="skeleton-row"><div class="skeleton-av"></div><div class="skeleton-lines"><div class="skeleton-line"></div><div class="skeleton-line"></div></div></div>';
+    }
+    cl.innerHTML = html;
+  }
+  // Show skeleton if chat list is empty on load
+  setTimeout(showSkeleton, 100);
+
+})();
+</script>
 </body>
 </html>
