@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>А судьи кто?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Literata:ital,wght@0,400;0,600;1,400&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  /* Layout: one narrow prompt-book column; in the trainer the part and the mode stay pinned on top like a cue sheet. Palette: uniform green and gold braid. */
+  --paper:#EDF1EB;
+  --sheet:#FAFBF8;
+  --ink:#141F19;
+  --muted:#56655C;
+  --rule:#CFD8D0;
+  --uniform:#1D4B39;
+  --on-uniform:#F6F8F4;
+  --gilt:#8E6B1D;
+  --miss:#A8352D;
+  --hl:#E1EADD;
+  --blank:#DCE4DC;
+  --scrim:rgba(10,18,14,.35);
+  --shadow:0 1px 0 rgba(20,31,25,.04),0 10px 26px -14px rgba(20,31,25,.22);
+  --r1:#1B6587;--r2:#A03F29;--r3:#69499A;--r4:#2A7647;--r5:#8F6210;--r6:#A23167;
+  --f-display:"Old Standard TT","Times New Roman",serif;
+  --f-verse:"Literata",Georgia,"Times New Roman",serif;
+  --f-ui:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1712;--sheet:#14211A;--ink:#E3EAE4;--muted:#94A59A;--rule:#26372D;
+    --uniform:#88CBA7;--on-uniform:#0D1712;--gilt:#D6AF58;--miss:#E87D72;
+    --hl:#1B2C23;--blank:#24362C;--scrim:rgba(0,0,0,.5);
+    --shadow:0 10px 26px -14px rgba(0,0,0,.7);
+    --r1:#74B9D9;--r2:#E8907A;--r3:#B79FEA;--r4:#80CC98;--r5:#E2B85C;--r6:#E883B0;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1712;--sheet:#14211A;--ink:#E3EAE4;--muted:#94A59A;--rule:#26372D;
+  --uniform:#88CBA7;--on-uniform:#0D1712;--gilt:#D6AF58;--miss:#E87D72;
+  --hl:#1B2C23;--blank:#24362C;--scrim:rgba(0,0,0,.5);
+  --shadow:0 10px 26px -14px rgba(0,0,0,.7);
+  --r1:#74B9D9;--r2:#E8907A;--r3:#B79FEA;--r4:#80CC98;--r5:#E2B85C;--r6:#E883B0;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gilt);outline-offset:2px;border-radius:4px}
+p{margin:0}
+
+/* ---------- home ---------- */
+.hero{padding-block:30px 22px}
+.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(44px,12vw,64px);line-height:1;margin:0;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--uniform)}
+.byline{margin-top:12px;color:var(--muted);font-size:14px}
+.braid{height:5px;border-top:1px solid var(--gilt);border-bottom:1px solid var(--gilt);margin-top:22px}
+.overall{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:14px;font-variant-numeric:tabular-nums}
+.bar{flex:1;height:6px;background:var(--rule);border-radius:3px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--uniform);border-radius:3px;transition:width .4s ease}
+
+.label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gilt);font-weight:600;margin-bottom:6px}
+.now{background:var(--sheet);border:1px solid var(--rule);border-radius:16px;padding:16px 16px 18px;margin-block:2px 30px;box-shadow:var(--shadow)}
+.now h2{font-family:var(--f-verse);font-weight:600;font-size:19px;line-height:1.3;margin:0 0 6px;text-wrap:balance}
+.now .t{color:var(--muted);margin-bottom:14px;text-wrap:pretty}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{appearance:none;border:1px solid var(--rule);background:var(--sheet);border-radius:999px;padding:9px 16px;font-weight:500;cursor:pointer;min-height:44px;line-height:1.2}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--uniform);border-color:var(--uniform);color:var(--on-uniform)}
+.btn.ghost{background:transparent}
+.btn[aria-pressed="true"]{border-color:var(--uniform);color:var(--uniform);background:var(--hl)}
+.btn.small{min-height:36px;padding:6px 12px;font-size:14px}
+
+.sec{margin-bottom:34px}
+.sec h2{font-family:var(--f-display);font-weight:400;font-size:27px;line-height:1.15;margin:0 0 12px;text-wrap:balance}
+.sec p{max-width:62ch;text-wrap:pretty}
+.sec p + p{margin-top:10px}
+
+.plist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.prow{display:grid;grid-template-columns:2.6rem minmax(0,1fr) auto;gap:4px 12px;align-items:start;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:14px 0;cursor:pointer}
+.prow:hover .pt{color:var(--uniform)}
+.rn{font-family:var(--f-display);font-size:25px;line-height:1;color:var(--gilt);padding-top:3px}
+.pbody{display:block;min-width:0}
+.pt{display:block;font-family:var(--f-verse);font-weight:600;font-size:17px;line-height:1.3}
+.pm{display:block;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px}
+.pf{display:block;font-family:var(--f-verse);font-style:italic;font-size:15px;color:var(--muted);margin-top:4px}
+.pips{display:flex;gap:5px;margin-top:9px}
+.pips i{width:18px;height:4px;border-radius:2px;background:var(--rule)}
+.pips i.on{background:var(--uniform)}
+.chip{font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--rule);color:var(--muted);white-space:nowrap;margin-top:2px}
+.chip.learning{border-color:var(--gilt);color:var(--gilt)}
+.chip.known{background:var(--uniform);border-color:var(--uniform);color:var(--on-uniform)}
+
+ol.steps,ol.days{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:10px}
+ol.steps li,ol.days li{display:grid;grid-template-columns:2rem minmax(0,1fr);gap:10px;counter-increment:s}
+ol.steps li::before,ol.days li::before{content:counter(s);font-family:var(--f-display);font-size:20px;line-height:1.2;color:var(--gilt)}
+ol.days li::before{content:counter(s)}
+.skel{margin-top:14px;padding:12px 14px;border:1px solid var(--rule);border-radius:12px;background:var(--sheet);font-family:var(--f-verse);font-style:italic;line-height:1.6}
+.skel .label{font-family:var(--f-ui);font-style:normal}
+.foot{padding-block:8px 48px;border-top:1px solid var(--rule);color:var(--muted);font-size:13px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* ---------- trainer ---------- */
+.tbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+.trow{display:flex;align-items:center;gap:8px;padding-top:10px}
+.back{flex:none}
+.pnav{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.ptitle{flex:1;min-width:0;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--f-verse);font-weight:600;font-size:16px}
+.pnum{font-family:var(--f-display);color:var(--gilt);font-weight:400;margin-right:7px}
+.ibtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--rule);background:var(--sheet);cursor:pointer;display:grid;place-items:center;flex:none;padding:0}
+.ibtn:disabled{opacity:.35;cursor:default}
+.ibtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;margin-top:6px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;background:none;border:0;padding:10px 8px 11px;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--uniform);font-weight:600}
+.tab .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--uniform);margin-left:5px;vertical-align:middle}
+.tbody{padding-block:18px 64px}
+.pmeta{font-size:13px;color:var(--muted);margin-bottom:4px;font-variant-numeric:tabular-nums}
+.gist{font-family:var(--f-verse);font-size:17px;line-height:1.45;margin-bottom:14px;text-wrap:pretty}
+.howto{font-size:14px;color:var(--muted);margin-bottom:16px;padding:10px 12px;border:1px dashed var(--rule);border-radius:10px;text-wrap:pretty}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.retell{margin-bottom:12px}
+.retell p:not(.label){font-family:var(--f-verse);font-size:16px;line-height:1.55;text-wrap:pretty}
+.tone{font-size:14px;color:var(--muted);margin-bottom:14px}
+.tone b{color:var(--ink);font-weight:600}
+.pbreak{font-family:var(--f-verse);font-weight:600;font-size:18px;margin:28px 0 10px}
+.pbreak:first-of-type{margin-top:6px}
+.legend{font-size:13px;color:var(--muted);margin-top:12px}
+
+.verse{font-family:var(--f-verse);font-size:17.5px;line-height:1.55;background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:14px 10px 14px 4px}
+.vl{display:grid;grid-template-columns:2.2em minmax(0,1fr) 1.2em;gap:0 6px;align-items:baseline;padding:3px 0;border-radius:6px;transition:background .2s}
+.ln{font-family:var(--f-ui);font-size:11px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;user-select:none}
+.ln.weak{color:var(--miss);font-weight:600}
+.vt{padding-left:calc(var(--ind) * 1.3em + 1em);text-indent:-1em}
+.rl{font-family:var(--f-display);font-style:italic;font-size:15px;color:var(--rc);text-align:center;user-select:none}
+.rw{color:var(--rc)}
+.gl{text-decoration:underline dotted;text-decoration-color:var(--muted);text-decoration-thickness:1.5px;text-underline-offset:4px;cursor:pointer}
+.gl:hover{background:var(--hl)}
+.vl.speaking{background:var(--hl)}
+.vl.tap{cursor:pointer}
+.vl.tap:hover{background:var(--hl)}
+.lt{letter-spacing:.14em}
+.vl .full{display:none}
+.vl.open .full{display:inline}
+.vl.open .lt{display:none}
+.blank{color:transparent;background:var(--blank);border-radius:4px;cursor:pointer;-webkit-box-decoration-break:clone;box-decoration-break:clone;user-select:none}
+.blank.open{color:var(--gilt);background:transparent}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--sheet);gap:2px}
+.seg button{border:0;background:none;border-radius:999px;padding:6px 14px;cursor:pointer;min-height:36px;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--uniform);color:var(--on-uniform)}
+
+.chain{background:var(--sheet);border:1px solid var(--rule);border-radius:16px;padding:18px 16px;box-shadow:var(--shadow)}
+.cprog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:16px;font-variant-numeric:tabular-nums}
+.cue{font-family:var(--f-verse);font-size:17px;line-height:1.45;color:var(--muted)}
+.cue.intro{font-style:italic}
+.cdiv{border:0;border-top:1px solid var(--rule);margin:16px 0}
+.target{font-family:var(--f-verse);font-size:21px;line-height:1.4;min-height:2.8em;text-wrap:balance}
+.target.wait{color:var(--muted);letter-spacing:.3em}
+.target.hint{letter-spacing:.14em;color:var(--gilt)}
+.grade{display:grid;grid-template-columns:repeat(var(--n,3),1fr);gap:8px;margin-top:18px}
+.grade .btn{border-radius:12px;padding:10px 4px}
+.cact{margin-top:18px}
+.g0{border-color:var(--miss);color:var(--miss)}
+.g1{border-color:var(--gilt);color:var(--gilt)}
+.g2{background:var(--uniform);border-color:var(--uniform);color:var(--on-uniform)}
+.keys{display:none;font-size:12px;color:var(--muted);margin-top:12px}
+@media (hover:hover) and (pointer:fine){.keys{display:block}}
+.big{font-family:var(--f-display);font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:24px;color:var(--muted)}
+.verdict{margin:10px 0 16px;text-wrap:pretty}
+.tough{list-style:none;margin:0 0 16px;padding:0;font-family:var(--f-verse);display:grid;gap:4px}
+.tough li{display:grid;grid-template-columns:2.2em minmax(0,1fr);gap:6px}
+.tough .ln{padding-top:3px}
+
+.assembled{list-style:none;margin:0 0 16px;padding:12px 12px 12px 4px;background:var(--sheet);border:1px solid var(--rule);border-radius:14px;font-family:var(--f-verse);font-size:16.5px;line-height:1.45}
+.assembled li{display:grid;grid-template-columns:2.2em minmax(0,1fr);gap:6px;padding:2px 0}
+.assembled li .ln{padding-top:4px}
+.assembled .empty{display:block;color:var(--muted);font-style:italic;padding-left:10px}
+.pool{display:flex;flex-direction:column;gap:8px}
+.pick{text-align:left;font-family:var(--f-verse);font-size:16.5px;line-height:1.4;padding:11px 14px;border:1px solid var(--rule);background:var(--sheet);border-radius:12px;cursor:pointer;min-height:48px}
+.pick:hover{border-color:var(--muted)}
+.pick.wrong{border-color:var(--miss);color:var(--miss);animation:shake .35s}
+.olabel{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.olabel .miss{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;font-variant-numeric:tabular-nums}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.vin{display:block;width:100%;min-height:84px;resize:vertical;font:16px/1.45 var(--f-verse);color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+.vin::placeholder{color:var(--muted);font-family:var(--f-ui);font-size:14px}
+.vin:focus{outline:2px solid var(--uniform);outline-offset:1px}
+.vstat{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin:2px 0 12px;font-variant-numeric:tabular-nums}
+.vstat .bar{flex:1 1 100%}
+.vstat b{color:var(--ink);font-weight:600}
+.mic{display:inline-block;width:15px;height:15px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.w{border-radius:3px}
+.w.pend{color:transparent;background:var(--blank);cursor:pointer;user-select:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.w.pend.peek,.verse.show .w.pend{color:var(--muted);background:transparent}
+.w.next{outline:2px solid var(--uniform);outline-offset:1px}
+.w.ok{color:var(--ink)}
+.w.manual{text-decoration:underline dotted;text-decoration-color:var(--uniform);text-underline-offset:3px;cursor:pointer}
+.w.wrong{color:var(--miss);text-decoration:underline wavy;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+.w.skip{color:var(--gilt);text-decoration:underline dashed;text-underline-offset:3px;cursor:pointer}
+.legend .w{font-family:var(--f-verse)}
+.microw{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.mic-btn{display:inline-flex;align-items:center;gap:9px;min-height:50px;padding:10px 22px;font-size:16px}
+.mic-btn .pulse{width:10px;height:10px;border-radius:50%;background:currentColor;opacity:.55}
+.mic-btn.listening{background:var(--miss);border-color:var(--miss);color:var(--on-uniform)}
+.mic-btn.listening .pulse{opacity:1;animation:pulse 1.2s ease-in-out infinite}
+.micstate{font-size:13px;color:var(--muted);min-width:0;flex:1 1 160px}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:.35}}
+#scrim{position:fixed;inset:0;background:var(--scrim);z-index:20}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--sheet);border-top:3px double var(--gilt);border-radius:18px 18px 0 0;padding-top:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-shadow:var(--shadow)}
+.sheet-in{max-width:640px;margin:0 auto;display:grid;gap:8px}
+.sheet-phrase{font-family:var(--f-verse);font-size:20px;font-style:italic;line-height:1.3}
+.sheet-note{font-size:15.5px;line-height:1.5;text-wrap:pretty}
+.sheet-in .btn{justify-self:start;margin-top:6px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+@media (min-width:600px){.verse{font-size:18.5px}.target{font-size:23px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div id="home">
+  <header class="hero wrap">
+    <p class="eyebrow">Чацкий · действие II, явление 5</p>
+    <h1>А судьи <em>кто?</em></h1>
+    <p class="byline">Грибоедов, «Горе от ума» · 57 строк · 6 частей</p>
+    <div class="braid" aria-hidden="true"></div>
+    <div class="overall"><div class="bar"><i id="ovBar" style="width:0%"></i></div><span id="ovText">Выучено 0 из 6 частей</span></div>
+  </header>
+
+  <main class="wrap">
+    <section class="now" id="rec" aria-live="polite">
+      <p class="label">Что делать сейчас</p>
+      <h2>Часть I: Судьи живут прошлым</h2>
+      <p class="t">Начни с пересказа и трудных слов.</p>
+      <div class="btns"><button class="btn primary" data-act="go" data-n="1" data-mode="understand">Начать</button></div>
+    </section>
+
+    <section class="sec">
+      <h2>Монолог по частям</h2>
+      <ol class="plist" id="plist"></ol>
+    </section>
+
+    <section class="sec">
+      <h2>Как учить одну часть</h2>
+      <ol class="steps">
+        <li><span><b>Понять.</b> Пересказ, трудные слова, рифмы. Прочитай часть вслух 2–3 раза.</span></li>
+        <li><span><b>Буквы.</b> Читай вслух, видя только первые буквы слов.</span></li>
+        <li><span><b>Пропуски.</b> Слова исчезают по уровням, пока не скроются все.</span></li>
+        <li><span><b>Цепочка.</b> Видишь строку и вспоминаешь следующую, потом честно оцениваешь себя.</span></li>
+        <li><span><b>Порядок.</b> Собираешь перемешанные строки.</span></li>
+        <li><span><b>Вслух.</b> Читаешь по памяти через диктовку на клавиатуре, а тренажёр сверяет каждое слово.</span></li>
+      </ol>
+      <p style="margin-top:12px;color:var(--muted)">Часть считается выученной, когда в «Цепочке» сразу вспоминаешь 9 строк из 10 или во «Вслух» верно произносишь 90% слов.</p>
+    </section>
+
+    <section class="sec">
+      <h2>План на четыре дня</h2>
+      <ol class="days">
+        <li><span><b>День 1.</b> Части I и II.</span></li>
+        <li><span><b>День 2.</b> Повтори I–II «Цепочкой», выучи III и IV.</span></li>
+        <li><span><b>День 3.</b> Повтори I–IV, выучи V и VI.</span></li>
+        <li><span><b>День 4.</b> «Порядок» и «Цепочка» для всего монолога, потом вслух без текста.</span></li>
+      </ol>
+      <p style="margin-top:12px">Перед сном пройди «Цепочку» по выученному, а утром вспомни текст без подсказок. Вспоминать после сна полезнее, чем ещё раз перечитывать вечером.</p>
+    </section>
+
+    <section class="sec">
+      <h2>О монологе</h2>
+      <p>Фамусов отчитывает Чацкого за вольные речи и ссылается на то, что такие мысли осуждают все. Чацкий в ответ спрашивает, кто эти судьи, и разбирает их по одному.</p>
+      <p>Размер — вольный ямб: строки разной длины, а рифмы то перекрёстные (абаб), то смежные (аа), то опоясывающие (абба). Ритм ведёт слабее, чем в обычных стихах, поэтому главная опора — смысл и порядок примеров.</p>
+      <p class="skel"><span class="label">Начала частей</span><br>А судьи кто? → Где? укажите нам → Не тот ли → Или вон тот → Вот те → Мундир!</p>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <div class="foot" id="foot">
+      <p>Прогресс хранится только в этом браузере.</p>
+      <div id="resetBox"><button class="btn small ghost" data-act="reset">Сбросить прогресс</button></div>
+    </div>
+  </footer>
+</div>
+
+<div id="trainer" hidden>
+  <div class="tbar">
+    <div class="wrap">
+      <div class="trow">
+        <button class="btn small ghost back" data-act="home">← Карта</button>
+        <div class="pnav">
+          <button class="ibtn" data-act="prev" id="prevBtn" aria-label="Предыдущая часть"><svg viewBox="0 0 16 16"><path d="M10 3 5 8l5 5"/></svg></button>
+          <div class="ptitle" id="ptitle"></div>
+          <button class="ibtn" data-act="next" id="nextBtn" aria-label="Следующая часть"><svg viewBox="0 0 16 16"><path d="m6 3 5 5-5 5"/></svg></button>
+        </div>
+      </div>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Режим"></nav>
+    </div>
+  </div>
+  <div class="wrap tbody">
+    <div id="phead"></div>
+    <div id="mode"></div>
+  </div>
+</div>
+
+<div id="scrim" hidden data-act="sheet-close"></div>
+<div id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetPhrase">
+  <div class="sheet-in">
+    <p class="label">Что это значит</p>
+    <p class="sheet-phrase" id="sheetPhrase"></p>
+    <p class="sheet-note" id="sheetNote"></p>
+    <button class="btn" data-act="sheet-close">Понятно</button>
+  </div>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+/*DATA*/
+const L = [
+[1,"А судьи кто? — За древностию лет"],
+[0,"К свободной жизни их вражда непримирима,"],
+[0,"Сужденья черпают из забытых газет"],
+[0,"Времен Очаковских и покоренья Крыма;"],
+[1,"Всегда готовые к журьбе,"],
+[1,"Поют всё песнь одну и ту же,"],
+[1,"Не замечая об себе:"],
+[2,"Что старее, то хуже."],
+[0,"Где? укажите нам, отечества отцы,"],
+[0,"Которых мы должны принять за образцы?"],
+[1,"Не эти ли, грабительством богаты?"],
+[0,"Защиту от суда в друзьях нашли, в родстве,"],
+[0,"Великолепные соорудя палаты,"],
+[0,"Где разливаются в пирах и мотовстве,"],
+[0,"И где не воскресят клиенты-иностранцы"],
+[0,"Прошедшего житья подлейшие черты."],
+[0,"Да и кому в Москве не зажимали рты"],
+[2,"Обеды, ужины и танцы?"],
+[0,"Не тот ли, вы к кому меня еще с пелен,"],
+[1,"Для замыслов каких-то непонятных,"],
+[2,"Дитёй возили на поклон?"],
+[1,"Тот Нестор негодяев знатных,"],
+[1,"Толпою окруженный слуг;"],
+[0,"Усердствуя, они в часы вина и драки"],
+[0,"И честь и жизнь его не раз спасали: вдруг"],
+[0,"На них он выменил борзые три собаки!!!"],
+[0,"Или вон тот еще, который для затей"],
+[0,"На крепостной балет согнал на многих фурах"],
+[0,"От матерей, отцов отторженных детей?!"],
+[0,"Сам погружен умом в Зефирах и в Амурах,"],
+[0,"Заставил всю Москву дивиться их красе!"],
+[1,"Но должников не согласил к отсрочке:"],
+[2,"Амуры и Зефиры все"],
+[2,"Распроданы по одиночке!!"],
+[0,"Вот те, которые дожили до седин!"],
+[0,"Вот уважать кого должны мы на безлюдьи!"],
+[0,"Вот наши строгие ценители и судьи!"],
+[2,"Теперь пускай из нас один,"],
+[0,"Из молодых людей, найдется — враг исканий,"],
+[0,"Не требуя ни мест, ни повышенья в чин,"],
+[0,"В науки он вперит ум, алчущий познаний;"],
+[0,"Или в душе его сам бог возбудит жар"],
+[0,"К искусствам творческим, высоким и прекрасным,"],
+[2,"Они тотчас: разбой! пожар!"],
+[0,"И прослывет у них мечтателем! опасным!! —"],
+[0,"Мундир! один мундир! Он в прежнем их быту"],
+[0,"Когда-то укрывал, расшитый и красивый,"],
+[0,"Их слабодушие, рассудка нищету;"],
+[2,"И нам за ними в путь счастливый!"],
+[0,"И в женах, дочерях — к мундиру та же страсть!"],
+[0,"Я сам к нему давно ль от нежности отрекся?!"],
+[0,"Теперь уж в это мне ребячество не впасть;"],
+[2,"Но кто б тогда за всеми не повлекся?"],
+[0,"Когда из гвардии, иные от двора"],
+[2,"Сюда на время приезжали, —"],
+[2,"Кричали женщины: ура!"],
+[2,"И в воздух чепчики бросали!"]
+];
+const RHY = "ABABCDCDEEFGFGHIIHJKJKLMLMNONOPQPQRSSRTRTUVUVWXWXYZYZ1212";
+
+const PARTS = [
+ {n:1,a:0,b:7,title:"Судьи живут прошлым",scheme:"абаб вгвг",
+  gist:"Кто нас судит? Старики, которые застряли во временах Екатерины.",
+  tone:"Насмешливо, с вызовом. Первый вопрос резко, дальше спокойнее; «Что старее, то хуже» звучит как приговор.",
+  retell:"А кто нас судит? Старики, которые из-за возраста враждуют со всякой свободой. Их взгляды взяты из газет сорокалетней давности, времён Очакова и Крыма. Они всё время ворчат, твердят одно и то же и не замечают, что сами с годами становятся только хуже."},
+ {n:2,a:8,b:17,title:"Отцы отечества",scheme:"аа бвбв гддг",
+  gist:"Кого брать за образец? Богачей, которые грабили, прикрылись связями и кормят всю Москву обедами.",
+  tone:"Обвинение. Вопросы нарастают; «Обеды, ужины и танцы?» перечисляй с презрением.",
+  retell:"Покажите, кого из «отцов отечества» нам брать за образец? Не тех ли, кто разбогател грабежом, спасся от суда благодаря друзьям и родне, настроил дворцов и проводит жизнь в пирах? Иностранцы-приживалы там не напомнят хозяину о его подлом прошлом. Да и кого в Москве не заставили молчать обедами, ужинами и балами?"},
+ {n:3,a:18,b:25,title:"Нестор негодяев знатных",scheme:"абаб вгвг",
+  gist:"Барин, к которому Чацкого возили в детстве, обменял спасавших его слуг на трёх борзых.",
+  tone:"Горькая ирония. Рассказ ровный, перед «вдруг» пауза, удар на «три собаки».",
+  retell:"Или тот, к кому меня ещё младенцем возили кланяться с какими-то непонятными целями? Этот главарь знатных негодяев, окружённый толпой слуг. Слуги не раз спасали ему в пьяных драках и честь, и жизнь, а он вдруг обменял их на трёх борзых собак."},
+ {n:4,a:26,b:33,title:"Крепостной балет",scheme:"абаб вгвг",
+  gist:"Помещик отнял детей у родителей ради балета, а потом распродал их за долги.",
+  tone:"Возмущение. Про красоту балета почти восхищённо, после «Но должников…» пауза и жёстко.",
+  retell:"Или вот этот, который ради прихоти свёз на возах в свой крепостной балет детей, отнятых у родителей? Сам был без ума от этих «Зефиров» и «Амуров», вся Москва восхищалась их красотой. Но кредиторы не дали ему отсрочки, и детей распродали поодиночке."},
+ {n:5,a:34,b:44,title:"Вот наши судьи",scheme:"абба вав гдгд",
+  gist:"Вот кого нам велят уважать. А молодого человека, который выбрал науку или искусство, они объявят опасным.",
+  tone:"Три «Вот» по нарастающей. Про молодого человека мечтательно, затем резко: «разбой! пожар!»",
+  retell:"Вот кто дожил до седин! Вот кого нам велено уважать за неимением лучших! Вот наши строгие судьи! А если найдётся молодой человек, который не гонится за должностями и чинами, а отдаётся науке или искусству, они тут же поднимут крик, будто разбой или пожар, и объявят его опасным мечтателем."},
+ {n:6,a:45,b:56,title:"Мундир",scheme:"абаб вгвг деде",
+  gist:"Им важен только мундир, и женщины от него без ума. Чацкий признаётся, что и сам был таким.",
+  tone:"Сарказм, затем признание о себе, тише. Финал легко и насмешливо: «чепчики бросали!»",
+  retell:"Им важен один мундир: нарядный, расшитый, он когда-то прикрывал их слабость и глупость. И нам предлагают идти той же дорогой. Жёны и дочери так же без ума от мундира. Я и сам давно ли от этого отказался? Теперь в такое ребячество уже не впаду. Но тогда кто бы не увлёкся: когда в Москву приезжали гвардейцы и придворные, женщины кричали «ура» и бросали в воздух чепчики."}
+];
+
+const GL = [
+[0,"За древностию лет","Из-за старости: возраст делает их врагами всего нового и свободного."],
+[2,"забытых газет","Давно устаревших газет. Свои мнения они берут оттуда."],
+[3,"Времен Очаковских и покоренья Крыма","Екатерининская эпоха: штурм турецкой крепости Очаков (1788) и присоединение Крыма (1783). К 1820-м это было лет сорок назад."],
+[4,"журьбе","Брани, нотациям (от «журить»)."],
+[6,"Не замечая об себе","Не замечая о себе самих."],
+[7,"Что старее, то хуже","Чем старее, тем хуже. Старики хвалят старину и не замечают, что это правило относится к ним самим."],
+[8,"отечества отцы","Почтенные, уважаемые люди. У Чацкого звучит с иронией."],
+[9,"образцы","Примеры для подражания."],
+[10,"грабительством богаты","Разбогатели грабежом: взятками, казнокрадством, разорением других."],
+[11,"Защиту от суда в друзьях нашли, в родстве","От суда их спасли связи: друзья и родня."],
+[12,"соорудя палаты","Построив роскошные дома, дворцы."],
+[13,"разливаются в пирах и мотовстве","Предаются пирам и расточительству, тратят деньги без счёта."],
+[14,"клиенты-иностранцы","Иностранцы-приживалы, которые живут за счёт богача и зависят от него. Они не станут напоминать хозяину о его тёмном прошлом."],
+[15,"Прошедшего житья подлейшие черты","Самые низкие поступки из их прошлой жизни."],
+[16,"зажимали рты","Заставляли молчать: кто ест на твоих обедах, тот тебя не критикует."],
+[18,"с пелен","С младенчества, с пелёнок. «Вы» — это Фамусов, в доме которого Чацкий вырос."],
+[19,"Для замыслов каких-то непонятных","С какими-то неясными расчётами: видимо, ради выгодного знакомства."],
+[20,"на поклон","С визитом почтения, кланяться важному человеку."],
+[21,"Нестор","В греческих мифах Нестор — мудрый старейший царь. Здесь это главарь, «старейшина» знатных негодяев."],
+[23,"Усердствуя","Стараясь изо всех сил, служа преданно."],
+[23,"в часы вина и драки","Во время пьянок и драк."],
+[25,"выменил борзые три собаки","Обменял слуг на трёх охотничьих собак. Крепостных можно было продать или обменять, как вещь."],
+[26,"для затей","Ради прихоти, развлечения."],
+[27,"крепостной балет","Балетная труппа из крепостных, обычно детей, которых учили танцевать."],
+[27,"фурах","Больших повозках."],
+[28,"отторженных","Отнятых силой."],
+[29,"в Зефирах и в Амурах","Зефир — бог западного ветра, Амур — бог любви. Это балетные роли, их танцевали крепостные дети."],
+[31,"Но должников не согласил к отсрочке","Не смог уговорить тех, кому задолжал, подождать с выплатой."],
+[33,"по одиночке","Поодиночке: детей продали по одному, разлучив."],
+[34,"дожили до седин","Дожили до старости, до седых волос."],
+[35,"на безлюдьи","За неимением лучших людей."],
+[36,"ценители","Оценщики, критики."],
+[38,"враг исканий","Тот, кто не «ищет», то есть не добивается чинов и выгодных мест. «Искать» тогда значило делать карьеру."],
+[39,"ни мест, ни повышенья в чин","Ни должностей, ни продвижения по службе."],
+[40,"вперит ум, алчущий познаний","Направит ум, жаждущий знаний."],
+[41,"возбудит жар","Разожжёт страсть, увлечённость."],
+[43,"разбой! пожар!","Поднимут крик, будто случилась беда."],
+[44,"мечтателем! опасным!!","Мечтатель — непрактичный человек. Опасный — вольнодумец, неблагонадёжный."],
+[45,"Мундир!","Форменная одежда военных и чиновников, знак службы и чина."],
+[45,"в прежнем их быту","В их прежней жизни, в молодости."],
+[46,"расшитый","Украшенный золотым шитьём."],
+[47,"слабодушие, рассудка нищету","Слабость характера и бедность ума."],
+[48,"в путь счастливый","С иронией: и нам предлагают идти той же дорогой."],
+[50,"от нежности отрекся","Отказался от слабости к мундиру."],
+[51,"ребячество","Детскую глупость."],
+[52,"повлекся","Потянулся, увлёкся."],
+[53,"из гвардии, иные от двора","Гвардейские офицеры и придворные из Петербурга."],
+[56,"чепчики","Женские головные уборы. Бросать чепчики в воздух — бурно восторгаться."]
+];
+/*END DATA*/
+
+const LINES = L.map((x,i)=>({ind:x[0], t:x[1], r:RHY[i]}));
+const STEPS = ['understand','letters','fade','chain','order','voice'];
+const STEP_LABEL = {understand:'Понять',letters:'Буквы',fade:'Пропуски',chain:'Цепочка',order:'Порядок',voice:'Вслух'};
+const ROMAN = ['I–VI','I','II','III','IV','V','VI'];
+const ORDER_PARTS = [1,2,3,4,5,6,0];
+const ST_LABEL = {none:'не начата',learning:'учу',known:'выучена'};
+const CYR = 'абвгдежзик';
+const WORD = /[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*/g;
+const HOWTO = {
+  understand:'Прочитай пересказ и нажми на слова с точечным подчёркиванием. Потом прочитай часть вслух 2–3 раза.',
+  letters:'Читай вслух, глядя только на первые буквы слов. Застрял — нажми на строку, чтобы открыть её.',
+  fade:'Часть слов скрыта. Читай вслух и вставляй их по памяти, нажми на пропуск, чтобы подсмотреть. Повышай уровень, пока не дойдёшь до «Всё».',
+  chain:'Видишь строку — вспомни вслух следующую и только потом проверь. Забытые строки вернутся ещё раз.',
+  order:'Строки перемешаны. Нажимай их в правильном порядке.',
+  voice:'Нажми на поле, затем на значок <svg class="mic" viewBox="0 0 16 16" aria-label="микрофон"><rect x="5.5" y="1.5" width="5" height="8" rx="2.5"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2.5"/></svg> на клавиатуре телефона и читай по памяти. Слова проявляются, как только ты их произносишь. Диктовка замолкла после паузы — нажми на микрофон снова. На компьютере подойдёт системная диктовка (Win+H) или обычный ввод.',
+  voiceMic:'Нажми «Слушать» и читай по памяти. Слова проявляются, как только ты их произносишь, а страница сама прокручивается за тобой. Распознавание в Chrome работает через интернет.'
+};
+// Live speech recognition only when the page is opened directly (not inside the Claude viewer, where the microphone is blocked)
+const SR = (function(){ try{ if(window.self!==window.top) return null; }catch(e){ return null; } return window.SpeechRecognition || window.webkitSpeechRecognition || null; })();
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const range = n => { if(n===0) return LINES.map((_,i)=>i); const p=PARTS[n-1]; const r=[]; for(let i=p.a;i<=p.b;i++) r.push(i); return r; };
+const partOf = i => PARTS.find(p=>i>=p.a && i<=p.b).n;
+const letters = t => t.replace(WORD, m => m.split('-').map(w=>w[0]).join('-'));
+
+function rhymeInfo(i){
+  const p = PARTS[partOf(i)-1]; const order=[];
+  for(let k=p.a;k<=p.b;k++){ if(!order.includes(LINES[k].r)) order.push(LINES[k].r); }
+  const idx = order.indexOf(LINES[i].r);
+  return {letter: CYR[idx], color: 'var(--r'+(idx%6+1)+')'};
+}
+
+/* ---------- storage ---------- */
+const KEY = 'sudi-kto-progress-v1';
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.parts) return s; }catch(e){} return {parts:{}, lines:{}}; }
+let store = load();
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+function P(n){ return store.parts[n] || (store.parts[n] = {steps:{}, best:0}); }
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function daysSince(s){ if(!s) return 999; const [y,m,d]=s.split('-').map(Number); const a=new Date(y,m-1,d); const b=new Date(); b.setHours(0,0,0,0); return Math.round((b-a)/86400000); }
+function mark(n, step){ const p=P(n); if(!p.started) p.started=today(); if(step) p.steps[step]=1; p.last=today(); save(); }
+function status(n){ const p=store.parts[n]; if(!p) return 'none'; if((p.best||0)>=0.9 || (p.voiceBest||0)>=0.9) return 'known'; if(Object.keys(p.steps||{}).length) return 'learning'; return 'none'; }
+function nextStep(n){ const p=store.parts[n]; if(status(n)==='known') return 'chain'; return STEPS.find(s=>!(p && p.steps && p.steps[s])) || 'chain'; }
+function agoText(s){ const d=daysSince(s); return d===1?'вчера':d===2?'позавчера':d+' дн. назад'; }
+
+/* ---------- state ---------- */
+const S = { part:1, mode:'understand', retell:true, lettersOpen:new Set(), fadeLevel:1, fadeSeed:7, fadeOpen:new Set(), chain:null, order:null };
+
+/* ---------- home ---------- */
+function recommend(){
+  const t = today();
+  for(const n of [1,2,3,4,5,6]){
+    const p = store.parts[n]; if(!p || !p.started || p.started===t) continue;
+    const gap = status(n)==='known' ? 3 : 1;
+    if(daysSince(p.chainDate || p.started) >= gap){
+      return {n, mode:'chain', title:'Повтори часть '+ROMAN[n]+': '+PARTS[n-1].title,
+        text:'Последний раз ты её проходил '+agoText(p.chainDate || p.last || p.started)+'. Пройди «Цепочку»: вспоминать через день — самое полезное повторение.', btn:'Повторить'};
+    }
+  }
+  const nextN = [1,2,3,4,5,6].find(n=>status(n)!=='known');
+  if(nextN){
+    const newToday = [1,2,3,4,5,6].filter(n=>store.parts[n] && store.parts[n].started===t);
+    const p = store.parts[nextN];
+    if(newToday.length>=2 && !(p && p.started)){
+      const rev = newToday.find(n=>store.parts[n].chainDate!==t) || newToday[0];
+      return {n:rev, mode:'chain', title:'На сегодня две новые части — хватит',
+        text:'Лучше закрепить выученное, чем брать третью часть. Пройди «Цепочку» перед сном, а завтра продолжим с части '+ROMAN[nextN]+'.',
+        btn:'Повторить часть '+ROMAN[rev], alt:{n:nextN, mode:'understand', btn:'Всё равно учить дальше'}};
+    }
+    const st = nextStep(nextN);
+    let text;
+    if(st==='understand') text = PARTS[nextN-1].gist+' Начни с пересказа и трудных слов.';
+    else if(st==='chain' && p && p.steps && p.steps.chain) text = 'Лучший результат в «Цепочке»: '+Math.round((p.best||0)*100)+'%. Пройди её ещё раз: часть засчитывается с 90%.';
+    else text = 'Следующий шаг — «'+STEP_LABEL[st]+'».';
+    return {n:nextN, mode:st, title:'Часть '+ROMAN[nextN]+': '+PARTS[nextN-1].title, text, btn: st==='understand'?'Начать':'Продолжить'};
+  }
+  return {n:0, mode: store.parts[0] && store.parts[0].steps.order ? 'chain' : 'order', title:'Весь монолог целиком',
+    text:'Все шесть частей выучены. Расставь части по порядку, пройди «Цепочку» по всему тексту, потом прочитай вслух без подсказок.', btn:'Начать'};
+}
+
+function renderHome(){
+  const known = [1,2,3,4,5,6].filter(n=>status(n)==='known').length;
+  $('#ovBar').style.width = (known/6*100)+'%';
+  $('#ovText').textContent = 'Выучено '+known+' из 6 частей';
+  const r = recommend();
+  $('#rec').innerHTML = '<p class="label">Что делать сейчас</p><h2>'+esc(r.title)+'</h2><p class="t">'+esc(r.text)+'</p><div class="btns"><button class="btn primary" data-act="go" data-n="'+r.n+'" data-mode="'+r.mode+'">'+esc(r.btn)+'</button>'+(r.alt?'<button class="btn ghost" data-act="go" data-n="'+r.alt.n+'" data-mode="'+r.alt.mode+'">'+esc(r.alt.btn)+'</button>':'')+'</div>';
+  const rows = PARTS.map(p=>row(p.n, p.title, 'Строки '+(p.a+1)+'–'+(p.b+1)+' · '+(p.b-p.a+1)+' строк · рифмы '+p.scheme, LINES[p.a].t));
+  rows.push(row(0, 'Весь монолог', '57 строк · после всех частей', 'Порядок частей, затем «Цепочка» целиком'));
+  $('#plist').innerHTML = rows.join('');
+}
+function row(n, title, meta, first){
+  const p = store.parts[n]; const st = status(n);
+  const pips = STEPS.map(s=>'<i class="'+(p && p.steps && p.steps[s]?'on':'')+'"></i>').join('');
+  const done = STEPS.filter(s=>p && p.steps && p.steps[s]).length;
+  return '<li><button class="prow" data-act="go" data-n="'+n+'" data-mode="'+(n===0 ? (p&&p.steps.order?'chain':'order') : nextStep(n))+'" aria-label="'+esc(title)+', '+ST_LABEL[st]+', шагов пройдено: '+done+' из '+STEPS.length+'">'+
+    '<span class="rn" style="'+(n===0?'font-size:18px;padding-top:6px':'')+'">'+ROMAN[n]+'</span>'+
+    '<span class="pbody"><span class="pt">'+esc(title)+'</span><span class="pm">'+esc(meta)+'</span><span class="pf">'+esc(first)+'</span><span class="pips" aria-hidden="true">'+pips+'</span></span>'+
+    '<span class="chip '+st+'">'+ST_LABEL[st]+'</span></button></li>';
+}
+
+/* ---------- trainer ---------- */
+function openPart(n, mode){
+  stopSpeak();
+  S.part = n;
+  $('#home').hidden = true; $('#trainer').hidden = false;
+  setMode(mode || 'understand', true);
+  window.scrollTo(0,0);
+}
+function goHome(){
+  stopSpeak(); micStop();
+  $('#trainer').hidden = true; $('#home').hidden = false;
+  renderHome(); window.scrollTo(0,0);
+}
+function setMode(m, fresh){
+  stopSpeak(); micStop();
+  S.mode = m;
+  S.lettersOpen = new Set(); S.fadeOpen = new Set();
+  if(fresh) S.fadeLevel = 1;
+  if(m==='chain') startChain(range(S.part), false);
+  if(m==='order') startOrder();
+  if(m==='voice') S.voice = newVoice();
+  if(m==='understand' || m==='letters') mark(S.part, m);
+  if(m==='fade' && S.fadeLevel===4) mark(S.part, 'fade');
+  renderTrainer();
+}
+function renderTrainer(){
+  const n = S.part;
+  $('#ptitle').innerHTML = n===0 ? '<span class="pnum">I–VI</span>Весь монолог' : '<span class="pnum">'+ROMAN[n]+'</span>'+esc(PARTS[n-1].title);
+  const oi = ORDER_PARTS.indexOf(n);
+  $('#prevBtn').disabled = oi===0; $('#nextBtn').disabled = oi===ORDER_PARTS.length-1;
+  const p = store.parts[n];
+  $('#tabs').innerHTML = STEPS.map(s=>'<button class="tab" role="tab" data-act="tab" data-mode="'+s+'" aria-selected="'+(s===S.mode)+'">'+STEP_LABEL[s]+(p && p.steps && p.steps[s] ? '<span class="dot" aria-label="пройдено"></span>':'')+'</button>').join('');
+  if(n===0) $('#phead').innerHTML = '<p class="pmeta">57 строк · 6 частей</p><p class="gist">Весь монолог подряд. Сначала проверь порядок частей, потом цепочку целиком.</p>';
+  else { const pp = PARTS[n-1]; $('#phead').innerHTML = '<p class="pmeta">Строки '+(pp.a+1)+'–'+(pp.b+1)+' · рифмы '+pp.scheme+'</p><p class="gist">'+esc(pp.gist)+'</p>'; }
+  renderMode();
+}
+function renderMode(){
+  const m = S.mode;
+  let h = '<p class="howto">'+(m==='voice' && SR ? HOWTO.voiceMic : HOWTO[m])+'</p>';
+  if(m==='understand') h += understandHTML();
+  else if(m==='letters') h += lettersHTML();
+  else if(m==='fade') h += fadeHTML();
+  else if(m==='chain') h += chainHTML();
+  else if(m==='order') h += orderHTML();
+  else if(m==='voice') h += voiceHTML();
+  $('#mode').innerHTML = h;
+  if(m==='voice') renderVoiceOut();
+}
+function eachPart(fn){
+  const n = S.part; const parts = n===0 ? PARTS : [PARTS[n-1]];
+  return parts.map(p=>(n===0 ? '<h3 class="pbreak"><span class="pnum">'+ROMAN[p.n]+'</span>'+esc(p.title)+'</h3>' : '') + fn(p)).join('');
+}
+function isWeak(i){ return store.lines[i]!==undefined && store.lines[i]<2; }
+
+/* understand */
+function markup(i){
+  const t = LINES[i].t; const gls = [];
+  GL.forEach((g,k)=>{ if(g[0]===i){ const s=t.indexOf(g[1]); if(s>=0) gls.push({s, e:s+g[1].length, k}); } });
+  let last = null; t.replace(WORD, (m, off)=>{ last={s:off, e:off+m.length}; return m; });
+  const cuts = new Set([0, t.length]); if(last){ cuts.add(last.s); cuts.add(last.e); }
+  gls.forEach(g=>{ cuts.add(g.s); cuts.add(g.e); });
+  const pts = [...cuts].sort((a,b)=>a-b); let html = '';
+  for(let j=0;j<pts.length-1;j++){
+    const a=pts[j], b=pts[j+1]; if(a===b) continue;
+    let h = esc(t.slice(a,b));
+    if(last && a>=last.s && b<=last.e) h = '<span class="rw">'+h+'</span>';
+    const g = gls.find(x=>a>=x.s && b<=x.e);
+    if(g) h = '<span class="gl" role="button" tabindex="0" data-act="gloss" data-g="'+g.k+'">'+h+'</span>';
+    html += h;
+  }
+  return html;
+}
+function lineHTML(i){
+  const ri = rhymeInfo(i);
+  return '<div class="vl" data-line="'+i+'" style="--ind:'+LINES[i].ind+';--rc:'+ri.color+'"><span class="ln'+(isWeak(i)?' weak':'')+'">'+(i+1)+'</span><span class="vt">'+markup(i)+'</span><span class="rl" aria-label="рифма '+ri.letter+'">'+ri.letter+'</span></div>';
+}
+function understandHTML(){
+  const n = S.part;
+  let h = '<div class="toolbar"><button class="btn small" data-act="retell" aria-pressed="'+S.retell+'">Пересказ</button><button class="btn small" data-act="speak" id="speakBtn">'+(speaking?'Остановить':'Слушать')+'</button></div>';
+  h += eachPart(p=>{
+    let x = '';
+    if(S.retell) x += '<div class="retell"><p class="label">Своими словами</p><p>'+esc(p.retell)+'</p></div>';
+    if(n!==0) x += '<p class="tone"><b>Интонация.</b> '+esc(p.tone)+'</p>';
+    return x + '<div class="verse">'+range(p.n).map(lineHTML).join('')+'</div>';
+  });
+  const anyWeak = range(n).some(isWeak);
+  h += '<p class="legend">Буква справа и цвет последнего слова показывают рифму: строки с одной буквой рифмуются.'+(anyWeak?' Красный номер — строка, которую ты не вспомнил сразу в последней «Цепочке».':'')+'</p>';
+  return h;
+}
+
+/* letters */
+function lettersHTML(){
+  const allOpen = range(S.part).every(i=>S.lettersOpen.has(i));
+  let h = '<div class="toolbar"><button class="btn small" data-act="letters-all">'+(allOpen?'Скрыть все строки':'Открыть все строки')+'</button></div>';
+  h += eachPart(p=>'<div class="verse">'+range(p.n).map(i=>{
+    const open = S.lettersOpen.has(i);
+    return '<div class="vl tap'+(open?' open':'')+'" data-act="letter-line" data-line="'+i+'" role="button" tabindex="0" aria-expanded="'+open+'" style="--ind:'+LINES[i].ind+'"><span class="ln'+(isWeak(i)?' weak':'')+'">'+(i+1)+'</span><span class="vt"><span class="lt">'+esc(letters(LINES[i].t))+'</span><span class="full">'+esc(LINES[i].t)+'</span></span><span></span></div>';
+  }).join('')+'</div>');
+  return h;
+}
+
+/* fade */
+function rnd(seed, a, b){
+  let h = Math.imul(seed ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(a + 1, 0xc2b2ae35) ^ Math.imul(b + 7, 0x27d4eb2f);
+  h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d); h ^= h >>> 12; h = Math.imul(h, 0x297a2d39); h ^= h >>> 15;
+  return (h >>> 0) / 4294967296;
+}
+function fadeLine(i){
+  const frac = [0.25,0.5,0.75,1][S.fadeLevel-1];
+  const toks = LINES[i].t.split(/(\s+)/); let w = 0;
+  const body = toks.map(tok=>{
+    if(!/[А-Яа-яЁё]/.test(tok)) return esc(tok);
+    const k = w++; const id = i+':'+k;
+    if(!(frac>=1 || rnd(S.fadeSeed, i, k) < frac)) return esc(tok);
+    const m = tok.match(/^(.*?)([А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*)(.*)$/);
+    const open = S.fadeOpen.has(id);
+    return esc(m[1])+'<span class="blank'+(open?' open':'')+'" role="button" tabindex="0" data-act="blank" data-w="'+id+'" aria-label="'+(open?esc(m[2]):'скрытое слово')+'">'+esc(m[2])+'</span>'+esc(m[3]);
+  }).join('');
+  return '<div class="vl" style="--ind:'+LINES[i].ind+'"><span class="ln'+(isWeak(i)?' weak':'')+'">'+(i+1)+'</span><span class="vt">'+body+'</span><span></span></div>';
+}
+function fadeHTML(){
+  const lv = ['¼','½','¾','Всё'];
+  let h = '<div class="toolbar"><div class="seg" role="group" aria-label="Сколько слов скрыть">'+lv.map((x,k)=>'<button data-act="fade-level" data-lv="'+(k+1)+'" aria-pressed="'+(S.fadeLevel===k+1)+'">'+x+'</button>').join('')+'</div>'+
+    (S.fadeLevel<4?'<button class="btn small" data-act="fade-shuffle">Скрыть другие слова</button>':'')+'</div>';
+  h += eachPart(p=>'<div class="verse">'+range(p.n).map(fadeLine).join('')+'</div>');
+  if(S.fadeLevel===4) h += '<p class="legend">Скрыты все слова, видна только длина. Если прочитал всё без подсказок — переходи к «Цепочке».</p>';
+  return h;
+}
+
+/* chain */
+function startChain(idx, retry){
+  S.chain = {items: idx.map(i=>({i, again:0})), pos:0, revealed:false, hint:false, first:{}, total: idx.length, done:false, retry, score:0};
+}
+function chainHTML(){
+  const c = S.chain; if(!c) return '';
+  if(c.done) return resultHTML();
+  const it = c.items[c.pos], i = it.i, pn = partOf(i), p = PARTS[pn-1];
+  let label, cue, intro = false;
+  if(i===0){ label='Начало монолога'; cue='Фамусов упрекает Чацкого: такие мысли, мол, все осуждают. Чацкий отвечает…'; intro=true; }
+  else if(i===p.a){ label='Конец части '+ROMAN[pn-1]; cue=LINES[i-1].t; }
+  else { label='Перед этим'; cue=LINES[i-1].t; }
+  const pct = Math.round(c.pos / c.items.length * 100);
+  let target, cls;
+  if(c.revealed){ target = esc(LINES[i].t); cls=''; }
+  else if(c.hint){ target = esc(letters(LINES[i].t)); cls='hint'; }
+  else { target = '· · ·'; cls='wait'; }
+  const startNote = (i===p.a && S.part===0) ? ' · начало части '+ROMAN[pn] : '';
+  let actions;
+  if(c.revealed){
+    actions = c.hint
+      ? '<div class="grade" style="--n:2"><button class="btn g0" data-act="cgrade" data-g="0">Не помнил</button><button class="btn g1" data-act="cgrade" data-g="1">С подсказкой</button></div>'
+      : '<div class="grade"><button class="btn g0" data-act="cgrade" data-g="0">Не помнил</button><button class="btn g1" data-act="cgrade" data-g="1">С трудом</button><button class="btn g2" data-act="cgrade" data-g="2">Помнил</button></div>';
+  } else {
+    actions = '<div class="btns cact">'+(c.hint?'':'<button class="btn" data-act="chint">Первые буквы</button>')+'<button class="btn primary" data-act="cshow">Проверить</button></div>';
+  }
+  return '<div class="chain">'+
+    '<div class="cprog"><div class="bar"><i style="width:'+pct+'%"></i></div><span>'+(c.pos+1)+' / '+c.items.length+'</span></div>'+
+    '<p class="label">'+label+'</p><p class="cue'+(intro?' intro':'')+'">'+esc(cue)+'</p>'+
+    '<hr class="cdiv"><p class="label">Строка '+(i+1)+startNote+(it.again?' · ещё раз':'')+'</p>'+
+    '<p class="target '+cls+'" aria-live="polite">'+target+'</p>'+actions+
+    '<p class="keys">Пробел — проверить, клавиши 1 · 2 · 3 — оценка</p></div>';
+}
+function chainGrade(g){
+  const c = S.chain; const it = c.items[c.pos];
+  if(c.hint) g = Math.min(g, 1);
+  if(c.first[it.i]===undefined) c.first[it.i] = g;
+  if(g===0 && it.again<2){ const at = Math.min(c.items.length, c.pos+4); c.items.splice(at, 0, {i:it.i, again:it.again+1}); }
+  c.pos++; c.revealed = false; c.hint = false;
+  if(c.pos >= c.items.length) finishChain();
+  renderMode();
+  if(window.matchMedia('(max-width:700px)').matches) $('#mode').scrollIntoView({block:'start'});
+}
+function finishChain(){
+  const c = S.chain; c.done = true;
+  const good = Object.values(c.first).filter(v=>v===2).length;
+  c.score = good / c.total;
+  Object.keys(c.first).forEach(k=>{ store.lines[k] = c.first[k]; });
+  if(!c.retry){ const p = P(S.part); p.best = Math.max(p.best||0, c.score); p.chainDate = today(); mark(S.part, 'chain'); }
+  else save();
+  renderTrainerTabsOnly();
+}
+function resultHTML(){
+  const c = S.chain;
+  const good = Object.values(c.first).filter(v=>v===2).length;
+  const tough = Object.keys(c.first).map(Number).filter(k=>c.first[k]<2).sort((a,b)=>a-b);
+  let verdict;
+  if(c.retry) verdict = tough.length ? 'Эти строки ещё не держатся. Пройди их снова или вернись к «Пропускам».' : 'Трудные строки теперь вспоминаются сразу.';
+  else if(c.score>=0.9) verdict = S.part===0 ? 'Монолог выучен. Прочитай его вслух целиком без текста — с интонацией.' : 'Часть выучена. Повтори её через пару дней.';
+  else if(c.score>=0.6) verdict = 'Почти. Пройди «Пропуски» на уровне «Всё» и повтори цепочку.';
+  else verdict = 'Пока рано. Вернись к «Буквам» и «Пропускам», потом попробуй снова.';
+  let h = '<div class="chain"><p class="label">'+(c.retry?'Трудные строки':'Результат')+'</p><p class="big">'+good+' <small>из '+c.total+'</small></p><p style="color:var(--muted)">строк вспомнил сразу</p><p class="verdict">'+verdict+'</p>';
+  if(tough.length) h += '<p class="label">Над чем поработать</p><ul class="tough">'+tough.map(i=>'<li><span class="ln weak">'+(i+1)+'</span><span>'+esc(LINES[i].t)+'</span></li>').join('')+'</ul>';
+  h += '<div class="btns">';
+  if(tough.length) h += '<button class="btn primary" data-act="ctough">Повторить трудные ('+tough.length+')</button>';
+  h += '<button class="btn" data-act="cagain">Заново</button>';
+  const oi = ORDER_PARTS.indexOf(S.part);
+  if(!c.retry && c.score>=0.9 && S.part!==0) h += '<button class="btn'+(tough.length?'':' primary')+'" data-act="next-part">'+(oi<5 ? 'Часть '+ROMAN[ORDER_PARTS[oi+1]]+' →' : 'Весь монолог →')+'</button>';
+  h += '</div></div>';
+  return h;
+}
+
+/* order */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let t=0;t<10;t++){
+    for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    if(a.some((x,k)=>x!==arr[k])) break;
+  }
+  return a;
+}
+function startOrder(){
+  const items = S.part===0 ? PARTS.map(p=>p.n) : range(S.part);
+  S.order = {items, pool: shuffle(items), done:[], miss:0, finished:false};
+}
+function orderHTML(){
+  const o = S.order, whole = S.part===0;
+  const poolLabel = it => whole ? esc(LINES[PARTS[it-1].a].t)+' …' : esc(LINES[it].t);
+  const doneRow = it => whole
+    ? '<li><span class="ln" style="font-family:var(--f-display);font-size:14px;color:var(--gilt)">'+ROMAN[it]+'</span><span>'+esc(PARTS[it-1].title)+' — '+esc(LINES[PARTS[it-1].a].t)+'</span></li>'
+    : '<li><span class="ln">'+(it+1)+'</span><span>'+esc(LINES[it].t)+'</span></li>';
+  let h = '<ol class="assembled">'+(o.done.length ? o.done.map(doneRow).join('') : '<li class="empty">'+(whole?'Здесь части выстроятся по порядку':'Здесь строки выстроятся по порядку')+'</li>')+'</ol>';
+  if(o.finished){
+    h += '<div class="chain"><p class="label">Готово</p><p class="big" style="font-size:34px">'+(o.miss===0?'Без ошибок':'Ошибок: '+o.miss)+'</p><p class="verdict">'+(o.miss===0?'Порядок держится крепко.':'Перечитай места, где ошибся, и собери ещё раз.')+'</p><div class="btns"><button class="btn primary" data-act="oagain">Собрать ещё раз</button>'+(whole?'<button class="btn" data-act="tab" data-mode="chain">К «Цепочке» →</button>':'')+'</div></div>';
+  } else {
+    h += '<p class="label olabel"><span>'+(whole?'Какая часть дальше?':'Какая строка дальше?')+'</span><span class="miss">Ошибок: '+o.miss+'</span></p><div class="pool">'+o.pool.map(it=>'<button class="pick" data-act="opick" data-item="'+it+'">'+poolLabel(it)+'</button>').join('')+'</div>';
+  }
+  return h;
+}
+function orderPick(it, el){
+  const o = S.order; if(o.finished) return;
+  if(it === o.items[o.done.length]){
+    o.done.push(it); o.pool = o.pool.filter(x=>x!==it);
+    if(!o.pool.length){ o.finished = true; mark(S.part, 'order'); renderTrainerTabsOnly(); }
+    renderMode();
+  } else {
+    o.miss++;
+    el.classList.remove('wrong'); void el.offsetWidth; el.classList.add('wrong');
+    const m = document.querySelector('.olabel .miss'); if(m) m.textContent = 'Ошибок: '+o.miss;
+    setTimeout(()=>el.classList.remove('wrong'), 600);
+  }
+}
+function renderTrainerTabsOnly(){
+  const p = store.parts[S.part];
+  document.querySelectorAll('#tabs .tab').forEach(b=>{
+    const s = b.dataset.mode;
+    b.innerHTML = STEP_LABEL[s]+(p && p.steps && p.steps[s] ? '<span class="dot" aria-label="пройдено"></span>':'');
+  });
+}
+
+/* voice: dictation through the phone keyboard, checked word by word */
+const ALIAS = {'б':'бы','ль':'ли','уж':'уже','об':'о','3':'три'};
+function canon(w){ const x = w.toLowerCase().replace(/ё/g,'е').replace(/[^а-яa-z0-9]/g,''); return ALIAS[x] || x; }
+function lev(a,b){
+  if(a===b) return 0; const m=a.length, n=b.length; if(!m) return n; if(!n) return m;
+  let prev=[]; for(let j=0;j<=n;j++) prev[j]=j;
+  for(let i=1;i<=m;i++){ const cur=[i]; for(let j=1;j<=n;j++) cur[j]=Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1)); prev=cur; }
+  return prev[n];
+}
+const simCache = new Map();
+function similar(a,b){
+  if(a===b) return true;
+  const key=a+'|'+b; let r=simCache.get(key); if(r!==undefined) return r;
+  const L=Math.max(a.length,b.length);
+  if(L<5 || Math.abs(a.length-b.length)>2) r=false;
+  else { const d=lev(a,b); r = L>=8 ? d<=2 : d<=1; }
+  simCache.set(key,r); return r;
+}
+function newVoice(){
+  const T=[];
+  range(S.part).forEach(i=>{ LINES[i].t.replace(/[А-Яа-яЁё]+/g, m=>{ T.push({i, w:m, k:canon(m)}); return m; }); });
+  return {T, keys:T.map(t=>t.k), text:'', accepted:new Set(), peek:new Set(), show:false, res:null, finished:false};
+}
+function heardTokens(text){ return text.split(/[^0-9A-Za-zА-Яа-яЁё]+/).filter(Boolean).map(canon).filter(Boolean); }
+function align(T, H){
+  const n=T.length, m=H.length, W=n+1;
+  const D=new Uint32Array((m+1)*W), B=new Uint8Array((m+1)*W);
+  for(let j=0;j<=n;j++){ D[j]=j; B[j]=2; }
+  for(let i=1;i<=m;i++){
+    const r=i*W, pr=(i-1)*W, h=H[i-1]; D[r]=i; B[r]=1;
+    for(let j=1;j<=n;j++){
+      let best=D[pr+j-1]+(similar(h,T[j-1])?0:1), b=0;
+      const up=D[pr+j]+1; if(up<best){ best=up; b=1; }
+      const left=D[r+j-1]+1; if(left<best){ best=left; b=2; }
+      D[r+j]=best; B[r+j]=b;
+    }
+  }
+  let end=0, bc=Infinity; const rm=m*W;
+  for(let j=0;j<=n;j++){ if(D[rm+j]<=bc){ bc=D[rm+j]; end=j; } }
+  const st=new Array(n).fill('pending'), heard=new Array(n);
+  let i=m, j=end;
+  while(i>0 || j>0){
+    const b = i===0 ? 2 : j===0 ? 1 : B[i*W+j];
+    if(b===0){ st[j-1]=similar(H[i-1],T[j-1])?'ok':'wrong'; heard[j-1]=H[i-1]; i--; j--; }
+    else if(b===1){ i--; }
+    else { st[j-1]='skip'; j--; }
+  }
+  // the last word may still be coming in (partial dictation or typing): don't flag it yet
+  if(end>0 && m>0 && st[end-1]==='wrong' && heard[end-1]===H[m-1] && T[end-1].startsWith(H[m-1])){ st[end-1]='pending'; end--; }
+  return {st, heard, end};
+}
+function voiceStatus(g){ const v=S.voice; return v.accepted.has(g) ? 'ok' : v.res.st[g]; }
+function wordSpan(g, w){
+  const v=S.voice, s=voiceStatus(g), manual=v.accepted.has(g);
+  if(s==='ok') return manual
+    ? '<span class="w ok manual" role="button" tabindex="0" data-act="vword" data-g="'+g+'" title="Засчитано вручную, нажми, чтобы отменить">'+esc(w)+'</span>'
+    : '<span class="w ok">'+esc(w)+'</span>';
+  if(s==='pending'){
+    const pk=v.peek.has(g);
+    return '<span class="w pend'+(pk?' peek':'')+(g===v.res.end?' next':'')+'" role="button" tabindex="0" data-act="vword" data-g="'+g+'" aria-label="'+(pk||v.show?esc(w):'скрытое слово')+'">'+esc(w)+'</span>';
+  }
+  const tip = s==='wrong' ? 'Услышано: '+(v.res.heard[g]||'')+'. Нажми, чтобы засчитать' : 'Пропущено. Нажми, чтобы засчитать';
+  return '<span class="w '+s+'" role="button" tabindex="0" data-act="vword" data-g="'+g+'" title="'+esc(tip)+'">'+esc(w)+'</span>';
+}
+function voiceVerse(){
+  const v=S.voice, starts={};
+  v.T.forEach((t,k)=>{ if(starts[t.i]===undefined) starts[t.i]=k; });
+  return eachPart(p=>'<div class="verse'+(v.show?' show':'')+'">'+range(p.n).map(i=>{
+    const t=LINES[i].t, re=/[А-Яа-яЁё]+/g; let out='', last=0, gi=starts[i], m;
+    while((m=re.exec(t))){ out += esc(t.slice(last,m.index)) + wordSpan(gi, m[0]); gi++; last=m.index+m[0].length; }
+    out += esc(t.slice(last));
+    return '<div class="vl" style="--ind:'+LINES[i].ind+'"><span class="ln'+(isWeak(i)?' weak':'')+'">'+(i+1)+'</span><span class="vt">'+out+'</span><span></span></div>';
+  }).join('')+'</div>');
+}
+function voiceHTML(){
+  const v=S.voice; if(v.finished) return voiceResultHTML();
+  const micRow = SR ? '<div class="microw"><button class="btn primary mic-btn" data-act="vmic" id="micBtn" aria-pressed="false"><span class="pulse" aria-hidden="true"></span><span id="micLabel">Слушать</span></button><span class="micstate" id="micState" aria-live="polite">Микрофон выключен</span></div>' : '';
+  return micRow + '<textarea id="voiceIn" class="vin" rows="3" lang="ru" spellcheck="false" autocomplete="off" aria-label="Текст, который ты прочитал" placeholder="'+(SR?'Здесь появится распознанный текст':'Нажми сюда, затем на микрофон на клавиатуре и читай по памяти')+'">'+esc(v.text)+'</textarea>'+
+    '<div class="toolbar" style="margin-top:10px"><button class="btn small" data-act="vshow" aria-pressed="'+v.show+'">Показывать текст</button><button class="btn small" data-act="vhint">Подсказать слово</button><button class="btn small ghost" data-act="vclear">Очистить</button><button class="btn small primary" data-act="vfinish">Закончить</button></div>'+
+    '<div class="vstat" id="voiceStat" aria-live="polite"></div><div id="voiceOut"></div>'+
+    '<p class="legend"><span class="w wrong">слово</span> — сказано иначе, <span class="w skip">слово</span> — пропущено. Если телефон не расслышал старинное слово, нажми на него, чтобы засчитать.</p>';
+}
+let voiceRAF=0;
+function scheduleVoice(){ if(voiceRAF) return; voiceRAF=requestAnimationFrame(()=>{ voiceRAF=0; renderVoiceOut(); }); }
+function renderVoiceOut(){
+  const v=S.voice; if(!v || v.finished) return;
+  v.res = align(v.keys, heardTokens(v.text));
+  const out=$('#voiceOut'); if(out) out.innerHTML = voiceVerse();
+  const n=v.T.length; let ok=0, wrong=0, skip=0;
+  for(let g=0;g<n;g++){ const s=voiceStatus(g); if(s==='ok') ok++; else if(s==='wrong') wrong++; else if(s==='skip') skip++; }
+  if(rec.on && v.res.end!==v.lastEnd){
+    v.lastEnd = v.res.end;
+    const nx = document.querySelector('#voiceOut .w.next');
+    if(nx){ const r = nx.getBoundingClientRect(); if(r.bottom > window.innerHeight-90 || r.top < 150){ try{ nx.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){} } }
+  }
+  const st=$('#voiceStat');
+  if(st) st.innerHTML = '<div class="bar"><i style="width:'+Math.round(v.res.end/n*100)+'%"></i></div><span>Пройдено <b>'+v.res.end+'</b> из '+n+' слов</span><span>верно <b>'+ok+'</b></span><span>иначе <b>'+wrong+'</b></span><span>пропущено <b>'+skip+'</b></span>';
+}
+function voiceFinish(){
+  const v=S.voice; if(!v.res) renderVoiceOut();
+  if(!v.res || v.res.end===0){ toast('Сначала прочитай хотя бы пару строк'); return; }
+  const n=v.T.length, cnt={}, err={}, lastG={}; let ok=0;
+  v.T.forEach((t,g)=>{ const s=voiceStatus(g); if(s==='ok') ok++; cnt[t.i]=(cnt[t.i]||0)+1; if(s!=='ok') err[t.i]=(err[t.i]||0)+1; lastG[t.i]=g; });
+  const bad=[];
+  Object.keys(cnt).forEach(k=>{ if(lastG[k] < v.res.end){ const e=err[k]||0; store.lines[k] = e===0 ? 2 : (e*2>=cnt[k] ? 0 : 1); if(e) bad.push(Number(k)); } });
+  v.ok=ok; v.score=ok/n; v.bad=bad.sort((a,b)=>a-b); v.complete=v.res.end>=n; v.finished=true;
+  const p=P(S.part); p.voiceBest=Math.max(p.voiceBest||0, v.score); if(v.complete) p.chainDate=today();
+  mark(S.part, 'voice'); renderTrainerTabsOnly(); renderMode();
+}
+function voiceResultHTML(){
+  const v=S.voice, n=v.T.length; let verdict;
+  if(!v.complete) verdict='Ты прочитал не до конца, поэтому несказанные слова не засчитаны. В следующий раз дочитай до последней строки.';
+  else if(v.score>=0.9) verdict = S.part===0 ? 'Монолог держится. Осталось поработать над интонацией.' : 'Отлично, часть звучит по памяти почти без ошибок.';
+  else if(v.score>=0.7) verdict='Хорошо, но есть сбои. Посмотри строки ниже и пройди их в «Цепочке».';
+  else verdict='Пока много ошибок. Вернись к «Пропускам», потом попробуй снова.';
+  let h='<div class="chain"><p class="label">Проверка вслух</p><p class="big">'+v.ok+' <small>из '+n+'</small></p><p style="color:var(--muted)">слов сказано верно · '+Math.round(v.score*100)+'%</p><p class="verdict">'+verdict+'</p>';
+  if(v.bad.length) h+='<p class="label">Строки с ошибками</p><ul class="tough">'+v.bad.map(i=>'<li><span class="ln weak">'+(i+1)+'</span><span>'+esc(LINES[i].t)+'</span></li>').join('')+'</ul>';
+  h+='<div class="btns"><button class="btn primary" data-act="vagain">Ещё раз</button>'+(v.bad.length?'<button class="btn" data-act="tab" data-mode="chain">К «Цепочке»</button>':'')+'</div></div>';
+  return h;
+}
+
+/* live microphone (standalone file opened in Chrome) */
+const rec = {on:false, inst:null, committed:'', session:[], gen:0, restarts:0, lastStart:0, wake:null};
+const joinText = (a,b) => (a+' '+b).replace(/\s+/g,' ').replace(/^\s+/,'');
+function dedupe(segs){
+  // Chrome on Android sometimes repeats the growing phrase in every result; keep the longest version
+  const out=[];
+  segs.forEach(s=>{
+    s=s.trim(); if(!s) return;
+    const prev=out[out.length-1];
+    if(prev!==undefined){ const a=prev.toLowerCase(), b=s.toLowerCase(); if(b.startsWith(a)){ out[out.length-1]=s; return; } if(a.startsWith(b)) return; }
+    out.push(s);
+  });
+  return out;
+}
+function pushText(){
+  const v=S.voice; if(!v || v.finished) return;
+  v.text = joinText(rec.committed, rec.session.join(' '));
+  const ta=$('#voiceIn'); if(ta) ta.value=v.text;
+  scheduleVoice();
+}
+function micState(msg){ const s=$('#micState'); if(s) s.textContent=msg; }
+function updMic(){
+  const b=$('#micBtn'), l=$('#micLabel'), ta=$('#voiceIn');
+  if(b){ b.classList.toggle('listening', rec.on); b.setAttribute('aria-pressed', rec.on); }
+  if(l) l.textContent = rec.on ? 'Остановить' : (S.voice && S.voice.text ? 'Продолжить' : 'Слушать');
+  if(ta) ta.readOnly = rec.on;
+}
+async function requestWake(){ try{ if('wakeLock' in navigator) rec.wake = await navigator.wakeLock.request('screen'); }catch(e){} }
+function releaseWake(){ try{ if(rec.wake) rec.wake.release(); }catch(e){} rec.wake=null; }
+function spawn(){
+  const gen=rec.gen; let r;
+  try{ r=new SR(); }catch(e){ micFail('Не получилось включить распознавание речи.'); return; }
+  r.lang='ru-RU'; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
+  r.onstart = ()=>{ if(gen===rec.gen) micState('Слушаю… читай по памяти'); };
+  r.onresult = e=>{
+    if(gen!==rec.gen) return;
+    const segs=[]; for(let i=0;i<e.results.length;i++) segs.push(e.results[i][0].transcript);
+    rec.session = dedupe(segs); pushText();
+  };
+  r.onerror = e=>{
+    if(gen!==rec.gen) return;
+    if(e.error==='not-allowed' || e.error==='service-not-allowed') micFail('Нет доступа к микрофону. Разреши его для этой страницы в настройках Chrome (значок слева от адреса).');
+    else if(e.error==='network') micFail('Распознаванию нужен интернет: Chrome отправляет звук на серверы Google.');
+    else if(e.error==='audio-capture') micFail('Микрофон не найден.');
+    else if(e.error==='language-not-supported') micFail('Этот браузер не распознаёт русскую речь. Открой файл в Chrome.');
+  };
+  r.onend = ()=>{
+    if(gen!==rec.gen) return;
+    rec.committed = joinText(rec.committed, rec.session.join(' ')); rec.session=[];
+    if(rec.on){
+      // recognition stops by itself after a pause: start it again while listening
+      rec.restarts = (Date.now()-rec.lastStart < 1500) ? rec.restarts+1 : 0;
+      if(rec.restarts>6){ micFail('Распознавание всё время обрывается. Нажми «Слушать» ещё раз.'); return; }
+      setTimeout(()=>{ if(rec.on && gen===rec.gen) spawn(); }, 150);
+    }
+    pushText();
+  };
+  rec.inst=r; rec.lastStart=Date.now();
+  try{ r.start(); }catch(e){ micFail('Не получилось включить микрофон.'); }
+}
+function micStart(){
+  if(!SR || !S.voice) return;
+  rec.gen++; rec.committed = S.voice.text || ''; rec.session=[]; rec.on=true; rec.restarts=0;
+  requestWake(); spawn(); updMic(); micState('Включаю микрофон…');
+}
+function micStop(){
+  if(!rec.on) return;
+  rec.on=false; try{ rec.inst && rec.inst.stop(); }catch(e){}
+  releaseWake(); updMic(); micState('Микрофон выключен');
+}
+function micFail(msg){
+  rec.on=false; rec.gen++; try{ rec.inst && rec.inst.abort(); }catch(e){}
+  releaseWake(); updMic(); micState(msg);
+}
+function micClear(){
+  rec.gen++; rec.committed=''; rec.session=[];
+  if(rec.on){ const old=rec.inst; rec.inst=null; try{ old && old.abort(); }catch(e){} spawn(); }
+}
+
+/* ---------- speech ---------- */
+let speaking = false, speakSess = 0;
+function ruVoice(){ try{ return speechSynthesis.getVoices().find(v=>/^ru/i.test(v.lang)) || null; }catch(e){ return null; } }
+function clearHL(){ document.querySelectorAll('.vl.speaking').forEach(e=>e.classList.remove('speaking')); }
+function updSpeakBtn(){ const b = $('#speakBtn'); if(b) b.textContent = speaking ? 'Остановить' : 'Слушать'; }
+function speak(){
+  if(speaking){ stopSpeak(); return; }
+  if(!('speechSynthesis' in window)){ toast('Озвучка не поддерживается в этом браузере'); return; }
+  let voices = []; try{ voices = speechSynthesis.getVoices(); }catch(e){}
+  const v = ruVoice();
+  if(voices.length && !v){ toast('В браузере нет русского голоса для озвучки'); return; }
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const sess = ++speakSess; speaking = true; updSpeakBtn();
+  const idx = range(S.part); let k = 0;
+  const step = ()=>{
+    if(sess!==speakSess || !speaking) return;
+    clearHL();
+    if(k>=idx.length){ stopSpeak(); return; }
+    const i = idx[k++];
+    const el = document.querySelector('.vl[data-line="'+i+'"]');
+    if(el){ el.classList.add('speaking'); try{ el.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){} }
+    const u = new SpeechSynthesisUtterance(LINES[i].t);
+    u.lang = 'ru-RU'; if(v) u.voice = v; u.rate = 0.9;
+    u.onend = ()=>setTimeout(step, 150);
+    u.onerror = ()=>{ if(sess===speakSess) stopSpeak(); };
+    try{ speechSynthesis.speak(u); }catch(e){ stopSpeak(); toast('Не получилось включить озвучку'); }
+  };
+  step();
+}
+function stopSpeak(){ speakSess++; speaking = false; try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){} clearHL(); updSpeakBtn(); }
+
+/* ---------- sheet & toast ---------- */
+let lastFocus = null;
+function openSheet(k){
+  const g = GL[k]; lastFocus = document.activeElement;
+  $('#sheetPhrase').textContent = '«'+g[1].replace(/[!?.,:;]+$/,'')+'»';
+  $('#sheetNote').textContent = g[2];
+  $('#scrim').hidden = false; $('#sheet').hidden = false;
+  $('#sheet .btn').focus();
+}
+function closeSheet(){ $('#scrim').hidden = true; $('#sheet').hidden = true; if(lastFocus && lastFocus.focus) lastFocus.focus(); }
+let toastT = null;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>{ t.hidden = true; }, 2800); }
+
+/* ---------- events ---------- */
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-act]'); if(!el) return;
+  const act = el.dataset.act;
+  switch(act){
+    case 'go': openPart(Number(el.dataset.n), el.dataset.mode); break;
+    case 'home': goHome(); break;
+    case 'prev': case 'next': {
+      const oi = ORDER_PARTS.indexOf(S.part) + (act==='next'?1:-1);
+      if(oi>=0 && oi<ORDER_PARTS.length){ S.part = ORDER_PARTS[oi]; setMode(S.mode, true); window.scrollTo(0,0); }
+      break; }
+    case 'next-part': { const oi = ORDER_PARTS.indexOf(S.part)+1; if(oi<ORDER_PARTS.length){ S.part = ORDER_PARTS[oi]; setMode(S.part===0?'order':'understand', true); window.scrollTo(0,0); } break; }
+    case 'tab': setMode(el.dataset.mode, false); break;
+    case 'retell': S.retell = !S.retell; renderMode(); break;
+    case 'speak': speak(); break;
+    case 'gloss': openSheet(Number(el.dataset.g)); break;
+    case 'sheet-close': closeSheet(); break;
+    case 'letter-line': { const i = Number(el.dataset.line); S.lettersOpen.has(i) ? S.lettersOpen.delete(i) : S.lettersOpen.add(i); el.classList.toggle('open'); el.setAttribute('aria-expanded', S.lettersOpen.has(i)); const allOpen = range(S.part).every(x=>S.lettersOpen.has(x)); const b = document.querySelector('[data-act="letters-all"]'); if(b) b.textContent = allOpen?'Скрыть все строки':'Открыть все строки'; break; }
+    case 'letters-all': { const r = range(S.part); const allOpen = r.every(i=>S.lettersOpen.has(i)); S.lettersOpen = allOpen ? new Set() : new Set(r); renderMode(); break; }
+    case 'fade-level': S.fadeLevel = Number(el.dataset.lv); S.fadeOpen = new Set(); if(S.fadeLevel===4){ mark(S.part,'fade'); renderTrainerTabsOnly(); } renderMode(); break;
+    case 'fade-shuffle': S.fadeSeed = Math.floor(Math.random()*1e9); S.fadeOpen = new Set(); renderMode(); break;
+    case 'blank': { const id = el.dataset.w; S.fadeOpen.has(id) ? S.fadeOpen.delete(id) : S.fadeOpen.add(id); el.classList.toggle('open'); el.setAttribute('aria-label', S.fadeOpen.has(id) ? el.textContent : 'скрытое слово'); break; }
+    case 'chint': S.chain.hint = true; renderMode(); break;
+    case 'cshow': S.chain.revealed = true; renderMode(); break;
+    case 'cgrade': chainGrade(Number(el.dataset.g)); break;
+    case 'cagain': startChain(range(S.part), false); renderMode(); break;
+    case 'ctough': { const c = S.chain; const tough = Object.keys(c.first).map(Number).filter(k=>c.first[k]<2).sort((a,b)=>a-b); startChain(tough, true); renderMode(); break; }
+    case 'opick': orderPick(Number(el.dataset.item), el); break;
+    case 'oagain': startOrder(); renderMode(); break;
+    case 'vshow': S.voice.show = !S.voice.show; el.setAttribute('aria-pressed', S.voice.show); renderVoiceOut(); break;
+    case 'vhint': { const v=S.voice; if(v.res && v.res.end < v.T.length){ v.peek.add(v.res.end); renderVoiceOut(); } break; }
+    case 'vmic': rec.on ? micStop() : micStart(); break;
+    case 'vclear': { const v=S.voice; micClear(); v.text=''; v.accepted=new Set(); v.peek=new Set(); const ta=$('#voiceIn'); if(ta){ ta.value=''; if(!SR) ta.focus(); } renderVoiceOut(); updMic(); break; }
+    case 'vfinish': micStop(); voiceFinish(); break;
+    case 'vagain': micStop(); S.voice = newVoice(); renderMode(); break;
+    case 'vword': {
+      const v=S.voice, g=Number(el.dataset.g), s=v.res.st[g];
+      if(v.accepted.has(g)) v.accepted.delete(g);
+      else if(s==='pending') v.peek.has(g) ? v.peek.delete(g) : v.peek.add(g);
+      else v.accepted.add(g);
+      renderVoiceOut(); break; }
+    case 'reset': $('#resetBox').innerHTML = '<div class="confirm"><span>Удалить весь прогресс?</span><button class="btn small" data-act="reset-yes" style="border-color:var(--miss);color:var(--miss)">Да, удалить</button><button class="btn small ghost" data-act="reset-no">Отмена</button></div>'; break;
+    case 'reset-yes': store = {parts:{}, lines:{}}; save(); $('#resetBox').innerHTML = '<button class="btn small ghost" data-act="reset">Сбросить прогресс</button>'; renderHome(); toast('Прогресс сброшен'); break;
+    case 'reset-no': $('#resetBox').innerHTML = '<button class="btn small ghost" data-act="reset">Сбросить прогресс</button>'; break;
+  }
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && !$('#sheet').hidden){ closeSheet(); return; }
+  const t = e.target;
+  if((e.key==='Enter' || e.key===' ') && t && t.getAttribute && t.getAttribute('role')==='button' && t.tagName!=='BUTTON'){ e.preventDefault(); t.click(); return; }
+  if($('#trainer').hidden || S.mode!=='chain' || !S.chain || S.chain.done) return;
+  if(t && (t.tagName==='BUTTON' || t.tagName==='INPUT')) { if(e.key===' ' || e.key==='Enter') return; }
+  const c = S.chain;
+  if((e.key===' ' || e.key==='Enter') && !c.revealed){ e.preventDefault(); c.revealed = true; renderMode(); }
+  else if(c.revealed && ['1','2','3'].includes(e.key)){
+    const g = Number(e.key)-1;
+    if(c.hint && g===2) return;
+    chainGrade(g);
+  }
+});
+document.addEventListener('input', e=>{ if(e.target && e.target.id==='voiceIn' && S.voice){ S.voice.text = e.target.value; scheduleVoice(); } });
+try{ if('speechSynthesis' in window) speechSynthesis.getVoices(); }catch(e){}
+
+renderHome();
+})();
+</script>
+</body>
+</html>
