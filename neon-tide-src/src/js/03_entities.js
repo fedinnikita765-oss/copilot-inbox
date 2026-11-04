@@ -173,6 +173,8 @@ class Car {
     this.sync(0.016);
   }
   get speed() { return Math.hypot(this.vx, this.vz); }
+  // true while the car flies (ramps, drops); airT = duration of the current / last flight (stunt scoring)
+  get airborne() { return this.air; }
   // ground under the axles: height at the CG, terrain pitch and roll
   groundSample() {
     const G = this.G, fx = Math.sin(this.h), fz = Math.cos(this.h), a = G.wf, b = -G.wb, tw = G.wx;
@@ -300,7 +302,7 @@ class Car {
       this.tPitch = clamp(this.tPitch, -0.75, 0.75); this.tRoll = clamp(this.tRoll, -0.5, 0.5);
       if (this.y <= this.gY) {
         const imp = -this.vy;
-        this.air = false; this.y = this.gY; this.vy = 0;
+        this.air = false; this.y = this.gY; this.vy = 0; this.lastAirT = this.airT;
         this.landImpact = Math.max(this.landImpact, imp);
         this.sp.hv -= imp * 0.32; this.sp.pv += (this.tPitch - this.gP) * 4; this.sp.rv += (this.tRoll - this.gR) * 3;
         this.tPitch = lerp(this.tPitch, this.gP, 0.6); this.tRoll = lerp(this.tRoll, this.gR, 0.6);
