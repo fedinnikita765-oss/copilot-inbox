@@ -105,7 +105,14 @@ function inBlockSlab(x, z) {
   const lx = ((x + CITY.HALF) % P + P) % P, lz = ((z + CITY.HALF) % P + P) % P;
   return lx > h && lx < P - h && lz > h && lz < P - h && Math.abs(x) < CITY.HALF && Math.abs(z) < CITY.HALF;
 }
+// Extra walkable/drivable surfaces (creative ramps, platforms): each hook returns a height or -Infinity.
+const GROUND_HOOKS = [];
 function groundH(x, z) {
+  let g = groundBase(x, z);
+  for (let i = 0; i < GROUND_HOOKS.length; i++) { const h = GROUND_HOOKS[i](x, z); if (h > g) g = h; }
+  return g;
+}
+function groundBase(x, z) {
   if (onPier(x, z)) return 0.3;
   if (x > 296) return Math.max(-2.2, 0.18 - (x - 296) * 0.052);
   if (Math.abs(x) > 288 || Math.abs(z) > 288) return 0.18;

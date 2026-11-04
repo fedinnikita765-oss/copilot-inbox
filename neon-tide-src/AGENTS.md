@@ -65,7 +65,7 @@ You may add `tests/<your-area>.js`. If you need something from a file you don't 
 - Cars: `new Car(type, color)`, `car.place(x,z,h)`, `car.physics(inp,dt)`, `car.eyeWorld(out)` (driver eye),
   `car.G.eye` (local), `car.kinematic/ai/driver/persistent`. Owner C may add `car.interior` and
   `car.setInteriorVisible(bool)` for first-person driving.
-- World: `groundH(x,z)`, `collideCircle(x,z,r,y)`, `rayBoxes(...)`, `losClear(...)`, `addBoxCollider`,
+- World: `groundH(x,z)` (includes `GROUND_HOOKS`: push `fn(x,z)` returning a surface height or `-Infinity` to add ramps/platforms), `collideCircle(x,z,r,y)`, `rayBoxes(...)`, `losClear(...)`, `addBoxCollider`,
   `addCircleCollider`, `cgRemove(c)`, `SPOT`, `blocks`, `buildings`, `roadC(i)`, `nodePos/laneSeg/nearestNode`.
 - Audio: `AUD.tone(freq,dur,type,vol,slideTo,delay)`, `AUD.noise(dur,vol,freq,q,type,delay)`, `AUD.ctx`, `AUD.sfx`.
 

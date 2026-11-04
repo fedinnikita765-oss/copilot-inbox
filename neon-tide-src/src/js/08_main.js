@@ -330,7 +330,7 @@ async function boot() {
   $('load').classList.add('hidden');
   $('menuBtns').classList.remove('hidden');
   GAME.state = 'menu';
-  window.__neon = { GAME, player, cars, peds, police, wanted, MS, save, DAY, SPOT, startGame, tryEnterExit, input, btn, cam, renderer, scene, camera, keys, missionStartSpot, setWanted, clearWanted, pickups, roadC, Ped, randomLook, COP_LOOK, Car, EXT, EV, HUD, getAim, fireBullet, hurtPlayer, addCrime, buildHuman, animHuman, CG, cgRemove, addBoxCollider, addCircleCollider, groundH,
+  window.__neon = { GAME, player, cars, peds, police, wanted, MS, save, DAY, SPOT, startGame, tryEnterExit, input, btn, cam, renderer, scene, camera, keys, missionStartSpot, setWanted, clearWanted, pickups, roadC, Ped, randomLook, COP_LOOK, Car, EXT, EV, HUD, getAim, fireBullet, hurtPlayer, addCrime, buildHuman, animHuman, CG, cgRemove, addBoxCollider, addCircleCollider, groundH, GROUND_HOOKS,
     step(n, dt) { for (let i = 0; i < n; i++) { update(dt); updateDay(dt, true); smokeFx.update(dt); fireFx.update(dt); } } };
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) { if (GAME.state === 'play') pauseGame(true); AUD.suspend(); } });
