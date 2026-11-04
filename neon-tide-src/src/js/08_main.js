@@ -110,7 +110,7 @@ function initMenus() {
   if (canFullscreen()) $('fsChip').addEventListener('click', toggleFullscreen); else $('fsChip').classList.add('hidden');
   document.querySelectorAll('[data-hour]').forEach((b) => b.addEventListener('click', () => { DAY.hours = parseFloat(b.dataset.hour); DAY.envT = 99; DAY.lastEnvDir.set(0, -2, 0); save.hours = DAY.hours; writeSave(); }));
   $('sens').addEventListener('input', (e) => { save.sens = parseFloat(e.target.value) || 1; writeSave(); });
-  if (!isTouch) $('keysHint').innerHTML = 'Управление: <b>WASD</b> — движение и руль, мышь (зажать) — камера, <b>Пробел</b> — прыжок / дрифт, <b>F</b> — сесть / выйти, <b>E</b> — удар, <b>Shift</b> — бег / нитро, <b>H</b> — гудок, <b>M</b> — радио, <b>Esc</b> — пауза.';
+  if (!isTouch) $('keysHint').innerHTML = 'Управление: <b>WASD</b> — движение и руль, клик — захват мыши для обзора, <b>V</b> — вид от первого лица, <b>Shift</b> — спринт / нитро, <b>Пробел</b> — прыжок / дрифт, <b>F</b> — сесть / выйти, <b>E</b> — удар, <b>H</b> — гудок, <b>M</b> — радио, <b>Esc</b> — отпустить мышь и пауза.';
   syncSettingsUI();
 }
 function startGame(fresh, mode) {

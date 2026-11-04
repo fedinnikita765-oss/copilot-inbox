@@ -194,6 +194,7 @@ function readInput() {
   input.gas = btn.gas; input.brake = btn.brake;
   input.hand = btn.hand || (player.mode === 'car' && keys.has('Space'));
   input.nitro = btn.nitro || (player.mode === 'car' && shift);
+  if (btn.sprint && (player.mode !== 'foot' || Math.hypot(input.jx, input.jy) < 0.1)) { btn.sprint = false; $('bSprint').classList.remove('on'); }
   input.sprint = btn.sprint || (player.mode === 'foot' && shift);
   const hornNow = btn.horn || keys.has('KeyH');
   if (hornNow !== input.horn) { input.horn = hornNow; AUD.horn(hornNow && player.mode === 'car'); }
@@ -262,7 +263,9 @@ function initInput() {
     const off = () => b.classList.remove('down');
     b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
   };
-  hold('bGas', 'gas'); hold('bBrake', 'brake'); hold('bHand', 'hand'); hold('bNitro', 'nitro'); hold('bSprint', 'sprint'); hold('bHorn', 'horn');
+  hold('bGas', 'gas'); hold('bBrake', 'brake'); hold('bHand', 'hand'); hold('bNitro', 'nitro'); hold('bHorn', 'horn');
+  // sprint is a toggle on touch screens: tap to start, it stops when the stick is released
+  tap('bSprint', () => { btn.sprint = !btn.sprint; $('bSprint').classList.toggle('on', btn.sprint); });
   tap('bPunch', () => { input.punch = true; });
   tap('bJump', () => { input.jump = true; });
   tap('bEnter', tryEnterExit);

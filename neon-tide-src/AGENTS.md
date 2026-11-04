@@ -52,8 +52,13 @@ You may add `tests/<your-area>.js`. If you need something from a file you don't 
   Keys in use: WASD/arrows, Space, F/Enter, E, Shift, H, M, C, Esc/P. Reserved: A — V (view), pointer lock and
   mouse look on desktop; B — LMB fire, RMB aim, R reload, 1–6 / Q weapons, G throw; E (creative) — its own keys,
   only while `GAME.mode === 'creative'`.
-- Camera: `cam {yaw,pitch,zoom,fp,override}`; `cam.override = fn(dt)` replaces the camera (creative free fly);
-  `getAim()` → `{x,y,z,dx,dy,dz}` from the camera; `shakeCam(a)`.
+- Camera (owner A, final): `cam {yaw,pitch,zoom,fp,blend,locked,override,wantAim,aimMinDist}`; `cam.override = fn(dt)`
+  replaces the camera (creative free fly); `cam.wantAim` (state, set while aiming) blends to a tight shoulder view;
+  `cam.kick(up, right)` recoil; `getAim(out?)` → `{x,y,z,dx,dy,dz}` through the screen centre, pass
+  `minDist: cam.aimMinDist` to `fireBullet`; first-person view model only when `cam.fp && cam.blend === 1`;
+  `player.faceCamT` turns the hero toward the camera for hip fire; `shakeCam(a)`. Events: `viewChange {fp}`,
+  `camView (view)`, `exhausted`. Animation: `player.anim.dir` (0 forward, +π/2 left, −π/2 right, ±π back), `anim.breath` (0..1).
+- Top-level names are shared by every module after concatenation: prefix your helpers, never reuse generic names.
 - Combat: `fireBullet({x,y,z,dx,dy,dz,range,damage,shooter,spread,minDist})` → `{type,target,x,y,z,dist}` (hits
   peds, cars, the player, buildings, ground; emits `gunshot`/`bulletHit`). `Ped.prototype.damage(amount, attacker, dx, dz)`,
   `car.damage(d, src)`, `hurtPlayer(d, why)`, `addCrime(amount, why)`, `setWanted(n)`, `attachGun(H, type)`.
