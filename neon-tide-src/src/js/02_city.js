@@ -357,7 +357,7 @@ float wm = 0.0; vec3 wEm = vec3(0.0); float wSt = vBld.x; float wR = 0.1;
   else wm = bBox(f, vec2(0.06, 0.34), vec2(0.94, 0.8), aw);
   float gnd = step(vBase, 0.5);
   float zone = side * step(vBase + mix(0.6, 4.2, gnd), v) * step(v, vTop - 1.1);
-  float fade = max(smoothstep(0.1, 0.3, max(fw.x, fw.y)), smoothstep(220.0, 560.0, length(vWP - cameraPosition)));
+  float fade = max(smoothstep(0.06, 0.2, max(fw.x, fw.y)), smoothstep(160.0, 420.0, length(vWP - cameraPosition)));
   float cov = st < 0.5 ? 0.33 : (st < 1.5 ? 0.48 : (st < 2.5 ? 0.82 : 0.4));
   wm = mix(wm, cov, fade) * zone;
   float h1 = bHash(id + vBld.y * 113.0);
@@ -378,7 +378,7 @@ float wm = 0.0; vec3 wEm = vec3(0.0); float wSt = vBld.x; float wR = 0.1;
   vec3 warm = mix(vec3(1.0, 0.66, 0.36), vec3(0.7, 0.83, 1.0), mix(step(0.74, h2), 0.26, fade));
   float flick = mix(0.6 + 0.4 * h2, 0.8, fade);
   wEm = warm * wm * lit * flick * 1.45 * uNight;
-  wEm += mix(vec3(1.0, 0.78, 0.5), bHsv(vBld.w), 0.5) * sf * (0.45 + 0.35 * h2) * uNight;
+  wEm += mix(vec3(1.0, 0.78, 0.5), bHsv(vBld.w), 0.5) * sf * (0.28 + 0.24 * h2) * uNight;
   if (st > 2.5) {
     float nb = side * step(vTop - 2.4, v) * step(v, vTop - 1.75);
     float nv = side * step(abs(fract(u / 13.0) - 0.5), 0.012) * step(vBase + 4.0, v) * step(v, vTop - 2.4);
