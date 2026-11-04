@@ -1,0 +1,81 @@
+<div id="app">
+  <canvas id="gl" aria-label="Игровой мир Neon Tide"></canvas>
+  <div id="vignette"></div>
+  <div id="hurt"></div>
+  <div id="touch"></div>
+
+  <div id="hud" class="hidden">
+    <div id="mapWrap">
+      <canvas id="minimap" width="300" height="300"></canvas>
+      <svg id="hpRing" viewBox="0 0 100 100" aria-hidden="true"><circle id="hpBg" cx="50" cy="50" r="48"></circle><circle id="hpFg" cx="50" cy="50" r="48"></circle></svg>
+    </div>
+    <div id="topRight">
+      <div id="clock">18:00</div>
+      <div id="money">$0</div>
+      <div id="stars"></div>
+    </div>
+    <button id="pauseBtn" aria-label="Пауза"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="4" y="3" width="4" height="14" rx="1.2"></rect><rect x="12" y="3" width="4" height="14" rx="1.2"></rect></svg></button>
+    <div id="objective" class="off"><i id="objDot"></i><span id="objText"></span><span id="objMeta"></span></div>
+    <div id="sms" role="status"><div id="smsAva">В</div><div><b id="smsFrom">ВЭЛ</b><p id="smsText"></p></div></div>
+    <div id="banner"><div id="bannerSub"></div><div id="bannerTitle"></div></div>
+    <div id="toasts"></div>
+    <div id="speedo" class="hidden"><div id="radio"></div><div id="spdRow"><b id="spdVal">0</b><b id="gearVal">N</b></div><small>КМ/Ч</small><div id="tach"><i></i></div><div id="carHp"><i></i></div></div>
+    <div id="stick"><div id="knob"></div></div>
+    <div id="btns">
+      <button class="btn big" id="bPunch" aria-label="Удар"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 8.5a2 2 0 0 1 2-2h7.2a2.8 2.8 0 0 1 2.8 2.8v4.4A5.3 5.3 0 0 1 13.7 19H11a4 4 0 0 1-4-4z"/><path d="M8 6.2V5a1.6 1.6 0 0 1 3.2 0v1.2M11.2 6.2V4.6a1.6 1.6 0 0 1 3.2 0v1.6M14.4 6.2V5.2a1.6 1.6 0 0 1 3.2 0v1.6" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Удар</span></button>
+      <button class="btn" id="bJump" aria-label="Прыжок"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13l6-6 6 6"/><path d="M6 19l6-6 6 6"/></svg><span>Прыжок</span></button>
+      <button class="btn" id="bSprint" aria-label="Бег"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 5 13.5h6L9.5 22 19 9.8h-6.2z"/></svg><span>Бег</span></button>
+      <button class="btn hidden" id="bEnter" aria-label="Сесть в машину"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.2 10.4 6.9 6A2.2 2.2 0 0 1 9 4.6h6a2.2 2.2 0 0 1 2.1 1.4l1.7 4.4A2.6 2.6 0 0 1 21 13v4.2a1 1 0 0 1-1 1h-1.3a1 1 0 0 1-1-1V16H6.3v1.2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V13a2.6 2.6 0 0 1 2.2-2.6zm2.1-.2h9.4l-1.3-3.4a.9.9 0 0 0-.8-.5H9.4a.9.9 0 0 0-.8.5zM6.5 14.4a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zm11 0a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6z"/></svg><span>Сесть</span></button>
+      <button class="btn big hidden" id="bGas" aria-label="Газ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg><span>Газ</span></button>
+      <button class="btn hidden" id="bBrake" aria-label="Тормоз и задний ход"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M6 13l6 6 6-6"/></svg><span>Тормоз</span></button>
+      <button class="btn hidden" id="bHand" aria-label="Ручник"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M10 16V8h3a2.3 2.3 0 0 1 0 4.6h-3"/></svg><span>Дрифт</span></button>
+      <button class="btn hidden" id="bExit" aria-label="Выйти из машины"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg><span>Выйти</span></button>
+      <button class="btn hidden" id="bHorn" aria-label="Гудок"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9.5h3.5L13 5v14l-5.5-4.5H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Гудок</span></button>
+      <button class="btn hidden" id="bNitro" aria-label="Нитро"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.6 2.5c.6 3.2 4.9 5.6 4.9 10.6A5.5 5.5 0 0 1 12 18.9a5.5 5.5 0 0 1-5.5-5.8c.1-2.4 1.3-3.9 2.4-5 .1 1.6.8 2.7 1.9 3.2-.3-3.4.8-6.4 1.8-8.8z"/><path d="M12 21.5a2.6 2.6 0 0 1-2.6-2.6c0-1.5 1.4-2.4 2.6-4 1.2 1.6 2.6 2.5 2.6 4a2.6 2.6 0 0 1-2.6 2.6z" opacity=".55"/></svg><span>Нитро</span></button>
+    </div>
+  </div>
+
+  <section id="menu" aria-label="Главное меню">
+    <div class="mcol">
+      <div class="eyebrow">Открытый город у океана</div>
+      <h1 class="logo"><span>NEON</span><span>TIDE</span></h1>
+      <p class="lede">Пальмовый бульвар, небоскрёбы даунтауна и пирс с колесом обозрения. Угоняй тачки, выполняй заказы Вэл и уходи от полиции.</p>
+      <div id="load"><div id="loadTxt">Строим город…</div><div id="loadBar"><i></i></div></div>
+      <div class="row hidden" id="menuBtns">
+        <button class="play" id="playBtn">ИГРАТЬ</button>
+        <button class="ghost" id="newBtn">Новая игра</button>
+        <button class="ghost" id="creativeBtn">Творческий режим</button>
+      </div>
+      <div class="confirm hidden" id="newConfirm">Начать заново? Деньги и миссии сбросятся.
+        <button class="ghost" id="newYes">Да, сбросить</button><button class="ghost" id="newNo">Отмена</button></div>
+      <div class="set">
+        <div class="label">Графика</div>
+        <div class="chips" id="qChipsMenu"></div>
+      </div>
+      <div id="rotateHint">Поверните телефон горизонтально — так удобнее рулить.</div>
+      <div class="keys" id="keysHint">Телефон: левый стик — движение, свайп справа — камера, кнопка «Бег» включает спринт, кнопка под паузой переключает вид от первого лица.</div>
+    </div>
+  </section>
+
+  <section id="pause" class="hidden" aria-label="Пауза">
+    <div class="panel">
+      <h2>Пауза</h2>
+      <div class="stats">
+        <div class="stat"><b id="stMis">0/5</b><span>Миссии</span></div>
+        <div class="stat"><b id="stTok">0/15</b><span>Жетоны</span></div>
+        <div class="stat"><b id="stMoney">$0</b><span>Деньги</span></div>
+      </div>
+      <div class="row"><button class="play" id="resumeBtn">ПРОДОЛЖИТЬ</button></div>
+      <div class="set"><div class="label">Графика</div><div class="chips" id="qChipsPause"></div></div>
+      <div class="set"><div class="label">Звук</div>
+        <div class="chips"><button class="chip" id="sndChip">Звуки</button><button class="chip" id="musChip">Радио в машине</button><button class="chip" id="fsChip">Полный экран</button></div></div>
+      <div class="set"><div class="label">Время суток</div>
+        <div class="chips"><button class="chip" data-hour="7">Утро</button><button class="chip" data-hour="13">День</button><button class="chip" data-hour="18.3">Закат</button><button class="chip" data-hour="22.5">Ночь</button></div></div>
+      <div class="set"><label class="label" for="sens">Чувствительность камеры</label><input class="slider" id="sens" type="range" min="0.4" max="2" step="0.1" value="1"></div>
+      <div class="keys">Миссии начинаются у жёлтых маяков. Перекраска в мастерской «Радуга» (значок с гаечным ключом на карте) снимает розыск за $250. Неоновые жетоны спрятаны по всему городу.</div>
+    </div>
+  </section>
+
+  <div id="dead"><div id="deadText"></div></div>
+  <div id="fade"></div>
+</div>

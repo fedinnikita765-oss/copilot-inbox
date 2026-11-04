@@ -1,0 +1,20 @@
+{
+  "name": "neon-tide",
+  "private": true,
+  "description": "Neon Tide: open-world driving game in a single HTML file (sources and build)",
+  "scripts": {
+    "build": "node build.js",
+    "test": "node tests/smoke.js",
+    "test:logic": "node tests/logic.js",
+    "test:camera": "node tests/camera.js",
+    "test:creative": "node tests/creative.js",
+    "test:weapons": "node tests/weapons.js",
+    "test:models": "node tests/models.js"
+  },
+  "dependencies": {
+    "three": "0.149.0"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
