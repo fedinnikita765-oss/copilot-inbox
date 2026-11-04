@@ -7,7 +7,9 @@
     "test": "node tests/smoke.js",
     "test:logic": "node tests/logic.js",
     "test:camera": "node tests/camera.js",
-    "test:creative": "node tests/creative.js"
+    "test:creative": "node tests/creative.js",
+    "test:weapons": "node tests/weapons.js",
+    "test:models": "node tests/models.js"
   },
   "dependencies": {
     "three": "0.149.0"

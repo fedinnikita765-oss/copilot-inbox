@@ -59,6 +59,15 @@ You may add `tests/<your-area>.js`. If you need something from a file you don't 
   `player.faceCamT` turns the hero toward the camera for hip fire; `shakeCam(a)`. Events: `viewChange {fp}`,
   `camView (view)`, `exhausted`. Animation: `player.anim.dir` (0 forward, +π/2 left, −π/2 right, ±π back), `anim.breath` (0..1).
 - Top-level names are shared by every module after concatenation: prefix your helpers, never reuse generic names.
+- Weapons (owner B, final): `input.fire` / `input.aim`; `SHOT_HOOKS` — `fn(o, dx, dy, dz, best)` returns `null` or
+  `{ t, onHit(info), nx?, ny?, nz? }`, the nearest hook hit wins with type `'prop'`; `wpnNpcShoot(ped, x, y, z,
+  {accuracy, damage, weapon})` for armed NPCs (set `ped.cop = true` on police); events `gunShop {open}`, `gunshot`
+  carries `weapon`, `explosion` carries `y, by, radius, grenade`. Debug handle `window.__neonW`.
+- Cars (owner C, final): `car.gear` (-1 reverse), `car.rpm` / `car.T.rl`, `car.airborne`, `car.airT`, `car.dmg`,
+  `car.tailsBroken`, `car.eyeQuat()`, `pickCarType()`, `GAMEHOOK.carLand(car, impact)`, `AUD.shift/bump/land`.
+  Hand grip frame (`HB.haR`): origin at the wrist, +Z along the barrel, +Y up, +X to the character's left.
+- Creative (owner E, final): `CREATIVE` (`building`), `ATMO` (weather), `windU`, `installWet(mat, key, strength)`,
+  `GAME.timeScale` (scales `dt` in the main loop).
 - Combat: `fireBullet({x,y,z,dx,dy,dz,range,damage,shooter,spread,minDist})` → `{type,target,x,y,z,dist}` (hits
   peds, cars, the player, buildings, ground; emits `gunshot`/`bulletHit`). `Ped.prototype.damage(amount, attacker, dx, dz)`,
   `car.damage(d, src)`, `hurtPlayer(d, why)`, `addCrime(amount, why)`, `setWanted(n)`, `attachGun(H, type)`.

@@ -319,6 +319,9 @@ function camHead() {
   let hide = false;
   if (P.root.visible && !cam.override) { hb.getWorldPosition(_camV2); hide = _camV2.distanceToSquared(camera.position) < 0.2; }
   if (hide !== CAMST.headHidden) { CAMST.headHidden = hide; hb.scale.setScalar(hide ? 0.001 : 1); }
+  // the first-person view model draws its own arms: collapse the body's arms so they never double up
+  const arms = hide && typeof WPN_VM !== 'undefined' && !!WPN_VM.root && WPN_VM.root.visible;
+  if (arms !== CAMST.armsHidden) { CAMST.armsHidden = arms; H.bones[HB.uaL].scale.setScalar(arms ? 0.001 : 1); H.bones[HB.uaR].scale.setScalar(arms ? 0.001 : 1); }
   if (hide && !CAMST.proxy) {
     CAMST.proxy = new THREE.Mesh(new THREE.SphereGeometry(0.105, 10, 8), new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
     CAMST.proxy.scale.set(1, 1.15, 1.1); CAMST.proxy.castShadow = true; CAMST.proxy.name = 'heroHeadShadow'; scene.add(CAMST.proxy);

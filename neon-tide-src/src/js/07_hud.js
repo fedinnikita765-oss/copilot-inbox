@@ -254,7 +254,7 @@ function initInput() {
     if (e.pointerId === lookP.id) lookP.id = null;
   };
   layer.addEventListener('pointerup', release); layer.addEventListener('pointercancel', release);
-  layer.addEventListener('wheel', (e) => { if (GAME.state === 'play') { cam.zoom = clamp(cam.zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 1.7); e.preventDefault(); } }, { passive: false });
+  layer.addEventListener('wheel', (e) => { if (GAME.state === 'play' && player.mode === 'car') { cam.zoom = clamp(cam.zoom * (e.deltaY > 0 ? 1.08 : 0.93), 0.6, 1.7); e.preventDefault(); } }, { passive: false });
   const hold = (id, key) => {
     const b = $(id);
     const on = (e) => { e.preventDefault(); e.stopPropagation(); AUD.resume(); b.classList.add('down'); btn[key] = true; try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ } };
