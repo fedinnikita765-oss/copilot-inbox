@@ -3,7 +3,52 @@
 // ============================================================
 const AUD = (() => {
   let ctx = null, master = null, sfx = null, mus = null, ok = false;
-  let eng = null, skidG = null, ambG = null, siren = null, noiseBuf = null, horn = null;
+  let eng = null, skidG = null, ambG = null, siren = null, noiseBuf = null, horn = null, squealG = null, squeal = null;
+  // engine character per car type: cylinders (firing frequency), harmonic mix, drive, filter range, lope, intake noise, turbo
+  const ENG = {
+    four: { cyl: 4, mix: [0.55, 0.35, 0.22], drive: 2.2, lp: [380, 2600], q: 1.6, lope: 0, noise: 0.05, turbo: 0, vol: 1 },
+    sport: { cyl: 6, mix: [0.5, 0.22, 0.42], drive: 2.8, lp: [520, 4200], q: 2.2, lope: 0, noise: 0.07, turbo: 0.35, vol: 1, bov: 0.6 },
+    six: { cyl: 6, mix: [0.55, 0.4, 0.2], drive: 2.0, lp: [320, 2100], q: 1.5, lope: 0.05, noise: 0.05, turbo: 0, vol: 1 },
+    v8: { cyl: 8, mix: [0.6, 0.5, 0.18], drive: 3.8, lp: [260, 1900], q: 2.6, lope: 0.38, noise: 0.06, turbo: 0, vol: 1.15 },
+    diesel: { cyl: 4, mix: [0.45, 0.55, 0.12], drive: 1.6, lp: [220, 1200], q: 1.2, lope: 0.12, noise: 0.16, turbo: 0.2, vol: 1.05, clatter: 1 },
+    super: { cyl: 10, mix: [0.42, 0.18, 0.55], drive: 3.2, lp: [700, 6200], q: 2.8, lope: 0, noise: 0.09, turbo: 0.85, vol: 1.05, bov: 1 },
+    bus: { cyl: 6, mix: [0.4, 0.6, 0.1], drive: 1.4, lp: [160, 900], q: 1.0, lope: 0.08, noise: 0.2, turbo: 0.3, vol: 1.1, clatter: 1 },
+  };
+  let engType = null, engP = ENG.four, lastThr = 0, boost = 0, dipT = 0;
+  function makeEngine() {
+    const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), o3 = ctx.createOscillator();
+    o1.type = 'sawtooth'; o2.type = 'square'; o3.type = 'sawtooth';
+    const g1 = ctx.createGain(), g2 = ctx.createGain(), g3 = ctx.createGain();
+    const ws = ctx.createWaveShaper(); ws.oversample = '2x';
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500; lp.Q.value = 2;
+    const am = ctx.createGain(); am.gain.value = 1;
+    const lfo = ctx.createOscillator(), lfoG = ctx.createGain(); lfo.type = 'sine'; lfo.frequency.value = 8; lfoG.gain.value = 0;
+    lfo.connect(lfoG); lfoG.connect(am.gain);
+    const g = ctx.createGain(); g.gain.value = 0;
+    o1.connect(g1); o2.connect(g2); o3.connect(g3); g1.connect(ws); g2.connect(ws); g3.connect(ws); ws.connect(lp); lp.connect(am); am.connect(g); g.connect(sfx);
+    // intake / diesel clatter noise
+    const ns = ctx.createBufferSource(); ns.buffer = noiseBuf; ns.loop = true;
+    const nb = ctx.createBiquadFilter(); nb.type = 'bandpass'; nb.frequency.value = 900; nb.Q.value = 0.9;
+    const nam = ctx.createGain(); nam.gain.value = 0;
+    const ng = ctx.createGain(); ng.gain.value = 0; ns.connect(nb); nb.connect(nam); nam.connect(ng); ng.connect(sfx);
+    const clk = ctx.createOscillator(), clkG = ctx.createGain(); clk.type = 'square'; clk.frequency.value = 20; clkG.gain.value = 0.5; clk.connect(clkG); clkG.connect(nam.gain);
+    // turbo whistle
+    const tb = ctx.createOscillator(), tg = ctx.createGain(); tb.type = 'sine'; tb.frequency.value = 3000; tg.gain.value = 0; tb.connect(tg); tg.connect(sfx);
+    [o1, o2, o3, lfo, ns, clk, tb].forEach((o) => o.start());
+    return { o1, o2, o3, g1, g2, g3, ws, lp, am, lfo, lfoG, g, nb, ng, nam, clk, clkG, tb, tg };
+  }
+  function shapeCurve(k) {
+    const n = 512, c = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.tanh(x * k) / Math.tanh(k); }
+    return c;
+  }
+  function setEngineType(kind) {
+    if (!ok || kind === engType) return;
+    engType = kind; engP = ENG[kind] || ENG.four;
+    const t = ctx.currentTime;
+    eng.g1.gain.setTargetAtTime(engP.mix[0], t, 0.05); eng.g2.gain.setTargetAtTime(engP.mix[1], t, 0.05); eng.g3.gain.setTargetAtTime(engP.mix[2], t, 0.05);
+    eng.ws.curve = shapeCurve(engP.drive); eng.lp.Q.value = engP.q;
+  }
   const MUS = { on: false, next: 0, step: 0, timer: 0, bpm: 102 };
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
   const PROG = [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]];
@@ -23,15 +68,16 @@ const AUD = (() => {
     mus = ctx.createGain(); mus.gain.value = 0; mus.connect(master);
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const o1 = ctx.createOscillator(); o1.type = 'sawtooth';
-    const o2 = ctx.createOscillator(); o2.type = 'square';
-    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500; lp.Q.value = 2.5;
-    const eg = ctx.createGain(); eg.gain.value = 0;
-    o1.connect(lp); o2.connect(lp); lp.connect(eg); eg.connect(sfx); o1.start(); o2.start();
-    eng = { o1, o2, lp, g: eg };
+    eng = makeEngine();
     const sn = ctx.createBufferSource(); sn.buffer = noiseBuf; sn.loop = true;
     const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1900; bp.Q.value = 4;
     skidG = ctx.createGain(); skidG.gain.value = 0; sn.connect(bp); bp.connect(skidG); skidG.connect(sfx); sn.start();
+    // tyre squeal: two detuned tones with vibrato on top of the hiss
+    const sq1 = ctx.createOscillator(), sq2 = ctx.createOscillator(), sqv = ctx.createOscillator(), sqvg = ctx.createGain();
+    sq1.type = 'triangle'; sq2.type = 'sine'; sq1.frequency.value = 880; sq2.frequency.value = 1190; sqv.frequency.value = 7.5; sqvg.gain.value = 26;
+    sqv.connect(sqvg); sqvg.connect(sq1.frequency); sqvg.connect(sq2.frequency);
+    squealG = ctx.createGain(); squealG.gain.value = 0; sq1.connect(squealG); sq2.connect(squealG); squealG.connect(sfx);
+    sq1.start(); sq2.start(); sqv.start(); squeal = { a: sq1, b: sq2 };
     const an = ctx.createBufferSource(); an.buffer = noiseBuf; an.loop = true;
     const al = ctx.createBiquadFilter(); al.type = 'lowpass'; al.frequency.value = 420;
     ambG = ctx.createGain(); ambG.gain.value = 0; an.connect(al); al.connect(ambG); ambG.connect(sfx); an.start();
@@ -98,16 +144,52 @@ const AUD = (() => {
     init, resume, suspend, setSound, music, tone, noise,
     get ctx() { return ctx; }, get sfx() { return sfx; },
     get ready() { return ok; },
-    engine(vf, thr, maxV) {
+    // vf, thr, maxV kept for older callers; car (optional) drives rpm, gear and the engine character
+    engine(vf, thr, maxV, car) {
       if (!ok) return;
-      const t = ctx.currentTime, sp = Math.abs(vf), gl = maxV / 5, gear = Math.min(4, Math.floor(sp / gl)), frac = (sp - gear * gl) / gl;
-      const rpm = 0.22 + frac * 0.78, f = 40 + rpm * 72 + gear * 7;
-      eng.o1.frequency.setTargetAtTime(f, t, 0.05); eng.o2.frequency.setTargetAtTime(f * 0.5, t, 0.05);
-      eng.lp.frequency.setTargetAtTime(320 + thr * 900 + rpm * 500, t, 0.08);
-      eng.g.gain.setTargetAtTime(0.045 + thr * 0.055 + rpm * 0.02, t, 0.1);
+      const t = ctx.currentTime;
+      let rpm, rl, idle;
+      if (car && car.T) { setEngineType(car.T.engine || 'four'); rpm = car.rpm; rl = car.T.rl; idle = car.T.idle; }
+      else { setEngineType('four'); const sp = Math.abs(vf), gl = maxV / 5, gear = Math.min(4, Math.floor(sp / gl)); rl = 6400; idle = 750; rpm = idle + ((sp - gear * gl) / gl) * (rl - idle); }
+      const P = engP, k = clamp((rpm - idle) / (rl - idle), 0, 1.05);
+      const f0 = rpm / 60 * P.cyl / 2, f = clamp(f0, 18, 900);
+      const dip = dipT > t ? 0.55 : 1;
+      eng.o1.frequency.setTargetAtTime(f, t, 0.03); eng.o2.frequency.setTargetAtTime(f * 0.5, t, 0.03); eng.o3.frequency.setTargetAtTime(f * (P.cyl >= 8 ? 1.5 : 2) * 1.004, t, 0.03);
+      eng.lp.frequency.setTargetAtTime(P.lp[0] + (P.lp[1] - P.lp[0]) * (0.25 * k + 0.75 * k * (0.35 + 0.65 * thr)), t, 0.05);
+      eng.lfo.frequency.setTargetAtTime(Math.max(3, f0 / P.cyl), t, 0.05);
+      eng.lfoG.gain.setTargetAtTime(P.lope * (1 - k * 0.7), t, 0.05);
+      eng.g.gain.setTargetAtTime((0.035 + thr * 0.05 + k * 0.03) * P.vol * dip, t, dipT > t ? 0.02 : 0.08);
+      eng.nb.frequency.setTargetAtTime(P.clatter ? 1800 + k * 1200 : 500 + k * 1600, t, 0.05);
+      eng.clk.frequency.setTargetAtTime(Math.max(4, f0), t, 0.05); eng.clkG.gain.setTargetAtTime(P.clatter ? 0.9 : 0.15, t, 0.1);
+      eng.ng.gain.setTargetAtTime(P.noise * (0.25 + thr * 0.75) * (0.4 + k) * 0.2, t, 0.08);
+      // turbo spool and blow-off when lifting off at high boost
+      boost = damp(boost, P.turbo * thr * clamp(k * 1.3 - 0.2, 0, 1), thr > 0.1 ? 2.5 : 8, 1 / 30);
+      eng.tb.frequency.setTargetAtTime(2200 + boost * 3800, t, 0.06); eng.tg.gain.setTargetAtTime(boost * 0.012, t, 0.05);
+      if (P.bov && lastThr > 0.7 && thr < 0.2 && k > 0.45) noise(0.32, 0.07 * P.bov, 2600, 1.6, 'bandpass');
+      lastThr = thr;
     },
-    engineOff() { if (ok) eng.g.gain.setTargetAtTime(0, ctx.currentTime, 0.15); },
-    skid(v) { if (ok) skidG.gain.setTargetAtTime(v * 0.07, ctx.currentTime, 0.05); },
+    engineOff() { if (ok) { const t = ctx.currentTime; eng.g.gain.setTargetAtTime(0, t, 0.15); eng.ng.gain.setTargetAtTime(0, t, 0.1); eng.tg.gain.setTargetAtTime(0, t, 0.1); boost = 0; } },
+    // gear change: brief volume dip; sporty engines hiss or crackle on upshift
+    shift(dir, car) {
+      if (!ok || dir <= 0) return;
+      dipT = ctx.currentTime + 0.12;
+      if (engP.bov) noise(0.12, 0.05, 3000, 1.2, 'bandpass');
+      if (engP.cyl >= 8 && car && car.throttle > 0.7) { noise(0.05, 0.08, 700, 1, 'bandpass', 0.03); noise(0.04, 0.06, 900, 1, 'bandpass', 0.09); }
+    },
+    skid(v) {
+      if (!ok) return;
+      const t = ctx.currentTime;
+      skidG.gain.setTargetAtTime(v * 0.065, t, 0.05);
+      squealG.gain.setTargetAtTime(v > 0.15 ? (v - 0.15) * 0.035 : 0, t, 0.06);
+      squeal.a.frequency.setTargetAtTime(760 + v * 260, t, 0.1); squeal.b.frequency.setTargetAtTime(1040 + v * 320, t, 0.1);
+    },
+    // suspension thump on a curb / bump (v 0..1) and landing after a jump (impact speed, m/s)
+    bump(v) { tone(68, 0.14, 'sine', 0.08 + v * 0.2, 42); noise(0.08, 0.04 + v * 0.08, 380); },
+    land(imp) {
+      const v = clamp(imp / 14, 0.05, 1);
+      tone(58, 0.3, 'sine', 0.18 + v * 0.35, 32); noise(0.22, 0.08 + v * 0.22, 300);
+      if (imp > 7) { noise(0.25, v * 0.18, 1400, 1.2, 'bandpass', 0.02); tone(rr(300, 500), 0.2, 'triangle', v * 0.05, rr(150, 250), 0.03); }
+    },
     ambience(v) { if (ok) ambG.gain.setTargetAtTime(v, ctx.currentTime, 0.5); },
     siren(d, t) {
       if (!ok) return;
@@ -124,7 +206,15 @@ const AUD = (() => {
         horn = { a, b, g };
       } else if (!on && horn) { const h = horn; horn = null; h.g.gain.setTargetAtTime(0, ctx.currentTime, 0.03); h.a.stop(ctx.currentTime + 0.15); h.b.stop(ctx.currentTime + 0.15); }
     },
-    crash(sp) { noise(0.35, clamp(sp / 25, 0.05, 0.5), 900, 0.6); tone(90, 0.25, 'sine', clamp(sp / 40, 0.05, 0.3), 40); },
+    // layered crash: body thump, metal crunch with random resonances, glass tinkle for big hits
+    crash(sp) {
+      const v = clamp(sp / 25, 0.05, 0.6);
+      noise(0.3 + v * 0.3, v, rr(700, 1100), 0.6); tone(rr(70, 100), 0.25, 'sine', clamp(sp / 40, 0.05, 0.3), 38);
+      const n = 2 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < n; i++) noise(rr(0.08, 0.22), v * rr(0.3, 0.6), rr(400, 2600), rr(2, 6), 'bandpass', i * rr(0.02, 0.06));
+      for (let i = 0; i < 2; i++) tone(rr(180, 620), rr(0.15, 0.4), 'square', v * 0.025, rr(90, 200), rr(0, 0.05));
+      if (sp > 14) for (let i = 0; i < 5; i++) tone(rr(2600, 5200), rr(0.06, 0.16), 'sine', 0.025 * v, null, 0.05 + i * rr(0.02, 0.05));
+    },
     thud(v) { tone(110, 0.18, 'sine', 0.25 * v + 0.05, 50); noise(0.1, 0.1 * v + 0.03, 500); },
     punch() { tone(140, 0.12, 'sine', 0.35, 60); noise(0.08, 0.15, 1200); },
     whoosh() { noise(0.14, 0.06, 2500, 1.2, 'bandpass'); },
