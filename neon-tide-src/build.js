@@ -14,7 +14,8 @@ if (!fs.existsSync(threePath)) throw new Error('three.js not found: run `npm ins
 const three = fs.readFileSync(threePath, 'utf8');
 const offline = '<!doctype html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n'
   + head + '\n</head>\n<body>\n' + body + '\n<!-- three.js r149 (MIT License, Copyright 2010-2023 Three.js Authors) -->\n<script>\n' + three + '\n</script>\n<script>\n' + game + '</script>\n</body>\n</html>\n';
-const outOffline = path.join(ROOT, '..', 'neon-tide.html');
+const oi = process.argv.indexOf('--out');
+const outOffline = oi > 0 ? path.resolve(process.argv[oi + 1]) : path.join(ROOT, '..', 'neon-tide.html');
 fs.writeFileSync(outOffline, offline);
 const cdn = head + '\n' + body + '\n<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>\n<script>\n' + game + '</script>\n';
 fs.mkdirSync(path.join(ROOT, 'dist'), { recursive: true });

@@ -100,6 +100,7 @@ function initMenus() {
   $('playBtn').textContent = hasProgress ? 'ПРОДОЛЖИТЬ' : 'ИГРАТЬ';
   $('newBtn').classList.toggle('hidden', !hasProgress);
   $('playBtn').addEventListener('click', () => startGame(false));
+  $('creativeBtn').addEventListener('click', () => startGame(false, 'creative'));
   $('newBtn').addEventListener('click', () => { $('newConfirm').classList.remove('hidden'); $('menuBtns').classList.add('hidden'); });
   $('newNo').addEventListener('click', () => { $('newConfirm').classList.add('hidden'); $('menuBtns').classList.remove('hidden'); });
   $('newYes').addEventListener('click', () => { $('newConfirm').classList.add('hidden'); startGame(true); });
@@ -112,8 +113,9 @@ function initMenus() {
   if (!isTouch) $('keysHint').innerHTML = 'Управление: <b>WASD</b> — движение и руль, мышь (зажать) — камера, <b>Пробел</b> — прыжок / дрифт, <b>F</b> — сесть / выйти, <b>E</b> — удар, <b>Shift</b> — бег / нитро, <b>H</b> — гудок, <b>M</b> — радио, <b>Esc</b> — пауза.';
   syncSettingsUI();
 }
-function startGame(fresh) {
+function startGame(fresh, mode) {
   AUD.init();
+  GAME.mode = mode || 'story';
   if (fresh) {
     save.money = DEFAULT_SAVE.money; save.mission = 0; save.tokens = []; save.hours = DEFAULT_SAVE.hours; writeSave();
     for (const p of pickups.slice()) if (p.kind === 'token') p.remove();
@@ -122,8 +124,8 @@ function startGame(fresh) {
   $('menu').classList.add('gone');
   setTimeout(() => $('menu').classList.add('hidden'), 650);
   $('hud').classList.remove('hidden');
-  const newbie = save.mission === 0;
-  const s = newbie ? START_SPOT : { x: SPOT.garage.x + 3, z: SPOT.garage.z - 5 };
+  const newbie = save.mission === 0 && GAME.mode === 'story';
+  const s = GAME.mode === 'creative' ? { x: SPOT.plaza.x + 14, z: SPOT.plaza.z } : newbie ? START_SPOT : { x: SPOT.garage.x + 3, z: SPOT.garage.z - 5 };
   Object.assign(player, { x: s.x, z: s.z, y: groundH(s.x, s.z), vx: 0, vz: 0, vy: 0, h: newbie ? Math.PI : Math.PI / 2, health: 100, dead: false, mode: 'foot', car: null, knockT: 0 });
   player.root.visible = true; player.blob.visible = true;
   cam.yaw = player.h; cam.pitch = 0.26; cam.idle = 0; cam.curDist = 4.4;
@@ -134,6 +136,8 @@ function startGame(fresh) {
   DAY.hours = typeof save.hours === 'number' ? save.hours : DEFAULT_SAVE.hours; DAY.envT = 99; DAY.lastEnvDir.set(0, -2, 0);
   HUD.setMode('foot');
   GAME.state = 'play';
+  EV.emit('start', { fresh: !!fresh, mode: GAME.mode });
+  if (GAME.mode !== 'story') return;
   if (!newbie) setTimeout(() => sms(save.mission >= 5 ? 'С возвращением! Заказы курьера ждут у гаража.' : 'С возвращением. Жёлтый маяк на карте — следующее дело.'), 1500);
   else setTimeout(() => sms('Привет, новенький! Это Вэл. Добро пожаловать в Неон-Тайд. Возле тебя стоит оранжевая тачка — садись и подъезжай ко мне в гараж.'), 3300);
 }
@@ -174,6 +178,7 @@ function updateGlows() {
     }
   }
   if (SPOT.lighthouse && n > 0.02) glowDyn.add(SPOT.lighthouse.x, 22.9, SPOT.lighthouse.z, 1.6 * n, 1.4 * n, 0.9 * n, 6);
+  for (const f of EXT.glow) f(glowDyn);
   glowDyn.end();
 }
 function updateNightMaterials() {
@@ -219,7 +224,8 @@ function update(dt) {
   carCarCollisions();
   updatePeds(dt);
   updatePickups(dt);
-  updateMissions(dt);
+  if (GAME.mode === 'story') updateMissions(dt);
+  for (const f of EXT.update) f(dt);
   for (const c of cars) { c.update(dt); c.sync(dt); }
   if (!player.dead) { player.regenT -= dt; if (player.regenT <= 0 && player.health < 100) player.health = Math.min(100, player.health + 5 * dt); }
   if (player.mode === 'foot' && !player.dead) {
@@ -228,6 +234,7 @@ function update(dt) {
     $('bEnter').classList.toggle('hot', near && MS.idx === 0 && MS.si === 0);
   } else if (enterShown !== false) { enterShown = false; $('bEnter').classList.add('hidden'); }
   updateCamera(dt);
+  for (const f of EXT.lateUpdate) f(dt);
   // audio
   let sd = -1;
   for (const p of police) { if (p.mode !== 'chase' || p.car.wrecked) continue; const d = Math.hypot(p.car.x - player.x, p.car.z - player.z); if (sd < 0 || d < sd) sd = d; }
@@ -272,6 +279,7 @@ function loop(now) {
   if (GAME.state === 'play') placeShadow(fx.x + Math.sin(cam.yaw) * 25, 0, fx.z + Math.cos(cam.yaw) * 25);
   else placeShadow(camera.position.x * 0.3 + 30, 0, camera.position.z * 0.3);
   smokeFx.update(dt); fireFx.update(dt);
+  for (const f of EXT.visual) f(dt);
   updateGlows();
   const sc = (renderer.domElement.height) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
   glowMats.forEach((m) => { m.uniforms.uScale.value = sc; }); fxMats.forEach((m) => { m.uniforms.uScale.value = sc; });
@@ -314,6 +322,7 @@ async function boot() {
   DAY.hours = 17.75;
   updateDay(0, false); updateEnv();
   initInput(); initMenus();
+  for (const f of EXT.boot) await f();
   resize();
   updateMenu(0.016);
   try { renderer.compile(scene, camera); } catch (e) { /* compile lazily */ }
@@ -321,7 +330,7 @@ async function boot() {
   $('load').classList.add('hidden');
   $('menuBtns').classList.remove('hidden');
   GAME.state = 'menu';
-  window.__neon = { GAME, player, cars, peds, police, wanted, MS, save, DAY, SPOT, startGame, tryEnterExit, input, btn, cam, renderer, scene, camera, keys, missionStartSpot, setWanted, clearWanted, pickups, roadC, Ped, randomLook, COP_LOOK,
+  window.__neon = { GAME, player, cars, peds, police, wanted, MS, save, DAY, SPOT, startGame, tryEnterExit, input, btn, cam, renderer, scene, camera, keys, missionStartSpot, setWanted, clearWanted, pickups, roadC, Ped, randomLook, COP_LOOK, Car, EXT, EV, HUD, getAim, fireBullet, hurtPlayer, addCrime, buildHuman, animHuman, CG, cgRemove, addBoxCollider, addCircleCollider, groundH,
     step(n, dt) { for (let i = 0; i < n; i++) { update(dt); updateDay(dt, true); smokeFx.update(dt); fireFx.update(dt); } } };
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) { if (GAME.state === 'play') pauseGame(true); AUD.suspend(); } });

@@ -95,7 +95,8 @@ const AUD = (() => {
     else { mus.gain.setTargetAtTime(0, ctx.currentTime, 0.25); if (MUS.timer) { clearInterval(MUS.timer); MUS.timer = 0; } }
   }
   return {
-    init, resume, suspend, setSound, music,
+    init, resume, suspend, setSound, music, tone, noise,
+    get ctx() { return ctx; }, get sfx() { return sfx; },
     get ready() { return ok; },
     engine(vf, thr, maxV) {
       if (!ok) return;

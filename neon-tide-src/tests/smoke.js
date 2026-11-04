@@ -4,7 +4,8 @@ const ROOT = path.join(__dirname, '..');
 const THREE_MIN = path.join(ROOT, 'node_modules/three/build/three.min.js');
 (async () => {
   let failed = false;
-  for (const file of [path.join(ROOT, '..', 'neon-tide.html'), path.join(ROOT, 'dist/neon-tide.cdn.html')]) {
+  const files = process.argv.slice(2).length ? process.argv.slice(2).map((f) => path.resolve(f)) : [path.join(ROOT, '..', 'neon-tide.html'), path.join(ROOT, 'dist/neon-tide.cdn.html')];
+  for (const file of files) {
     const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
     const ctx = await browser.newContext({ viewport: { width: 640, height: 300 }, hasTouch: true, isMobile: true });
     const page = await ctx.newPage();

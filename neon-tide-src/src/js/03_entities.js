@@ -74,7 +74,7 @@ function carGeo(key) {
     const h = new THREE.BoxGeometry(0.44, 0.13, 0.1); h.translate(sx * (W / 2 - 0.37), top - 0.2, L / 2 + 0.055); hl.push(h);
     const t = new THREE.BoxGeometry(0.48, 0.12, 0.1); t.translate(sx * (W / 2 - 0.34), top - 0.17, -L / 2 - 0.055); tl.push(t);
   }
-  const G = { body, cabin, roof, pillar, grille, rear, heads: mergeGeos(hl), tails: mergeGeos(tl), wf, wb, top, ct };
+  const G = { body, cabin, roof, pillar, grille, rear, heads: mergeGeos(hl), tails: mergeGeos(tl), wf, wb, top, ct, eye: [W * 0.2, ct + T.cabH * 0.55, x0 + cl * 0.5] };
   CARGEO[key] = G;
   return G;
 }
@@ -128,6 +128,11 @@ class Car {
     this.mission = false; this.dead = false;
     scene.add(this.root);
     cars.push(this);
+  }
+  // Driver eye position in world space (first-person driving camera).
+  eyeWorld(out) {
+    const e = this.G.eye, c = Math.cos(this.h), s = Math.sin(this.h);
+    return out.set(this.x + e[0] * c + e[2] * s, this.y + e[1], this.z - e[0] * s + e[2] * c);
   }
   place(x, z, h) { this.x = x; this.z = z; this.h = h; this.y = groundH(x, z); this.vx = this.vz = 0; this.sync(0.016); }
   get speed() { return Math.hypot(this.vx, this.vz); }

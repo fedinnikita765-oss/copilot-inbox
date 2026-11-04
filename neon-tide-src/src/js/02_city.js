@@ -19,6 +19,9 @@ function cgAdd(c) {
   for (let ix = ix0; ix <= ix1; ix++) for (let iz = iz0; iz <= iz1; iz++) CG.cells[ix * CG.nz + iz].push(c);
   c.stamp = 0;
 }
+function cgRemove(c) {
+  for (const cell of CG.cells) { const k = cell.indexOf(c); if (k >= 0) cell.splice(k, 1); }
+}
 function addBoxCollider(x0, x1, z0, z1, h, tag) { const c = { t: 0, x0, x1, z0, z1, h: h || 100, tag: tag || 'p' }; cgAdd(c); return c; }
 function addCircleCollider(x, z, r, h, tag) { const c = { t: 1, x, z, r, x0: x - r, x1: x + r, z0: z - r, z1: z + r, h: h || 10, tag: tag || 'p' }; cgAdd(c); return c; }
 const _q = [];

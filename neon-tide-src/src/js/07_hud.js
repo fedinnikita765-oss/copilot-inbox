@@ -19,11 +19,35 @@ const HUD = (() => {
   let last = { obj: null, money: -1, clock: '', stars: -1, flash: null, spd: -1, hp: -1, meta: '', carHp: -1, radio: null };
   let smsT = 0, bannerT = 0, mapT = 0;
   const FOOT_BTNS = ['bPunch', 'bJump', 'bSprint'], CAR_BTNS = ['bGas', 'bBrake', 'bHand', 'bExit', 'bHorn', 'bNitro'];
+  // Dynamic buttons for feature modules: HUD.addButton({ id, label, icon (svg markup), modes: ['foot','car','creative',...],
+  // right, bottom (in button-size units, measured from the bottom-right cluster), big, style, parent, onDown(e), onUp() }).
+  const dyn = [];
+  let curMode = 'foot';
+  function addStyle(css) { const s = document.createElement('style'); s.textContent = css; document.head.appendChild(s); return s; }
+  function addButton(o) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.id = o.id; b.className = 'btn' + (o.big ? ' big' : ''); b.setAttribute('aria-label', o.label);
+    b.innerHTML = (o.icon || '') + '<span>' + o.label + '</span>';
+    if (o.right !== undefined) b.style.right = 'calc(var(--b) * ' + o.right + ')';
+    if (o.bottom !== undefined) b.style.bottom = 'calc(var(--b) * ' + o.bottom + ')';
+    if (o.style) Object.assign(b.style, o.style);
+    b._modes = o.modes || ['foot'];
+    (o.parent ? $(o.parent) : $('btns')).appendChild(b);
+    const down = (e) => { e.preventDefault(); e.stopPropagation(); AUD.resume(); b.classList.add('down'); try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ } if (o.onDown) o.onDown(e); };
+    const up = () => { if (!b.classList.contains('down')) return; b.classList.remove('down'); if (o.onUp) o.onUp(); };
+    b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+    b.classList.toggle('hidden', !b._modes.includes(curMode));
+    dyn.push(b);
+    return b;
+  }
   function setMode(m) {
+    curMode = m;
+    dyn.forEach((b) => b.classList.toggle('hidden', !b._modes.includes(m)));
     FOOT_BTNS.forEach((id) => $(id).classList.toggle('hidden', m !== 'foot'));
     CAR_BTNS.forEach((id) => $(id).classList.toggle('hidden', m !== 'car'));
     el.speedo.classList.toggle('hidden', m !== 'car');
     if (m !== 'foot') $('bEnter').classList.add('hidden');
+    EV.emit('modeChange', m);
   }
   function toast(text, cls) {
     const d = document.createElement('div'); d.className = 'toast' + (cls ? ' ' + cls : ''); d.textContent = text;
@@ -136,7 +160,7 @@ const HUD = (() => {
     const n = toMap(player.x, player.z - 1e6, true);
     if (n) { g.fillStyle = 'rgba(12,7,22,0.8)'; g.beginPath(); g.arc(n[0], n[1], 10, 0, TAU); g.fill(); g.fillStyle = '#fff'; g.font = '800 12px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('С', n[0], n[1] + 0.5); }
   }
-  return { el, setMode, toast, sms, banner, objective, dead, fade, hurt, moneyBump, update, drawMinimap };
+  return { el, setMode, addButton, addStyle, get mode() { return curMode; }, toast, sms, banner, objective, dead, fade, hurt, moneyBump, update, drawMinimap };
 })();
 
 // ---------- input ----------

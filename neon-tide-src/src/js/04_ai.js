@@ -171,7 +171,7 @@ class Ped {
     AUD.thud(Math.min(1, sp / 12));
   }
   update(dt) {
-    const a = this.anim; a.t += dt;
+    const a = this.anim; a.t += dt; a.flinch = Math.max(0, (a.flinch || 0) - dt * 4);
     switch (this.state) {
       case 'walk': {
         if (this.idleT > 0) { this.idleT -= dt; a.speed = damp(a.speed, 0, 6, dt); }
@@ -259,6 +259,16 @@ class Ped {
     this.blob.position.set(this.x, groundH(this.x, this.z) + 0.03, this.z);
   }
 }
+// Generic damage entry point (bullets, melee, explosions). dx, dz: direction of the hit.
+Ped.prototype.damage = function (amount, attacker, dx, dz) {
+  if (this.removed) return;
+  const wasAlive = this.state !== 'dead' && this.health > 0;
+  this.health -= amount; this.anim.flinch = 1;
+  if (this.health <= 0) {
+    if (this.state !== 'fly' && this.state !== 'dead') this.knock((dx || 0) * 2.5, (dz || 0) * 2.5, 1.5, attacker);
+  } else if (this.alive) this.flee(this.x - (dx || 0) * 5, this.z - (dz || 0) * 5);
+  if (wasAlive && this.health <= 0) EV.emit('pedKilled', { ped: this, by: attacker });
+};
 function spawnPed(px, pz, force) {
   for (let tries = 0; tries < 12; tries++) {
     const b = blocks[Math.floor(Math.random() * blocks.length)];
@@ -377,7 +387,8 @@ function spawnPolice() {
   return false;
 }
 function addCrime(amount, why) {
-  if (GAME.state !== 'play' || player.dead) return;
+  if (GAME.state !== 'play' || player.dead || GAME.cheats.noPolice) return;
+  EV.emit('crime', { amount, why });
   const prev = wanted.stars;
   wanted.heat = Math.min(5.99, wanted.heat + amount);
   wanted.stars = Math.floor(wanted.heat);

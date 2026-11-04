@@ -29,6 +29,23 @@ const V3 = THREE.Vector3;
 const UP = new V3(0, 1, 0);
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
 
+// ---------- extension points shared by all modules (see AGENTS.md) ----------
+// EV: tiny event bus. Events: start {fresh, mode}, modeChange (mode), enterCar (car), exitCar (car),
+// gunshot {x, y, z, shooter}, bulletHit {type, target, x, y, z, shooter}, pedKilled {ped, by},
+// explosion {x, z, car}, playerDied, playerBusted, respawn, crime {amount, why}.
+const EV = (() => {
+  const m = new Map();
+  return {
+    on(n, f) { if (!m.has(n)) m.set(n, []); m.get(n).push(f); },
+    off(n, f) { const l = m.get(n); if (l) { const i = l.indexOf(f); if (i >= 0) l.splice(i, 1); } },
+    emit(n, d) { const l = m.get(n); if (!l) return; for (const f of l.slice()) { try { f(d); } catch (e) { console.error('EV ' + n, e); } } },
+  };
+})();
+// EXT: per-frame hooks. boot: after the city is built (may be async). update(dt): game logic while playing.
+// lateUpdate(dt): after the camera moved (view models, aim UI). visual(dt): every rendered frame (menu and play).
+// glow(layer): add dynamic glow points via layer.add(x, y, z, r, g, b, size).
+const EXT = { boot: [], update: [], lateUpdate: [], visual: [], glow: [] };
+
 // ---------- save ----------
 const SAVE_KEY = 'neon-tide-save-v1';
 const DEFAULT_SAVE = { money: 300, mission: 0, quality: 'auto', sound: true, music: true, sens: 1, tokens: [], hours: 17.4 };
