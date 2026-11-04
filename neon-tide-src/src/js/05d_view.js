@@ -24,7 +24,7 @@ function viewSyncUI() {
 }
 function viewLockable() { return !isTouch && VIEWUI.layer && typeof VIEWUI.layer.requestPointerLock === 'function'; }
 function viewRequestLock() {
-  if (!viewLockable() || GAME.state !== 'play' || document.pointerLockElement) return;
+  if (!viewLockable() || GAME.state !== 'play' || document.pointerLockElement || HUD.mode === 'creative') return;
   try { const p = VIEWUI.layer.requestPointerLock(); if (p && typeof p.catch === 'function') p.catch(() => {}); } catch (e) { /* not allowed here */ }
 }
 function viewReleaseLock() {

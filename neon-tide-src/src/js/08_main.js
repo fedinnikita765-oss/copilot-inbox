@@ -262,7 +262,7 @@ function loop(now) {
   requestAnimationFrame(loop);
   let dt = (now - lastT) / 1000; lastT = now;
   if (!(dt > 0)) dt = 0.016;
-  dt = Math.min(dt, 0.05);
+  dt = Math.min(dt, 0.05) * (GAME.timeScale || 1);
   if (GAME.state === 'loading') return;
   if (GAME.state === 'pause') { renderer.render(scene, camera); return; }
   const tU = performance.now();
@@ -330,7 +330,7 @@ async function boot() {
   $('load').classList.add('hidden');
   $('menuBtns').classList.remove('hidden');
   GAME.state = 'menu';
-  window.__neon = { GAME, player, cars, peds, police, wanted, MS, save, DAY, SPOT, startGame, tryEnterExit, input, btn, cam, renderer, scene, camera, keys, missionStartSpot, setWanted, clearWanted, pickups, roadC, Ped, randomLook, COP_LOOK, Car, EXT, EV, HUD, getAim, fireBullet, hurtPlayer, addCrime, buildHuman, animHuman, CG, cgRemove, addBoxCollider, addCircleCollider, groundH, GROUND_HOOKS,
+  window.__neon = { GAME, player, cars, peds, police, wanted, MS, save, DAY, SPOT, startGame, tryEnterExit, input, btn, cam, renderer, scene, camera, keys, missionStartSpot, setWanted, clearWanted, pickups, roadC, Ped, randomLook, COP_LOOK, Car, EXT, EV, HUD, getAim, fireBullet, hurtPlayer, addCrime, buildHuman, animHuman, CG, cgRemove, addBoxCollider, addCircleCollider, groundH, GROUND_HOOKS, CREATIVE, ATMO,
     step(n, dt) { for (let i = 0; i < n; i++) { update(dt); updateDay(dt, true); smokeFx.update(dt); fireFx.update(dt); } } };
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) { if (GAME.state === 'play') pauseGame(true); AUD.suspend(); } });
