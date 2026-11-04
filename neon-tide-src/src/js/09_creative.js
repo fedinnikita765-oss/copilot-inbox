@@ -1630,7 +1630,7 @@ body.ct-on #money{display:none}
   function lateUpdate() { if (S.on) updateGhost(); }
   const _ringCol = new THREE.Color();
   function visual(dt) {
-    if (window.__neon && !window.__neon.CREATIVE) Object.assign(window.__neon, { CREATIVE: api, ATMO, DENSITY, WEATHER_TYPES, getQ: () => Q, SAVE_GUARD, REFL, MATS, windU, wetU });
+    if (window.__neon && !window.__neon.getQ) Object.assign(window.__neon, { CREATIVE: api, ATMO, DENSITY, WEATHER_TYPES, getQ: () => Q, SAVE_GUARD, REFL, MATS, windU, wetU });
     if (!S.on) return;
     if (T.boost) T.boost.offset.y = (T.boost.offset.y - dt * 1.6) % 1;
     for (const it of S.rings) {
