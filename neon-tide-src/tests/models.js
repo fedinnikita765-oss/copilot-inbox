@@ -125,10 +125,10 @@ const check = (ok, msg) => { console.log((ok ? 'ok   ' : 'FAIL ') + msg); if (!o
       mk(hero, -3.0, { weapon: 'pistol', aim: 1, aimYaw: 0.25, aimPitch: 0.05 });
       mk(n.COP_LOOK, -1.6, { weapon: 'twohand', aim: 1, aimYaw: -0.2, aimPitch: 0.0 });
       mk(n.randomLook(), -0.2, { weapon: 'melee', aim: 1 });
-      mk(n.COP_LOOK, 1.2, { weapon: 'pistol', aim: 0 });
+      mk(n.COP_LOOK, 1.2, { weapon: 'pistol', aim: 1, crouch: 0.8, aimYaw: 0.15 });
       mk(Object.assign({}, n.randomLook(), { top: 'hoodie' }), 2.6, { weapon: 'twohand', aim: 0.9, reload: 0.45 });
       mk(n.randomLook(), 4.0, { speed: 3.0, dir: 1.57, weapon: 'pistol', aim: 1, aimYaw: -0.1 });
-      mk(n.randomLook(), 5.4, { speed: 2.5, dir: Math.PI });
+      mk(n.randomLook(), 5.4, { speed: 1.7, dir: Math.PI, breath: 1 });
     };
     await ev(setupPoses);
     await shoot('poses_back', () => { const { x0, z0 } = window.__stage; window.__cam(x0 + 0.6, 2.0, z0 - 5.4, x0 + 0.8, 1.1, z0 + 2, 55); });

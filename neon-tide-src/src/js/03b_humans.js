@@ -12,8 +12,8 @@ const SKIN = ['#f3cfb3', '#e8b48f', '#c98d66', '#a8714d', '#7f4f33', '#5c3824', 
 const SHIRTS = ['#ff3f8e', '#3fe5ef', '#ffd23f', '#f4f1ea', '#2d2d34', '#7a5cff', '#ff8a3d', '#59c36a', '#e63946', '#457b9d', '#ffffff', '#a8dadc', '#f4a261', '#264653', '#ef476f', '#06d6a0'];
 const PANTS = ['#2b2d42', '#3d405b', '#22223b', '#6b705c', '#c9ada7', '#1d3557', '#d8cbb0', '#8d99ae', '#3a5a40', '#111114'];
 const HAIR = ['#1a1110', '#3b2219', '#6b4423', '#d6b370', '#0d0d0d', '#9a3b1b', '#cfc6b8', '#4a2c1a', '#2a1a12'];
-const OUTER = ['#1c1c22', '#2f3e46', '#6d4c3d', '#8b1e3f', '#1d3557', '#e9c46a', '#3a5a40', '#f2f2f2', '#c1121f'];
-const DRESS = ['#e63946', '#ffd23f', '#3fe5ef', '#7a5cff', '#06d6a0', '#ff8a3d', '#f4f1ea', '#1d3557', '#ef476f'];
+const HUM_OUTER = ['#1c1c22', '#2f3e46', '#6d4c3d', '#8b1e3f', '#1d3557', '#e9c46a', '#3a5a40', '#f2f2f2', '#c1121f'];
+const HUM_DRESS = ['#e63946', '#ffd23f', '#3fe5ef', '#7a5cff', '#06d6a0', '#ff8a3d', '#f4f1ea', '#1d3557', '#ef476f'];
 
 function makeHumanAtlas() {
   const S = 512, c = mkCanvas(S, S), g = c.getContext('2d');
@@ -145,7 +145,7 @@ class HGeo {
   }
   add(geo, m, col, w, regName) {
     const reg = ATL[regName] || ATL.plain, pos = geo.attributes.position, uv = geo.attributes.uv, base = this.n;
-    const v = _hv;
+    const v = _humV;
     for (let i = 0; i < pos.count; i++) {
       v.fromBufferAttribute(pos, i).applyMatrix4(m);
       this.v(v.x, v.y, v.z, lerp(reg[0], reg[2], uv ? uv.getX(i) : 0.5), lerp(reg[1], reg[3], uv ? uv.getY(i) : 0.5), col, w);
@@ -171,7 +171,7 @@ class HGeo {
     return g;
   }
 }
-const _hv = new V3();
+const _humV = new V3();
 const _hm = new THREE.Matrix4(), _hq = new THREE.Quaternion(), _he = new THREE.Euler(), _hp = new V3(), _hs = new V3();
 function hmx(x, y, z, sx, sy, sz, rx, ry, rz) { _he.set(rx || 0, ry || 0, rz || 0); _hq.setFromEuler(_he); _hp.set(x, y, z); _hs.set(sx, sy, sz); return _hm.compose(_hp, _hq, _hs); }
 const wb = (a, b, t) => (t <= 0.001 ? [a] : t >= 0.999 ? [b] : [a, 1 - t, b, t]);
@@ -212,8 +212,8 @@ function randomLook() {
   const old = age === 'old';
   return {
     gender: F ? 'f' : 'm', age, skin: rpick(SKIN),
-    top, shirt: top === 'dress' ? rpick(DRESS) : rpick(SHIRTS), shirtPat: top === 'dress' ? rpick(['plain', 'floral', 'dots', 'plain']) : rpick(['fabric', 'fabric', 'plain', 'stripes', 'plaid', 'floral']),
-    outer: rpick(OUTER),
+    top, shirt: top === 'dress' ? rpick(HUM_DRESS) : rpick(SHIRTS), shirtPat: top === 'dress' ? rpick(['plain', 'floral', 'dots', 'plain']) : rpick(['fabric', 'fabric', 'plain', 'stripes', 'plaid', 'floral']),
+    outer: rpick(HUM_OUTER),
     sleeves: top === 'tank' ? 'tank' : top === 'long' || top === 'hoodie' || top === 'jacket' ? 'long' : 'short',
     bottom, pants: rpick(PANTS), pantsPat: rpick(['denim', 'denim', 'fabric']), shorts: bottom === 'shorts',
     shoeStyle: F ? rpick(['sneakers', 'sneakers', 'flats', 'boots']) : rpick(['sneakers', 'sneakers', 'boots']),
@@ -444,14 +444,16 @@ function legCycle(p, runK) {
   const rPush = 0.55 * gauss(p, 0.62 * PI, 0.3);
   const th = lerp(wTh, rTh, runK), kn = lerp(wKn, rKn, runK);
   const comp = 0.35 + 0.5 * sstep(-0.3, 0.3, Math.sin(p));
-  _lc[0] = th; _lc[1] = kn; _lc[2] = -(th + kn) * comp + lerp(wPush, rPush, runK) - 0.04;
-  return _lc;
+  _humLC[0] = th; _humLC[1] = kn; _humLC[2] = -(th + kn) * comp + lerp(wPush, rPush, runK) - 0.04;
+  return _humLC;
 }
-const _lc = [0, 0, 0];
+const _humLC = [0, 0, 0];
 // a: { speed, t, mode ('normal'|'down'|'getup'), getT, air, vy, punch, punchSide, hands, phone, turn, flinch,
 //      dir (movement direction relative to facing: 0 forward, +π/2 left, -π/2 right, ±π back),
 //      aim (0..1), aimYaw (+ = toward the character's left), aimPitch (+ = up), weapon ('none'|'pistol'|'twohand'|'melee'),
-//      oneHand (pistol held in one hand), recoil (0..1 impulse), reload (0..1 progress) }
+//      oneHand (pistol held in one hand), recoil (0..1 impulse), reload (0..1 progress),
+//      breath (0..1 heavy breathing after a sprint), crouch (0..1) }
+// Gait is tuned for walk 1.7 m/s, jog 4.1 m/s, sprint 6.9 m/s.
 // Weapon frame: while a weapon is held, the right hand bone (HB.haR) is oriented with local +Z along the barrel / bat,
 // +Y up (the top of the gun) and +X to the character's left; the wrist is the bone origin. Attach models in that frame.
 function animHuman(H, a, dt) {
@@ -473,13 +475,13 @@ function animHuman(H, a, dt) {
     H.ikW = 0; H.aimW = 0;
   } else {
     const sp = a.speed || 0, aimW = H.aimW;
-    const runK = sstep(2.4, 4.8, sp) * (1 - aimW * 0.5);
+    const runK = sstep(2.3, 3.9, sp) * (1 - aimW * 0.5), crouch = clamp(a.crouch || 0, 0, 1);
     // movement direction relative to facing: sideways steps turn hips + legs, backwards reverses the cycle
     let dir = a.dir || 0;
     const back = Math.abs(dir) > Math.PI * 0.62;
     const md = back ? wrapA(dir - Math.PI) : dir;
     H.dirSm = damp(H.dirSm, clamp(md, -1.6, 1.6), 8, dt);
-    const stride = (lerp(1.3, 2.6, runK) + sstep(5.2, 7.6, sp) * 0.7) * (back ? 0.8 : 1) * (1 - Math.min(0.25, Math.abs(H.dirSm) * 0.14));
+    const stride = (lerp(1.5, 2.55, runK) + sstep(4.6, 7.2, sp) * 0.75) * (back ? 0.8 : 1) * (1 - Math.min(0.25, Math.abs(H.dirSm) * 0.14)) * (1 - crouch * 0.3);
     const prev = H.phase;
     // turning on the spot: small steps
     const turnK = (1 - sstep(0.15, 0.7, sp)) * sstep(0.7, 2.2, Math.abs(a.turn || 0));
@@ -504,6 +506,20 @@ function animHuman(H, a, dt) {
     S(HB.spine, mov * lerp(0.04, 0.15, runK) * (back ? -0.5 : 1), mov * 0.05 * cp, -mov * 0.025 * spn);
     S(HB.chest, mov * 0.05 * runK, mov * lerp(0.08, 0.2, runK) * cp, 0);
     if (H.old) { S(HB.spine, 0.1, 0, 0); S(HB.neck, 0.08, 0, 0); }
+    // sprint: lean into it; breath: chest and shoulders heave after running; crouch: low, bent knees
+    const sprintK = sstep(4.8, 6.9, sp);
+    if (sprintK > 0) { S(HB.spine, 0.08 * sprintK, 0, 0); S(HB.neck, -0.06 * sprintK, 0, 0); }
+    if (a.breath > 0) {
+      const b = clamp(a.breath, 0, 1), hv = Math.sin(t * lerp(3.2, 5.5, b)) * b;
+      S(HB.chest, -0.035 * hv - 0.04 * b * idle, 0, 0); S(HB.spine, 0.06 * b * idle, 0, 0); S(HB.neck, 0.03 * hv, 0, 0);
+      S(HB.uaL, 0, 0, 0.03 * hv); S(HB.uaR, 0, 0, -0.03 * hv); hipY -= 0.006 * Math.abs(hv);
+    }
+    if (crouch > 0) {
+      hipY -= 0.3 * crouch; hipZ -= 0.04 * crouch;
+      S(HB.thL, -0.85 * crouch, 0, 0.06 * crouch); S(HB.thR, -0.85 * crouch, 0, -0.06 * crouch);
+      S(HB.shL, 1.35 * crouch, 0, 0); S(HB.shR, 1.35 * crouch, 0, 0); S(HB.ftL, -0.5 * crouch, 0, 0); S(HB.ftR, -0.5 * crouch, 0, 0);
+      S(HB.spine, 0.32 * crouch, 0, 0); S(HB.neck, -0.2 * crouch, 0, 0);
+    }
     // arms: swing with follow-through (forearm lags behind the upper arm)
     const armSw = lerp(0.33, 0.72, runK) * mov * (1 - Math.abs(H.dirSm) * 0.35), ab = F ? 0.15 : 0.12, cl = Math.cos(ph - 0.45);
     S(HB.uaL, armSw * cp - 0.06 * runK + idle * 0.05, 0, ab + 0.06 * runK);
@@ -603,38 +619,38 @@ function animHuman(H, a, dt) {
   const bn = H.bones;
   for (let b = 1; b < HB_N; b++) bn[b].rotation.set(cur[b * 3], cur[b * 3 + 1], cur[b * 3 + 2]);
   bn[HB.hips].position.set(cur[HB_N * 3], 0.95 + cur[HB_N * 3 + 1], cur[HB_N * 3 + 2]);
-  if (H.ikW > 0.01 && mode === 'normal') weaponIK(H, a, dt);
+  if (H.ikW > 0.01 && mode === 'normal') humWeaponIK(H, a, dt);
   return step;
 }
 
 // ---------- weapon layer: two-bone IK for both arms holding one rigid weapon ----------
-const IKV = { q: new THREE.Quaternion(), qc: new THREE.Quaternion(), qi: new THREE.Quaternion(), qa: new THREE.Quaternion(), qb: new THREE.Quaternion(), qh: new THREE.Quaternion(), qt: new THREE.Quaternion(),
+const HUM_IK = { q: new THREE.Quaternion(), qc: new THREE.Quaternion(), qi: new THREE.Quaternion(), qa: new THREE.Quaternion(), qb: new THREE.Quaternion(), qh: new THREE.Quaternion(), qt: new THREE.Quaternion(),
   m: new THREE.Matrix4(), e: new THREE.Euler(), f: new V3(), u: new V3(), l: new V3(), p: new V3(), w: new V3(), s: new V3(), d: new V3(), v: new V3(), el: new V3(), x: new V3(), y: new V3(), z: new V3(), t: new V3(), o: new V3(), fc: new V3(), uc: new V3() };
 // orthonormal basis (columns x = left, y = up, z = forward) from forward and approximate up → quaternion
-function basisQuat(fwd, up, out) {
-  const z = IKV.z.copy(fwd).normalize(), x = IKV.x.crossVectors(up, z).normalize(), y = IKV.y.crossVectors(z, x);
-  IKV.m.makeBasis(x, y, z); return out.setFromRotationMatrix(IKV.m);
+function humBasisQuat(fwd, up, out) {
+  const z = HUM_IK.z.copy(fwd).normalize(), x = HUM_IK.x.crossVectors(up, z).normalize(), y = HUM_IK.y.crossVectors(z, x);
+  HUM_IK.m.makeBasis(x, y, z); return out.setFromRotationMatrix(HUM_IK.m);
 }
 // Solve shoulder→elbow→wrist for wrist target W (chest frame), pole hint; writes ua/fa local quaternions, returns the arm's chest-frame rotation of the forearm.
-function solveArm(S, W, pole, l1, l2, qUa, qFa) {
-  const d = IKV.d.subVectors(W, S); let dist = d.length();
+function humSolveArm(S, W, pole, l1, l2, qUa, qFa) {
+  const d = HUM_IK.d.subVectors(W, S); let dist = d.length();
   dist = clamp(dist, 0.05, l1 + l2 - 0.002); d.normalize();
   const cosA = clamp((l1 * l1 + dist * dist - l2 * l2) / (2 * l1 * dist), -1, 1), A = Math.acos(cosA);
   const cosE = clamp((l1 * l1 + l2 * l2 - dist * dist) / (2 * l1 * l2), -1, 1), bend = Math.PI - Math.acos(cosE);
-  const v = IKV.v.copy(pole).addScaledVector(d, -pole.dot(d)); if (v.lengthSq() < 1e-6) v.set(0, -1, 0); v.normalize();
-  const el = IKV.el.copy(d).multiplyScalar(Math.cos(A)).addScaledVector(v, Math.sin(A)).multiplyScalar(l1).add(S);
+  const v = HUM_IK.v.copy(pole).addScaledVector(d, -pole.dot(d)); if (v.lengthSq() < 1e-6) v.set(0, -1, 0); v.normalize();
+  const el = HUM_IK.el.copy(d).multiplyScalar(Math.cos(A)).addScaledVector(v, Math.sin(A)).multiplyScalar(l1).add(S);
   // upper arm: local -Y along the bone, local +Z toward the inside of the elbow (where the forearm bends to)
-  const ya = IKV.y.subVectors(S, el).normalize();
-  const wr = IKV.w.copy(S).addScaledVector(d, dist);
-  const zin = IKV.z.subVectors(wr, el); zin.addScaledVector(ya, -zin.dot(ya));
+  const ya = HUM_IK.y.subVectors(S, el).normalize();
+  const wr = HUM_IK.w.copy(S).addScaledVector(d, dist);
+  const zin = HUM_IK.z.subVectors(wr, el); zin.addScaledVector(ya, -zin.dot(ya));
   if (zin.lengthSq() < 1e-6) zin.copy(v).negate(); zin.normalize();
-  const xa = IKV.x.crossVectors(ya, zin);
-  IKV.m.makeBasis(xa, ya, zin); qUa.setFromRotationMatrix(IKV.m);
-  qFa.setFromAxisAngle(_ikX, -bend);
+  const xa = HUM_IK.x.crossVectors(ya, zin);
+  HUM_IK.m.makeBasis(xa, ya, zin); qUa.setFromRotationMatrix(HUM_IK.m);
+  qFa.setFromAxisAngle(_humIkX, -bend);
 }
-const _ikX = new V3(1, 0, 0), _ikPole = new V3(), _ikS = new V3(), _ikW2 = new V3();
-function weaponIK(H, a, dt) {
-  const V = IKV, bn = H.bones, w = H.ikW, aim = H.aimW, kind = a.weapon && a.weapon !== 'none' ? a.weapon : H.wKind;
+const _humIkX = new V3(1, 0, 0), _humIkPole = new V3(), _humIkS = new V3(), _humIkW2 = new V3();
+function humWeaponIK(H, a, dt) {
+  const V = HUM_IK, bn = H.bones, w = H.ikW, aim = H.aimW, kind = a.weapon && a.weapon !== 'none' ? a.weapon : H.wKind;
   // chest rotation and position relative to the character root
   const qc = V.qc.copy(bn[HB.hips].quaternion).multiply(bn[HB.spine].quaternion).multiply(bn[HB.chest].quaternion);
   const qi = V.qi.copy(qc).invert();
@@ -679,23 +695,23 @@ function weaponIK(H, a, dt) {
     V.t.copy(fc); V.t.y += 0.35 * rk; V.t.x += 0.15 * rk; fc.lerp(V.t.normalize(), rk).normalize();
     V.t.set(0.6, 0.6, 0); uc.lerp(V.t, 0.5 * rk);
   }
-  const qw = basisQuat(fc, uc, V.qh);
+  const qw = humBasisQuat(fc, uc, V.qh);
   // right arm
-  _ikS.set(-sh, shY, 0);
-  _ikPole.set(-0.6, -0.8, -0.2).normalize();
-  solveArm(_ikS, o, _ikPole, 0.29, 0.26, V.qa, V.qb);
+  _humIkS.set(-sh, shY, 0);
+  _humIkPole.set(-0.6, -0.8, -0.2).normalize();
+  humSolveArm(_humIkS, o, _humIkPole, 0.29, 0.26, V.qa, V.qb);
   const qR = V.qt.copy(V.qa).multiply(V.qb).invert().multiply(qw);
   bn[HB.uaR].quaternion.slerp(V.qa, w); bn[HB.faR].quaternion.slerp(V.qb, w); bn[HB.haR].quaternion.slerp(qR, w);
   // left (support) hand: on the weapon, or on the way to a fresh magazine while reloading
   if (leftOn > 0.01) {
-    const wl = _ikW2.copy(lOff).applyQuaternion(qw).add(o);
+    const wl = _humIkW2.copy(lOff).applyQuaternion(qw).add(o);
     if (rk > 0 && kind !== 'melee') {
       const k2 = rl < 0.5 ? sstep(0.12, 0.42, rl) : 1 - sstep(0.55, 0.85, rl);
       V.t.set(0.12, shY - 0.62, 0.05); wl.lerp(V.t, k2);
     }
-    _ikS.set(sh, shY, 0);
-    _ikPole.set(0.7, -0.7, -0.2).normalize();
-    solveArm(_ikS, wl, _ikPole, 0.29, 0.26, V.qa, V.qb);
+    _humIkS.set(sh, shY, 0);
+    _humIkPole.set(0.7, -0.7, -0.2).normalize();
+    humSolveArm(_humIkS, wl, _humIkPole, 0.29, 0.26, V.qa, V.qb);
     const ql = V.qi.copy(V.qa).multiply(V.qb).invert().multiply(qw);
     if (kind === 'twohand') { V.qc.setFromAxisAngle(V.t.set(0, 0, 1), -1.2); ql.multiply(V.qc); }
     const wL = w * leftOn;

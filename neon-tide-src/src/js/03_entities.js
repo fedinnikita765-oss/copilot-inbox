@@ -32,17 +32,17 @@ const CARGEO = {};
 const CARMAT = {};
 let blobMat = null, blobGeo = null;
 function initCarAssets() {
-  makeDetailAtlas();
-  prepareCarShapes();
-  const D = DET.tex, O = DET.orm;
+  makeCarDetailAtlas();
+  carPrepareShapes();
+  const D = CAR_DET.tex, O = CAR_DET.orm;
   CARMAT.detail = new THREE.MeshStandardMaterial({ map: D, roughnessMap: O, metalnessMap: O, roughness: 1, metalness: 1, alphaTest: 0.5 });
   CARMAT.head = new THREE.MeshStandardMaterial({ map: D, emissive: new THREE.Color('#fff4d6'), emissiveMap: D, emissiveIntensity: 0.3, roughness: 0.12, metalness: 0.3 });
   CARMAT.tail = new THREE.MeshStandardMaterial({ map: D, emissive: new THREE.Color('#ff2030'), emissiveMap: D, emissiveIntensity: 0.25, roughness: 0.2 });
   CARMAT.brake = new THREE.MeshStandardMaterial({ map: D, emissive: new THREE.Color('#ff1020'), emissiveMap: D, emissiveIntensity: 2.6, roughness: 0.2 });
   CARMAT.headBroken = new THREE.MeshStandardMaterial({ map: D, color: 0x3a3f46, roughness: 0.6, metalness: 0.4 });
   CARMAT.tailBroken = new THREE.MeshStandardMaterial({ map: D, color: 0x3a1a1c, roughness: 0.6 });
-  CARMAT.burnt = new THREE.MeshStandardMaterial({ map: ATLAS.tex, color: 0x1b1918, roughness: 0.95 });
-  CARMAT.shell = new THREE.MeshStandardMaterial({ map: ATLAS.tex, color: 0x5a5651, emissive: new THREE.Color(0x24221f), emissiveMap: ATLAS.tex, roughness: 0.92, side: THREE.BackSide, alphaTest: 0.5 });
+  CARMAT.burnt = new THREE.MeshStandardMaterial({ map: CAR_ATLAS.tex, color: 0x1b1918, roughness: 0.95 });
+  CARMAT.shell = new THREE.MeshStandardMaterial({ map: CAR_ATLAS.tex, color: 0x5a5651, emissive: new THREE.Color(0x24221f), emissiveMap: CAR_ATLAS.tex, roughness: 0.92, side: THREE.BackSide, alphaTest: 0.5 });
   CARMAT.interior = new THREE.MeshStandardMaterial({ map: D, roughness: 0.85, metalness: 0.05 });
   CARMAT.gauge = new THREE.MeshStandardMaterial({ map: D, emissive: new THREE.Color('#ffffff'), emissiveMap: D, emissiveIntensity: 0.5, roughness: 0.3 });
   CARMAT.needle = new THREE.MeshStandardMaterial({ color: 0xff3a2a, emissive: new THREE.Color('#ff3a2a'), emissiveIntensity: 1.2, roughness: 0.4 });
@@ -63,7 +63,7 @@ const paintCache = {};
 function paint(hex, cracked) {
   const key = hex + (cracked ? '#c' : '');
   if (paintCache[key]) return paintCache[key];
-  const m = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(hex), map: ATLAS.tex, roughnessMap: ATLAS.orm, metalnessMap: ATLAS.orm, clearcoatMap: ATLAS.orm,
+  const m = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(hex), map: CAR_ATLAS.tex, roughnessMap: CAR_ATLAS.orm, metalnessMap: CAR_ATLAS.orm, clearcoatMap: CAR_ATLAS.orm,
     roughness: 0.6, metalness: 0.5, clearcoat: 1, clearcoatRoughness: 0.06 });
   if (cracked) {
     m.onBeforeCompile = (sh) => {
@@ -96,9 +96,9 @@ function carGeo(type) {
 
 const cars = [];
 let GAMEHOOK = { carHit: null, explosion: null };
-const GRAV = 21;
-const _eyeV = new V3(), _carQ = new THREE.Quaternion();
-const SUSP = { k: 85, c: 7.5 };
+const CAR_GRAV = 21;
+const _cmEyeV = new V3(), _cmCarQ = new THREE.Quaternion();
+const CAR_SUSP = { k: 85, c: 7.5 };
 class Car {
   constructor(type, color) {
     this.type = type;
@@ -151,11 +151,11 @@ class Car {
     return out.set(e[0], e[1], e[2]).applyMatrix4(this.body.matrix).applyMatrix4(this.root.matrix);
   }
   // Orientation of the cabin (root × body) for a camera that should tilt with the car.
-  eyeQuat(out) { return (out || _carQ).copy(this.root.quaternion).multiply(this.body.quaternion); }
+  eyeQuat(out) { return (out || _cmCarQ).copy(this.root.quaternion).multiply(this.body.quaternion); }
   setInteriorVisible(on) {
     on = !!on;
     if (on && !this.interior) {
-      const I = buildInterior(this.type, this.G), grp = new THREE.Group();
+      const I = carBuildInterior(this.type, this.G), grp = new THREE.Group();
       const shell = new THREE.Mesh(this.G.body, CARMAT.shell); shell.morphTargetInfluences = this.bodyMesh.morphTargetInfluences;
       grp.add(shell, new THREE.Mesh(I.dash, CARMAT.interior), new THREE.Mesh(I.gauges, CARMAT.gauge));
       const col = new THREE.Group(); col.position.set(I.wheelPos[0], I.wheelPos[1], I.wheelPos[2]); col.rotation.x = I.wheelTilt;
@@ -244,7 +244,7 @@ class Car {
       const u = Math.max(av, 2.5), sg = vf < -0.2 ? -1 : 1;
       const lt = clamp(-this.accF * 0.022, -0.22, 0.22);
       const nF = b / wb + lt, nR = a / wb - lt;
-      const mu = T.grip * GRAV * 0.47 * (alive ? 1 : 0.6) * (1 + 0.22 * sstep(16, 45, av));
+      const mu = T.grip * CAR_GRAV * 0.47 * (alive ? 1 : 0.6) * (1 + 0.22 * sstep(16, 45, av));
       let spin = 0;
       if (T.drive !== 'fwd' && thr > 0.6 && vf > 0 && this.gear <= 2) spin = clamp((T.acc / (T.grip * 9.8)) * thr * (1 - vf / (maxV * 0.55)) * (T.drive === 'awd' ? 0.5 : 1.15) - 0.35, 0, 0.75);
       if (hand && av > 3) spin = Math.max(spin, 0.55);
@@ -295,7 +295,7 @@ class Car {
     this.groundSample();
     if (this.air) {
       this.airT += dt;
-      this.vy -= GRAV * dt; this.y += this.vy * dt;
+      this.vy -= CAR_GRAV * dt; this.y += this.vy * dt;
       this.aPitchV += (0.35 + (thr - brk) * -0.6) * dt; this.tPitch += this.aPitchV * dt; this.tRoll += this.aRollV * dt;
       this.tPitch = clamp(this.tPitch, -0.75, 0.75); this.tRoll = clamp(this.tRoll, -0.5, 0.5);
       if (this.y <= this.gY) {
@@ -309,9 +309,9 @@ class Car {
       }
     } else {
       // vy: low-passed vertical speed of the ground under the car (a ramp builds it up, a curb step barely does)
-      const yFree = this.y + this.vy * dt - 0.5 * GRAV * dt * dt;
+      const yFree = this.y + this.vy * dt - 0.5 * CAR_GRAV * dt * dt;
       if ((yFree > this.gY + 0.025 && this.vy > 1.2) || this.gY < this.y - 0.35) {
-        this.air = true; this.airT = 0; this.y = yFree; this.vy -= GRAV * dt;
+        this.air = true; this.airT = 0; this.y = yFree; this.vy -= CAR_GRAV * dt;
         this.aPitchV = 0; this.aRollV = (this.tRoll - this.gR) * 0.5;
       } else {
         const dy = this.gY - this.y;
@@ -345,7 +345,7 @@ class Car {
   onImpact(sp, px, pz, other) {
     let k = this.T.police ? 1.5 : 2.3;
     if (this.driver === 'player' && other && other.driver === 'police') k = 1.0;
-    if (other && other.T.mass && this.T.mass) k *= clamp(Math.sqrt(other.T.mass / this.T.mass), 0.5, 1.8);
+    if (other && other.T.mass && this.T.mass) k *= clamp(Math.sqrt(other.T.mass / this.T.mass), 0.6, 1.35);
     if (sp > 4.5) {
       const d = (sp - 4.5) * k;
       this.damage(d, other);
@@ -446,7 +446,7 @@ class Car {
     // suspension: damped springs toward load-transfer targets, plus bump/landing impulses
     const mk = clamp(1.6 / Math.sqrt(T.mass || 1.4), 0.5, 1.3);
     const tp = this.air ? 0 : clamp(-this.accF * 0.0065, -0.085, 0.085), tr = this.air ? 0 : clamp(-this.accS * 0.0045, -0.085, 0.085);
-    const h = Math.min(dt, 0.034), K = SUSP.k * mk, C = SUSP.c * Math.sqrt(mk);
+    const h = Math.min(dt, 0.034), K = CAR_SUSP.k * mk, C = CAR_SUSP.c * Math.sqrt(mk);
     sp.hv += (-K * sp.h - C * sp.hv) * h; sp.h += sp.hv * h;
     sp.pv += (-K * (sp.p - tp) - C * sp.pv) * h; sp.p += sp.pv * h;
     sp.rv += (-K * 0.8 * (sp.r - tr) - C * sp.rv) * h; sp.r += sp.rv * h;

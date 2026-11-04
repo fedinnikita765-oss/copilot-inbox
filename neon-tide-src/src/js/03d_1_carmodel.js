@@ -6,7 +6,7 @@
 //  the cabin's inner shell for first-person driving. Damage uses shared morph targets (crumple per side).
 // ============================================================
 // Monotone cubic interpolation through [x, y] knots (no overshoot).
-function mcurve(k) {
+function carCurve(k) {
   const n = k.length, xs = k.map((p) => p[0]), ys = k.map((p) => p[1]), d = [], m = [];
   if (n === 1) return () => ys[0];
   for (let i = 0; i < n - 1; i++) d[i] = (ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]);
@@ -129,19 +129,19 @@ const CARSPEC = {
   },
 };
 CARSPEC.taxi = CARSPEC.sedan; CARSPEC.police = CARSPEC.sedan;
-const SEC_N = 18, SEC_PART = ['bot', 'lc', 'lc', 'lc', 'side', 'side', 'side', 'sh', 'sh', 'gb', 'gs', 'gs', 'rc', 'rc', 'rt', 'rt', 'rt'];
+const CAR_SEC_N = 18, CAR_SEC_PART = ['bot', 'lc', 'lc', 'lc', 'side', 'side', 'side', 'sh', 'sh', 'gb', 'gs', 'gs', 'rc', 'rc', 'rt', 'rt', 'rt'];
 
 // Shape functions for one car type. All values in local metres (z forward, x left, y up), before the end deform.
 function carShape(type) {
   const T = CAR_TYPES[type], S = CARSPEC[type], L = T.L, hw = T.W / 2;
-  const fyb = mcurve(S.yb), fbelt = mcurve(S.belt), froof = mcurve(S.roof), fw = mcurve(S.w), fcr = mcurve(S.crown);
+  const fyb = carCurve(S.yb), fbelt = carCurve(S.belt), froof = carCurve(S.roof), fw = carCurve(S.w), fcr = carCurve(S.crown);
   const axF = S.axF * L, axR = S.axR * L, wr = T.wr, ra = wr + 0.075;
   const archTop = (z) => {
     let y = -1;
     for (const az of [axF, axR]) { const d = z - az; if (d > -ra && d < ra) y = Math.max(y, wr + Math.sqrt(ra * ra - d * d)); }
     return y;
   };
-  const px = new Float32Array(SEC_N), py = new Float32Array(SEC_N), ps = new Float32Array(SEC_N);
+  const px = new Float32Array(CAR_SEC_N), py = new Float32Array(CAR_SEC_N), ps = new Float32Array(CAR_SEC_N);
   const sec = { px, py, ps, yb: 0, belt: 0, yt: 0, gh: 0, w: 0, wg: 0, rwe: 0, crown: 0, S: 0 };
   function at(z) {
     const zn = z / L;
@@ -169,8 +169,8 @@ function carShape(type) {
     const cx = rwe - rr;
     P(15, cx * 0.64, yt + crown * 0.6); P(16, cx * 0.3, yt + crown * 0.92); P(17, 0, yt + crown);
     ps[0] = 0;
-    for (let i = 1; i < SEC_N; i++) ps[i] = ps[i - 1] + Math.hypot(px[i] - px[i - 1], py[i] - py[i - 1]);
-    Object.assign(sec, { yb, belt, yt, gh, w, wg, rwe, crown, S: ps[SEC_N - 1] });
+    for (let i = 1; i < CAR_SEC_N; i++) ps[i] = ps[i - 1] + Math.hypot(px[i] - px[i - 1], py[i] - py[i - 1]);
+    Object.assign(sec, { yb, belt, yt, gh, w, wg, rwe, crown, S: ps[CAR_SEC_N - 1] });
     return sec;
   }
   // arc length on the outer side at height y (between the bottom and the beltline)
@@ -189,8 +189,8 @@ function carShape(type) {
   const pt = { x: 0, y: 0, k: 0 };
   function atS(z, s) {
     at(z);
-    for (let i = 1; i < SEC_N; i++) {
-      if (ps[i] >= s || i === SEC_N - 1) {
+    for (let i = 1; i < CAR_SEC_N; i++) {
+      if (ps[i] >= s || i === CAR_SEC_N - 1) {
         const t = ps[i] - ps[i - 1] > 1e-6 ? clamp((s - ps[i - 1]) / (ps[i] - ps[i - 1]), 0, 1) : 0;
         pt.x = lerp(px[i - 1], px[i], t); pt.y = lerp(py[i - 1], py[i], t); pt.k = i - 1; return pt;
       }
@@ -212,15 +212,15 @@ function carDeform(sh) {
 }
 
 // ---------- body atlas (2048 x 1024, 8 x 2 tiles of 256 x 512; v = canvas row, no flip) ----------
-const ATLAS = { W: 2048, H: 1024, TW: 256, TH: 512, tiles: {}, tex: null, orm: null };
+const CAR_ATLAS = { W: 2048, H: 1024, TW: 256, TH: 512, tiles: {}, tex: null, orm: null };
 const CAR_TILE_ORDER = ['coupe', 'sedan', 'suv', 'muscle', 'pickup', 'van', 'supercar', 'bus', 'taxi', 'police'];
-function tileOf(type) {
-  const i = CAR_TILE_ORDER.indexOf(type), t = { i, x: (i % 8) * ATLAS.TW, y: Math.floor(i / 8) * ATLAS.TH };
+function carTileOf(type) {
+  const i = CAR_TILE_ORDER.indexOf(type), t = { i, x: (i % 8) * CAR_ATLAS.TW, y: Math.floor(i / 8) * CAR_ATLAS.TH };
   return t;
 }
 // loft uv: u = 0.01 + 0.98 s / Smax, v = 0.01 + 0.78 (z - zmin) / L; caps: v in [0.8, 0.99]
 function paintCarTile(g, gm, type, sh, Smax, capY) {
-  const T = sh.T, S = sh.S, st = S.style, L = sh.L, tl = tileOf(type), TW = ATLAS.TW, TH = ATLAS.TH;
+  const T = sh.T, S = sh.S, st = S.style, L = sh.L, tl = carTileOf(type), TW = CAR_ATLAS.TW, TH = CAR_ATLAS.TH;
   const zmin = sh.zmin, zmax = sh.zmax, hw = sh.hw;
   const U = (s) => tl.x + (0.01 + 0.98 * s / Smax) * TW;
   const V = (z) => tl.y + (0.01 + 0.78 * (z - zmin) / L) * TH;
@@ -388,16 +388,16 @@ function paintCarTile(g, gm, type, sh, Smax, capY) {
   g.fillStyle = '#ffffff'; g.fillRect(tl.x, tl.y + 0.787 * TH, TW, 0.012 * TH);
   if (type === 'police') { g.fillStyle = '#16244a'; g.fillRect(tl.x, tl.y + 0.787 * TH, TW, 0.012 * TH); }
   g.restore(); gm.restore();
-  return { u: (s) => (U(s)) / ATLAS.W, v: (z) => V(z) / ATLAS.H, fu: (x) => FU(x) / ATLAS.W, bu: (x) => BU(x) / ATLAS.W, cv: (y) => CV(y) / ATLAS.H, plain: [(tl.x + TW * 0.5) / ATLAS.W, (tl.y + 0.793 * TH) / ATLAS.H] };
+  return { u: (s) => (U(s)) / CAR_ATLAS.W, v: (z) => V(z) / CAR_ATLAS.H, fu: (x) => FU(x) / CAR_ATLAS.W, bu: (x) => BU(x) / CAR_ATLAS.W, cv: (y) => CV(y) / CAR_ATLAS.H, plain: [(tl.x + TW * 0.5) / CAR_ATLAS.W, (tl.y + 0.793 * TH) / CAR_ATLAS.H] };
 }
 
 // ---------- detail atlas (512 x 512 canvas, standard flipY) ----------
-const DET = { S: 512, R: {}, tex: null, orm: null };
-function makeDetailAtlas() {
-  const S = DET.S, c = mkCanvas(S, S), g = c.getContext('2d'), o = mkCanvas(S, S), go = o.getContext('2d');
+const CAR_DET = { S: 512, R: {}, tex: null, orm: null };
+function makeCarDetailAtlas() {
+  const S = CAR_DET.S, c = mkCanvas(S, S), g = c.getContext('2d'), o = mkCanvas(S, S), go = o.getContext('2d');
   go.fillStyle = 'rgb(255,200,0)'; go.fillRect(0, 0, S, S);
   const R = (name, x, y, w, h, col, rough, metal) => {
-    DET.R[name] = [(x + 1.5) / S, 1 - (y + h - 1.5) / S, (x + w - 1.5) / S, 1 - (y + 1.5) / S];
+    CAR_DET.R[name] = [(x + 1.5) / S, 1 - (y + h - 1.5) / S, (x + w - 1.5) / S, 1 - (y + 1.5) / S];
     if (col) { g.fillStyle = col; g.fillRect(x, y, w, h); }
     go.fillStyle = `rgb(255,${Math.round(rough * 255)},${Math.round(metal * 255)})`; go.fillRect(x, y, w, h);
   };
@@ -508,18 +508,18 @@ function makeDetailAtlas() {
   };
   lampH(0, 448); lampT(128, 448);
   R('lampAmber', 256, 448, 32, 32, '#ff9a1f', 0.2, 0.1);
-  DET.tex = toTex(c, { wrap: false, aniso: 4 });
-  DET.orm = new THREE.CanvasTexture(o); DET.orm.anisotropy = 1;
-  DET.canvas = c;
+  CAR_DET.tex = toTex(c, { wrap: false, aniso: 4 });
+  CAR_DET.orm = new THREE.CanvasTexture(o); CAR_DET.orm.anisotropy = 1;
+  CAR_DET.canvas = c;
 }
 
 // ---------- geometry assembly helpers ----------
-class PartList {
+class CarParts {
   constructor() { this.p = []; this.n = []; this.u = []; this.ix = []; this.cnt = 0; }
   // add a three geometry transformed by matrix m with its uvs remapped into region r = [u0, v0, u1, v1] (or a fixed uv)
   add(geo, m, r, uvFn) {
     const pos = geo.attributes.position, nor = geo.attributes.normal, uv = geo.attributes.uv, base = this.cnt;
-    const v = _cv1, nm = _cm3.getNormalMatrix(m);
+    const v = _cmV1, nm = _cmM3.getNormalMatrix(m);
     for (let i = 0; i < pos.count; i++) {
       v.fromBufferAttribute(pos, i).applyMatrix4(m); this.p.push(v.x, v.y, v.z);
       if (nor) { v.fromBufferAttribute(nor, i).applyMatrix3(nm).normalize(); this.n.push(v.x, v.y, v.z); } else this.n.push(0, 1, 0);
@@ -545,9 +545,9 @@ class PartList {
     return g;
   }
 }
-const _cv1 = new V3(), _cm3 = new THREE.Matrix3(), _cm4 = new THREE.Matrix4(), _cq = new THREE.Quaternion(), _ce = new THREE.Euler(), _cp = new V3(), _cs = new V3();
-function cmx(x, y, z, sx, sy, sz, rx, ry, rz, order) { _ce.set(rx || 0, ry || 0, rz || 0, order || 'XYZ'); _cq.setFromEuler(_ce); _cp.set(x, y, z); _cs.set(sx, sy === undefined ? sx : sy, sz === undefined ? sx : sz); return _cm4.compose(_cp, _cq, _cs); }
-function roundRectShape(w, h, r, cx, cy) {
+const _cmV1 = new V3(), _cmM3 = new THREE.Matrix3(), _cmM4 = new THREE.Matrix4(), _cmQ = new THREE.Quaternion(), _cmE = new THREE.Euler(), _cmP = new V3(), _cmS = new V3();
+function carMx(x, y, z, sx, sy, sz, rx, ry, rz, order) { _cmE.set(rx || 0, ry || 0, rz || 0, order || 'XYZ'); _cmQ.setFromEuler(_cmE); _cmP.set(x, y, z); _cmS.set(sx, sy === undefined ? sx : sy, sz === undefined ? sx : sz); return _cmM4.compose(_cmP, _cmQ, _cmS); }
+function carRoundRect(w, h, r, cx, cy) {
   const s = new THREE.Shape(), x = (cx || 0) - w / 2, y = (cy || 0) - h / 2;
   r = Math.min(r, w / 2, h / 2);
   s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r);

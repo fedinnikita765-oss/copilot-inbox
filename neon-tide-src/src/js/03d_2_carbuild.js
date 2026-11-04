@@ -3,18 +3,18 @@
 //  body (paint, morph targets for damage), detail (plates, liners, mirrors, decals), lamps, wheel, extras,
 //  and a lazily built interior for first-person driving.
 // ============================================================
-const BODY_RING = SEC_N * 2 - 2;
+const CAR_BODY_RING = CAR_SEC_N * 2 - 2;
 let carAtlasCtx = null;
 function carAtlasBegin() {
-  const c = mkCanvas(ATLAS.W, ATLAS.H), m = mkCanvas(ATLAS.W, ATLAS.H);
+  const c = mkCanvas(CAR_ATLAS.W, CAR_ATLAS.H), m = mkCanvas(CAR_ATLAS.W, CAR_ATLAS.H);
   const g = c.getContext('2d'), gm = m.getContext('2d');
-  g.fillStyle = '#ffffff'; g.fillRect(0, 0, ATLAS.W, ATLAS.H);
-  gm.fillStyle = '#000'; gm.fillRect(0, 0, ATLAS.W, ATLAS.H);
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, CAR_ATLAS.W, CAR_ATLAS.H);
+  gm.fillStyle = '#000'; gm.fillRect(0, 0, CAR_ATLAS.W, CAR_ATLAS.H);
   carAtlasCtx = { c, m, g, gm };
 }
 // Combine colour + glass mask into the body atlas (alpha 0 = glass) and a half-res roughness/metalness map.
 function carAtlasEnd() {
-  const { c, m, g, gm } = carAtlasCtx, W = ATLAS.W, H = ATLAS.H;
+  const { c, m, g, gm } = carAtlasCtx, W = CAR_ATLAS.W, H = CAR_ATLAS.H;
   const col = g.getImageData(0, 0, W, H).data, msk = gm.getImageData(0, 0, W, H).data;
   const data = new Uint8Array(W * H * 4);
   for (let i = 0; i < W * H * 4; i += 4) { data[i] = col[i]; data[i + 1] = col[i + 1]; data[i + 2] = col[i + 2]; data[i + 3] = 255 - msk[i]; }
@@ -34,17 +34,17 @@ function carAtlasEnd() {
   }
   const o = new THREE.DataTexture(od, OW, OH, THREE.RGBAFormat, THREE.UnsignedByteType);
   o.magFilter = THREE.LinearFilter; o.minFilter = THREE.LinearMipmapLinearFilter; o.generateMipmaps = true; o.flipY = false; o.needsUpdate = true;
-  ATLAS.tex = t; ATLAS.orm = o;
+  CAR_ATLAS.tex = t; CAR_ATLAS.orm = o;
   carAtlasCtx = null;
 }
 
 // Paint every tile first (the atlas is uploaded once), then geometries use the stored uv mappers.
 const CARSHAPE = {};
-function prepareCarShapes() {
+function carPrepareShapes() {
   carAtlasBegin();
   for (const type of CAR_TILE_ORDER) {
     const sh = carShape(type);
-    const zs = carSlices(sh);
+    const zs = carSliceList(sh);
     let Smax = 0, capY = 0;
     for (const z of zs) { const s = sh.at(z); Smax = Math.max(Smax, s.S); }
     for (let i = 0; i <= 200; i++) Smax = Math.max(Smax, sh.at(lerp(sh.zmin, sh.zmax, i / 200)).S);
@@ -55,7 +55,7 @@ function prepareCarShapes() {
   }
   carAtlasEnd();
 }
-function carSlices(sh) {
+function carSliceList(sh) {
   const S = sh.S, L = sh.L, zs = [], n = Math.ceil(L / (L > 8 ? 0.3 : 0.16));
   for (let i = 0; i <= n; i++) zs.push(sh.zmin + L * i / n);
   for (const az of [sh.axF, sh.axR]) {
@@ -75,16 +75,16 @@ function carSlices(sh) {
 
 // ---------- body ----------
 function buildCarBody(type, sh, deform) {
-  const zs = sh.zs, nS = zs.length, R = BODY_RING, uv = sh.uv, S = sh.S;
+  const zs = sh.zs, nS = zs.length, R = CAR_BODY_RING, uv = sh.uv, S = sh.S;
   const P = [], UV = [], IX = [];
   for (let i = 0; i < nS; i++) {
     const z = zs[i], s = sh.at(z), v = uv.v(z);
     for (let k = 0; k < R; k++) {
-      const j = k < SEC_N ? k : R - k, sx = k < SEC_N ? 1 : -1;
+      const j = k < CAR_SEC_N ? k : R - k, sx = k < CAR_SEC_N ? 1 : -1;
       P.push(s.px[j] * sx, s.py[j], z); UV.push(uv.u(s.ps[j]), v);
     }
   }
-  const halfSeg = (k) => { const a = k < SEC_N ? k : R - k, b = (k + 1) % R, bb = b < SEC_N ? b : R - b; return Math.min(a, bb); };
+  const halfSeg = (k) => { const a = k < CAR_SEC_N ? k : R - k, b = (k + 1) % R, bb = b < CAR_SEC_N ? b : R - b; return Math.min(a, bb); };
   for (let i = 0; i < nS - 1; i++) {
     const zm = (zs[i] + zs[i + 1]) / 2, bed = S.bed && zm > S.bed[0] * sh.L && zm < S.bed[1] * sh.L;
     for (let k = 0; k < R; k++) {
@@ -96,10 +96,10 @@ function buildCarBody(type, sh, deform) {
   // caps with two inner rings for a gently domed face
   const cap = (i, front) => {
     const z = zs[i], s = sh.at(z);
-    let y0 = 1e9, y1 = -1e9; for (let j = 0; j < SEC_N; j++) { y0 = Math.min(y0, s.py[j]); y1 = Math.max(y1, s.py[j]); }
+    let y0 = 1e9, y1 = -1e9; for (let j = 0; j < CAR_SEC_N; j++) { y0 = Math.min(y0, s.py[j]); y1 = Math.max(y1, s.py[j]); }
     const cy = (y0 + y1) / 2, base = P.length / 3, rings = [1, 0.72, 0.4];
     for (const f of rings) for (let k = 0; k < R; k++) {
-      const j = k < SEC_N ? k : R - k, sx = k < SEC_N ? 1 : -1, x = s.px[j] * sx * f, y = cy + (s.py[j] - cy) * f;
+      const j = k < CAR_SEC_N ? k : R - k, sx = k < CAR_SEC_N ? 1 : -1, x = s.px[j] * sx * f, y = cy + (s.py[j] - cy) * f;
       P.push(x, y, z); UV.push(front ? uv.fu(x) : uv.bu(x), uv.cv(y));
     }
     const c = P.length / 3; P.push(0, cy, z); UV.push(front ? uv.fu(0) : uv.bu(0), uv.cv(cy));
@@ -110,9 +110,9 @@ function buildCarBody(type, sh, deform) {
     }
   };
   cap(nS - 1, true); cap(0, false);
-  const parts = new PartList();
+  const parts = new CarParts();
   parts.p = P; parts.u = UV; parts.ix = IX; parts.cnt = P.length / 3; parts.n = new Array(P.length).fill(0);
-  addPaintParts(parts, type, sh);
+  carAddPaintParts(parts, type, sh);
   const g = parts.build(deform);
   // smooth normals for the loft/caps; painted parts keep their own normals
   const loftCount = nS * R + 2 * (3 * R + 1);
@@ -120,33 +120,33 @@ function buildCarBody(type, sh, deform) {
   g.computeVertexNormals();
   g.attributes.normal.array.set(n0, loftCount * 3);
   g.userData.loftCount = loftCount;
-  addDamageMorphs(g, sh, true);
+  carAddDamageMorphs(g, sh, true);
   return g;
 }
 // small painted parts merged into the body: mirrors, scoop, spoilers
-function addPaintParts(parts, type, sh) {
+function carAddPaintParts(parts, type, sh) {
   const S = sh.S, st = S.style, L = sh.L, plain = sh.uv.plain;
   const sph = () => new THREE.SphereGeometry(1, 10, 7), box = () => new THREE.BoxGeometry(1, 1, 1);
   if (st.bus) {
     for (const s of [-1, 1]) {
-      parts.add(box(), cmx(s * (sh.hw + 0.13), 2.35, sh.zmax - 0.05, 0.3, 0.04, 0.04), plain);
-      parts.add(sph(), cmx(s * (sh.hw + 0.27), 2.05, sh.zmax + 0.02, 0.07, 0.24, 0.06), plain);
+      parts.add(box(), carMx(s * (sh.hw + 0.13), 2.35, sh.zmax - 0.05, 0.3, 0.04, 0.04), plain);
+      parts.add(sph(), carMx(s * (sh.hw + 0.27), 2.05, sh.zmax + 0.02, 0.07, 0.24, 0.06), plain);
     }
   } else {
     const z = S.g[3] * L - (type === 'van' ? 0.12 : 0.2), s0 = sh.at(z), y = s0.belt + (type === 'supercar' ? 0.06 : 0.1);
     for (const s of [-1, 1]) {
-      parts.add(sph(), cmx(s * (s0.wg + 0.13), y, z, 0.105, 0.065, 0.05, 0, s * 0.15, 0), plain);
-      parts.add(box(), cmx(s * (s0.wg + 0.04), y - 0.03, z + 0.01, 0.1, 0.03, 0.05), plain);
+      parts.add(sph(), carMx(s * (s0.wg + 0.13), y, z, 0.105, 0.065, 0.05, 0, s * 0.15, 0), plain);
+      parts.add(box(), carMx(s * (s0.wg + 0.04), y - 0.03, z + 0.01, 0.1, 0.03, 0.05), plain);
     }
   }
-  if (st.scoop) { const s0 = sh.at(0.3 * L); parts.add(sph(), cmx(0, s0.belt + s0.crown, 0.28 * L, 0.26, 0.085, 0.42), plain); }
+  if (st.scoop) { const s0 = sh.at(0.3 * L); parts.add(sph(), carMx(0, s0.belt + s0.crown, 0.28 * L, 0.26, 0.085, 0.42), plain); }
   if (st.duck || st.lip) {
     const z = sh.zmin + 0.06, s0 = sh.at(z);
-    parts.add(box(), cmx(0, s0.belt + s0.crown + (st.duck ? 0.02 : 0.008), z + 0.02, s0.w * 1.8, st.duck ? 0.05 : 0.025, 0.12, -0.25), plain);
+    parts.add(box(), carMx(0, s0.belt + s0.crown + (st.duck ? 0.02 : 0.008), z + 0.02, s0.w * 1.8, st.duck ? 0.05 : 0.025, 0.12, -0.25), plain);
   }
 }
 // Shared crumple targets: front, rear, left (+x), right (-x), roof.
-function addDamageMorphs(g, sh, normals) {
+function carAddDamageMorphs(g, sh, normals) {
   const pos = g.attributes.position, n = pos.count, hw = sh.hw, L2 = sh.L / 2;
   const roofY = sh.at(sh.S.g[1] * sh.L * 0.5 + sh.S.g[2] * sh.L * 0.5).yt;
   const tg = [0, 1, 2, 3, 4].map(() => new Float32Array(n * 3));
@@ -195,7 +195,7 @@ function addDamageMorphs(g, sh, normals) {
 }
 
 // ---------- lamps ----------
-function lampShape(kind, w, h, cx, cy, mirror) {
+function carLampShape(kind, w, h, cx, cy, mirror) {
   const s = new THREE.Shape(); let pts;
   const o = (x, y) => [cx + (mirror ? -x : x), cy + y];
   if (kind === 'slim') pts = [o(-w / 2, -h / 2), o(w / 2, -h / 2 + 0.015), o(w / 2, h / 2 + 0.03), o(-w / 2 + 0.05, h / 2)];
@@ -206,25 +206,25 @@ function lampShape(kind, w, h, cx, cy, mirror) {
     return [a, b];
   } else {
     const r = kind === 'square' ? 0.02 : kind === 'bar' || kind === 'wide' ? 0.015 : 0.035;
-    return [roundRectShape(w, h, r, cx, cy)];
+    return [carRoundRect(w, h, r, cx, cy)];
   }
   if (mirror) pts.reverse();
   s.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) s.lineTo(pts[i][0], pts[i][1]); s.closePath();
   return [s];
 }
-function buildLamps(sh, front) {
+function carBuildLamps(sh, front) {
   const S = sh.S, T = sh.T, spec = front ? S.head : S.tail, hx = sh.hw - 0.37, hy = T.H - 0.2;
   const y = front || !spec.up ? hy + (front ? 0 : 0.02) : hy + spec.up * 0.5 - 0.05;
   const end = front ? sh.at(sh.zmax) : sh.at(sh.zmin);
-  const parts = new PartList(), reg = DET.R[front ? 'lampHead' : 'lampTail'];
+  const parts = new CarParts(), reg = CAR_DET.R[front ? 'lampHead' : 'lampTail'];
   const depth = 0.04, bev = 0.012;
   for (const sd of [-1, 1]) {
     const cx = sd * hx * (front ? 1 : -1), mirror = (sd < 0) === front;
-    const shapes = lampShape(spec.shape, spec.w, spec.h, cx, y, mirror);
+    const shapes = carLampShape(spec.shape, spec.w, spec.h, cx, y, mirror);
     for (const shp of shapes) {
       const geo = new THREE.ExtrudeGeometry(shp, { depth, bevelEnabled: true, bevelThickness: bev, bevelSize: 0.008, bevelSegments: 2, curveSegments: 10 });
       const x0 = cx - spec.w / 2, y0 = y - spec.h / 2;
-      const m = front ? cmx(0, 0, sh.zmax + 0.006 - depth - bev, 1) : cmx(0, 0, sh.zmin - 0.006 + depth + bev, 1, 1, 1, 0, Math.PI, 0);
+      const m = front ? carMx(0, 0, sh.zmax + 0.006 - depth - bev, 1) : carMx(0, 0, sh.zmin - 0.006 + depth + bev, 1, 1, 1, 0, Math.PI, 0);
       parts.add(geo, m, null, (px, py) => {
         const lx = front ? px : -px;
         return [lerp(reg[0], reg[2], clamp((lx - x0) / spec.w, 0, 1)), lerp(reg[1], reg[3], clamp((py - y0) / spec.h, 0, 1))];
@@ -235,42 +235,42 @@ function buildLamps(sh, front) {
 }
 
 // ---------- wheel (tyre + rim, rim face toward +x) ----------
-function buildWheel(sh) {
+function carBuildWheel(sh) {
   const T = sh.T, st = sh.S.style, r = T.wr, tw = T.tw || 0.25, rimR = r * (st.rim === 'bus' ? 0.6 : st.rim === 'steel' || st.rim === 'steel6' ? 0.62 : st.rim === 'thin' ? 0.74 : 0.68);
-  const parts = new PartList(), D = DET.R;
+  const parts = new CarParts(), D = CAR_DET.R;
   const lathe = (pts, seg) => { const g = new THREE.LatheGeometry(pts.map((p) => new THREE.Vector2(p[0], p[1])), seg); g.rotateZ(-Math.PI / 2); return g; };
   const h = tw / 2, sw = (r - rimR);
   // sidewalls
-  parts.add(lathe([[rimR + 0.004, h - 0.012], [rimR + sw * 0.3, h + 0.004], [r - sw * 0.28, h + 0.01], [r - 0.02, h - 0.002]], 22), cmx(0, 0, 0, 1), D.rubber);
-  parts.add(lathe([[r - 0.02, -h + 0.002], [r - sw * 0.28, -h - 0.01], [rimR + sw * 0.3, -h - 0.004], [rimR + 0.004, -h + 0.012]], 22), cmx(0, 0, 0, 1), D.rubber);
-  parts.add(lathe([[r - 0.02, h - 0.002], [r - 0.004, h * 0.6], [r, 0], [r - 0.004, -h * 0.6], [r - 0.02, -h + 0.002]], 22), cmx(0, 0, 0, 1), D.tread);
+  parts.add(lathe([[rimR + 0.004, h - 0.012], [rimR + sw * 0.3, h + 0.004], [r - sw * 0.28, h + 0.01], [r - 0.02, h - 0.002]], 22), carMx(0, 0, 0, 1), D.rubber);
+  parts.add(lathe([[r - 0.02, -h + 0.002], [r - sw * 0.28, -h - 0.01], [rimR + sw * 0.3, -h - 0.004], [rimR + 0.004, -h + 0.012]], 22), carMx(0, 0, 0, 1), D.rubber);
+  parts.add(lathe([[r - 0.02, h - 0.002], [r - 0.004, h * 0.6], [r, 0], [r - 0.004, -h * 0.6], [r - 0.02, -h + 0.002]], 22), carMx(0, 0, 0, 1), D.tread);
   // barrel and dark inner, brake disc
-  parts.add(lathe([[rimR, -h + 0.02], [rimR, h - 0.03]], 18), cmx(0, 0, 0, 1), [lerp(D.gun[0], D.gun[2], 0.5), lerp(D.gun[1], D.gun[3], 0.5)]);
-  parts.add(new THREE.CylinderGeometry(rimR * 0.72, rimR * 0.72, 0.02, 16), cmx(-0.01, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), D.gun);
+  parts.add(lathe([[rimR, -h + 0.02], [rimR, h - 0.03]], 18), carMx(0, 0, 0, 1), [lerp(D.gun[0], D.gun[2], 0.5), lerp(D.gun[1], D.gun[3], 0.5)]);
+  parts.add(new THREE.CylinderGeometry(rimR * 0.72, rimR * 0.72, 0.02, 16), carMx(-0.01, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), D.gun);
   const mat = D[st.rimMat || 'silver'], mc = [lerp(mat[0], mat[2], 0.5), lerp(mat[1], mat[3], 0.5)];
   const fx = h - 0.028;
-  parts.add(new THREE.TorusGeometry(rimR - 0.008, 0.014, 5, 22), cmx(fx + 0.006, 0, 0, 1, 1, 1, 0, Math.PI / 2, 0), mc);
+  parts.add(new THREE.TorusGeometry(rimR - 0.008, 0.014, 5, 22), carMx(fx + 0.006, 0, 0, 1, 1, 1, 0, Math.PI / 2, 0), mc);
   if (st.rim === 'steel' || st.rim === 'steel6' || st.rim === 'bus') {
     const sc = [lerp(D.steelw[0], D.steelw[2], 0.5), lerp(D.steelw[1], D.steelw[3], 0.5)];
-    parts.add(new THREE.CylinderGeometry(rimR * 0.95, rimR * 0.95, 0.012, 20), cmx(fx - 0.02, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), sc);
+    parts.add(new THREE.CylinderGeometry(rimR * 0.95, rimR * 0.95, 0.012, 20), carMx(fx - 0.02, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), sc);
     const nh = st.rim === 'steel6' ? 6 : 8;
-    for (let i = 0; i < nh; i++) { const a = i / nh * TAU; parts.add(new THREE.CylinderGeometry(rimR * 0.1, rimR * 0.1, 0.014, 8), cmx(fx - 0.012, Math.cos(a) * rimR * 0.62, Math.sin(a) * rimR * 0.62, 1, 1, 1, 0, 0, Math.PI / 2), D.gloss); }
-    parts.add(new THREE.CylinderGeometry(rimR * 0.36, rimR * 0.42, 0.05, 14), cmx(fx, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), st.rim === 'bus' ? D.gun : D.chrome);
+    for (let i = 0; i < nh; i++) { const a = i / nh * TAU; parts.add(new THREE.CylinderGeometry(rimR * 0.1, rimR * 0.1, 0.014, 8), carMx(fx - 0.012, Math.cos(a) * rimR * 0.62, Math.sin(a) * rimR * 0.62, 1, 1, 1, 0, 0, Math.PI / 2), D.gloss); }
+    parts.add(new THREE.CylinderGeometry(rimR * 0.36, rimR * 0.42, 0.05, 14), carMx(fx, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), st.rim === 'bus' ? D.gun : D.chrome);
   } else {
     const ns = st.rim === 'multi' ? 10 : st.rim === 'six' ? 6 : st.rim === 'thin' ? 10 : 5, wdt = st.rim === 'multi' || st.rim === 'thin' ? 0.022 : st.rim === 'mag' ? 0.07 : 0.048;
     for (let i = 0; i < ns; i++) {
       const a = i / ns * TAU, len = rimR * 0.78, mid = rimR * 0.2 + len / 2;
       const twist = st.rim === 'sport' ? 0.18 : st.rim === 'thin' ? (i % 2 ? 0.12 : -0.12) : 0;
-      parts.add(new THREE.BoxGeometry(0.03, len, wdt), cmx(fx - 0.01, Math.cos(a) * mid, Math.sin(a) * mid, 1, 1, 1, a - Math.PI / 2 + twist, 0, 0), mc);
+      parts.add(new THREE.BoxGeometry(0.03, len, wdt), carMx(fx - 0.01, Math.cos(a) * mid, Math.sin(a) * mid, 1, 1, 1, a - Math.PI / 2 + twist, 0, 0), mc);
     }
-    parts.add(new THREE.CylinderGeometry(rimR * 0.22, rimR * 0.26, 0.05, 14), cmx(fx - 0.005, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), mc);
-    parts.add(new THREE.CylinderGeometry(rimR * 0.1, rimR * 0.1, 0.06, 10), cmx(fx, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), D.gloss);
+    parts.add(new THREE.CylinderGeometry(rimR * 0.22, rimR * 0.26, 0.05, 14), carMx(fx - 0.005, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), mc);
+    parts.add(new THREE.CylinderGeometry(rimR * 0.1, rimR * 0.1, 0.06, 10), carMx(fx, 0, 0, 1, 1, 1, 0, 0, Math.PI / 2), D.gloss);
   }
   return parts.build();
 }
 
 // ---------- detail parts (one draw call) ----------
-function sideDecal(parts, sh, z0, z1, y0, y1, reg, side, nz) {
+function carSideDecal(parts, sh, z0, z1, y0, y1, reg, side, nz) {
   nz = nz || 8;
   const pos = [], uv = [], ix = [];
   for (let i = 0; i <= nz; i++) for (let j = 0; j <= 2; j++) {
@@ -283,37 +283,37 @@ function sideDecal(parts, sh, z0, z1, y0, y1, reg, side, nz) {
     if (side > 0) ix.push(a, c, b, b, c, d); else ix.push(a, b, c, b, d, c);
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(ix); g.computeVertexNormals();
-  parts.add(g, cmx(0, 0, 0, 1), null, (x, y, z, u, v) => [u, v]);
+  parts.add(g, carMx(0, 0, 0, 1), null, (x, y, z, u, v) => [u, v]);
 }
-function buildDetail(type, sh) {
-  const S = sh.S, st = S.style, T = sh.T, L = sh.L, D = DET.R, parts = new PartList();
+function carBuildDetail(type, sh) {
+  const S = sh.S, st = S.style, T = sh.T, L = sh.L, D = CAR_DET.R, parts = new CarParts();
   const box = () => new THREE.BoxGeometry(1, 1, 1);
   const front = sh.at(sh.zmax), back = sh.at(sh.zmin);
   // plates
   const pl = D['plate' + (CAR_TILE_ORDER.indexOf(type) % 4)];
   if (!st.bus) {
-    parts.add(new THREE.BoxGeometry(1, 1, 1, 8, 1, 1), cmx(0, front.yb + 0.14, sh.zmax + 0.008, 0.5, 0.115, 0.012), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
-    parts.add(new THREE.BoxGeometry(1, 1, 1, 8, 1, 1), cmx(0, back.yb + 0.21, sh.zmin - 0.008, 0.5, 0.115, 0.012, 0, Math.PI, 0), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
+    parts.add(new THREE.BoxGeometry(1, 1, 1, 8, 1, 1), carMx(0, front.yb + 0.14, sh.zmax + 0.008, 0.5, 0.115, 0.012), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
+    parts.add(new THREE.BoxGeometry(1, 1, 1, 8, 1, 1), carMx(0, back.yb + 0.21, sh.zmin - 0.008, 0.5, 0.115, 0.012, 0, Math.PI, 0), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
   } else {
-    parts.add(box(), cmx(0, 0.72, sh.zmax + 0.01, 0.5, 0.115, 0.012), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
-    parts.add(box(), cmx(0, 0.78, sh.zmin - 0.01, 0.5, 0.115, 0.012, 0, Math.PI, 0), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
+    parts.add(box(), carMx(0, 0.72, sh.zmax + 0.01, 0.5, 0.115, 0.012), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
+    parts.add(box(), carMx(0, 0.78, sh.zmin - 0.01, 0.5, 0.115, 0.012, 0, Math.PI, 0), null, (x, y, z, u, v) => [lerp(pl[0], pl[2], u), lerp(pl[1], pl[3], v)]);
     const rb = D.dBus;
-    parts.add(new THREE.PlaneGeometry(1, 1), cmx(0, 2.53, sh.zmax + 0.012, 1.7, 0.36, 1), rb);
+    parts.add(new THREE.PlaneGeometry(1, 1), carMx(0, 2.53, sh.zmax + 0.012, 1.7, 0.36, 1), rb);
   }
   // wheel-well liners (block the view through the arch tunnel)
   for (const az of [sh.axF, sh.axR]) for (const s of [-1, 1]) {
     const g = new THREE.CircleGeometry(sh.ra - 0.005, 14, 0, Math.PI);
-    parts.add(g, cmx(s * (sh.hw - 0.36 - (T.tw || 0.25) * 0.5), sh.wr, az, 1, 1, 1, 0, s * Math.PI / 2, 0, 'YXZ'), D.bed);
+    parts.add(g, carMx(s * (sh.hw - 0.36 - (T.tw || 0.25) * 0.5), sh.wr, az, 1, 1, 1, 0, s * Math.PI / 2, 0, 'YXZ'), D.bed);
   }
   // mirror glass
   if (!st.bus) {
     const z = S.g[3] * L - (type === 'van' ? 0.12 : 0.2), s0 = sh.at(z), y = s0.belt + (type === 'supercar' ? 0.06 : 0.1);
-    for (const s of [-1, 1]) parts.add(new THREE.CircleGeometry(1, 12), cmx(s * (s0.wg + 0.14), y, z - 0.048, 0.085, 0.05, 1, 0, Math.PI, 0), D.mirror);
-  } else for (const s of [-1, 1]) parts.add(new THREE.PlaneGeometry(1, 1), cmx(s * (sh.hw + 0.27), 2.05, sh.zmax - 0.045, 0.12, 0.42, 1, 0, Math.PI, 0), D.mirror);
+    for (const s of [-1, 1]) parts.add(new THREE.CircleGeometry(1, 12), carMx(s * (s0.wg + 0.14), y, z - 0.048, 0.085, 0.05, 1, 0, Math.PI, 0), D.mirror);
+  } else for (const s of [-1, 1]) parts.add(new THREE.PlaneGeometry(1, 1), carMx(s * (sh.hw + 0.27), 2.05, sh.zmax - 0.045, 0.12, 0.42, 1, 0, Math.PI, 0), D.mirror);
   // wipers
   if (!st.bus && S.g[3] - S.g[2] > 0.05) {
     const z = S.g[3] * L - 0.05, s0 = sh.at(z);
-    for (const s of [-1, 1]) parts.add(box(), cmx(s * 0.27 + 0.05, s0.yt + 0.03, z, 0.55, 0.014, 0.025, 0, 0, s * 0.06), D.gloss);
+    for (const s of [-1, 1]) parts.add(box(), carMx(s * 0.27 + 0.05, s0.yt + 0.03, z, 0.55, 0.014, 0.025, 0, 0, s * 0.06), D.gloss);
   }
   // exhausts
   const ex = st.exhaust;
@@ -321,21 +321,21 @@ function buildDetail(type, sh) {
     const xs = ex === 'center' ? [-0.09, 0.09] : ex === 2 ? [-0.55, 0.55] : [-0.55];
     for (const x of xs) {
       const r = ex === 'center' ? 0.05 : 0.036;
-      parts.add(new THREE.CylinderGeometry(r, r, 0.14, 10, 1, true), cmx(x, back.yb + 0.08, sh.zmin + 0.02, 1, 1, 1, Math.PI / 2, 0, 0), D.chrome);
-      parts.add(new THREE.CircleGeometry(r * 0.85, 10), cmx(x, back.yb + 0.08, sh.zmin - 0.03, 1, 1, 1, 0, Math.PI, 0), D.gloss);
+      parts.add(new THREE.CylinderGeometry(r, r, 0.14, 10, 1, true), carMx(x, back.yb + 0.08, sh.zmin + 0.02, 1, 1, 1, Math.PI / 2, 0, 0), D.chrome);
+      parts.add(new THREE.CircleGeometry(r * 0.85, 10), carMx(x, back.yb + 0.08, sh.zmin - 0.03, 1, 1, 1, 0, Math.PI, 0), D.gloss);
     }
   }
   // grille inserts
   if (st.grille === 'mesh' || st.grille === 'super') {
-    parts.add(new THREE.PlaneGeometry(1, 1, 10, 2), cmx(0, front.yb + 0.11, sh.zmax + 0.006, st.grille === 'super' ? 0.56 : 0.68, 0.12, 1), D.mesh);
+    parts.add(new THREE.PlaneGeometry(1, 1, 10, 2), carMx(0, front.yb + 0.11, sh.zmax + 0.006, st.grille === 'super' ? 0.56 : 0.68, 0.12, 1), D.mesh);
   }
-  if (st.scoop) parts.add(new THREE.PlaneGeometry(1, 1), cmx(0, sh.at(0.3 * L).belt + sh.at(0.3 * L).crown + 0.03, 0.28 * L + 0.4, 0.34, 0.07, 1, -0.2, 0, 0), D.gloss);
+  if (st.scoop) parts.add(new THREE.PlaneGeometry(1, 1), carMx(0, sh.at(0.3 * L).belt + sh.at(0.3 * L).crown + 0.03, 0.28 * L + 0.4, 0.34, 0.07, 1, -0.2, 0, 0), D.gloss);
   // roof rails
   if (st.rails) {
     const za = S.g[1] * L + 0.1, zb = S.g[2] * L - 0.05, s0 = sh.at((za + zb) / 2);
     for (const s of [-1, 1]) {
-      parts.add(box(), cmx(s * (s0.rwe - 0.1), s0.yt + 0.06, (za + zb) / 2, 0.035, 0.03, zb - za), D.silver);
-      for (const zz of [za + 0.05, zb - 0.05]) parts.add(box(), cmx(s * (s0.rwe - 0.1), s0.yt + 0.03, zz, 0.035, 0.05, 0.06), D.black);
+      parts.add(box(), carMx(s * (s0.rwe - 0.1), s0.yt + 0.06, (za + zb) / 2, 0.035, 0.03, zb - za), D.silver);
+      for (const zz of [za + 0.05, zb - 0.05]) parts.add(box(), carMx(s * (s0.rwe - 0.1), s0.yt + 0.03, zz, 0.035, 0.05, 0.06), D.black);
     }
   }
   // supercar wing
@@ -343,45 +343,45 @@ function buildDetail(type, sh) {
     const z = sh.zmin + 0.28, s0 = sh.at(z), y = s0.belt + s0.crown + 0.26;
     const af = new THREE.Shape(); af.moveTo(-0.16, 0); af.quadraticCurveTo(0, 0.05, 0.16, 0.012); af.lineTo(0.16, -0.008); af.quadraticCurveTo(0, 0.01, -0.16, 0);
     const wg = new THREE.ExtrudeGeometry(af, { depth: 1.7, bevelEnabled: false, curveSegments: 6 }); wg.translate(0, 0, -0.85); wg.rotateY(Math.PI / 2);
-    parts.add(wg, cmx(0, y, z, 1), D.carbon);
-    for (const s of [-1, 1]) parts.add(box(), cmx(s * 0.45, y - 0.13, z + 0.02, 0.025, 0.27, 0.1, -0.15, 0, 0), D.carbon);
-    for (const s of [-1, 1]) parts.add(box(), cmx(s * 0.85, y + 0.02, z, 0.012, 0.12, 0.34), D.carbon);
+    parts.add(wg, carMx(0, y, z, 1), D.carbon);
+    for (const s of [-1, 1]) parts.add(box(), carMx(s * 0.45, y - 0.13, z + 0.02, 0.025, 0.27, 0.1, -0.15, 0, 0), D.carbon);
+    for (const s of [-1, 1]) parts.add(box(), carMx(s * 0.85, y + 0.02, z, 0.012, 0.12, 0.34), D.carbon);
   }
   // pickup bed
   if (S.bed) {
     const z0 = S.bed[0] * L, z1 = S.bed[1] * L, zc = (z0 + z1) / 2, s0 = sh.at(zc), inner = s0.w - Math.min(0.065, (s0.belt - s0.yb) * 0.2), fy = s0.belt - 0.5;
-    parts.add(new THREE.PlaneGeometry(1, 1), cmx(0, fy, zc, inner * 2, z1 - z0, 1, -Math.PI / 2, 0, 0), D.bed);
-    for (const s of [-1, 1]) parts.add(new THREE.PlaneGeometry(1, 1), cmx(s * inner, (fy + s0.belt) / 2, zc, z1 - z0, s0.belt - fy, 1, 0, -s * Math.PI / 2, 0), D.bed);
+    parts.add(new THREE.PlaneGeometry(1, 1), carMx(0, fy, zc, inner * 2, z1 - z0, 1, -Math.PI / 2, 0, 0), D.bed);
+    for (const s of [-1, 1]) parts.add(new THREE.PlaneGeometry(1, 1), carMx(s * inner, (fy + s0.belt) / 2, zc, z1 - z0, s0.belt - fy, 1, 0, -s * Math.PI / 2, 0), D.bed);
     const sb = sh.at(z0 + 0.02);
-    parts.add(new THREE.PlaneGeometry(1, 1), cmx(0, (fy + sb.belt) / 2, z0 + 0.03, inner * 2, sb.belt - fy, 1), D.bed);
+    parts.add(new THREE.PlaneGeometry(1, 1), carMx(0, (fy + sb.belt) / 2, z0 + 0.03, inner * 2, sb.belt - fy, 1), D.bed);
     const gw = sh.at(S.g[0] * L + 0.01);
-    parts.add(new THREE.PlaneGeometry(1, 1), cmx(0, gw.belt + 0.42, S.g[0] * L - 0.008, gw.rwe * 1.5, 0.36, 1, 0, Math.PI, 0), D.glass);
+    parts.add(new THREE.PlaneGeometry(1, 1), carMx(0, gw.belt + 0.42, S.g[0] * L - 0.008, gw.rwe * 1.5, 0.36, 1, 0, Math.PI, 0), D.glass);
   }
   // liveries / decals
   const dz = (a, b) => [S.seams[a] * L, S.seams[b] * L];
   if (type === 'police') {
     const [za, zb] = [S.seams[2] * L + 0.12, S.seams[0] * L - 0.1];
-    for (const s of [-1, 1]) sideDecal(parts, sh, za, zb, sh.at(0).belt - 0.205, sh.at(0).belt - 0.07, D.dPolice, s);
+    for (const s of [-1, 1]) carSideDecal(parts, sh, za, zb, sh.at(0).belt - 0.205, sh.at(0).belt - 0.07, D.dPolice, s);
     // push bar
-    parts.add(box(), cmx(0, front.yb + 0.34, sh.zmax + 0.1, 0.84, 0.05, 0.05), D.black);
-    parts.add(box(), cmx(0, front.yb + 0.16, sh.zmax + 0.1, 0.84, 0.04, 0.05), D.black);
-    for (const s of [-1, 1]) parts.add(box(), cmx(s * 0.3, front.yb + 0.25, sh.zmax + 0.07, 0.05, 0.26, 0.09), D.black);
+    parts.add(box(), carMx(0, front.yb + 0.34, sh.zmax + 0.1, 0.84, 0.05, 0.05), D.black);
+    parts.add(box(), carMx(0, front.yb + 0.16, sh.zmax + 0.1, 0.84, 0.04, 0.05), D.black);
+    for (const s of [-1, 1]) parts.add(box(), carMx(s * 0.3, front.yb + 0.25, sh.zmax + 0.07, 0.05, 0.26, 0.09), D.black);
   }
-  if (type === 'taxi') { const [zb, za] = dz(0, 1); for (const s of [-1, 1]) sideDecal(parts, sh, za + 0.08, zb - 0.06, sh.at(0).belt - 0.4, sh.at(0).belt - 0.25, D.dTaxi, s); }
-  if (type === 'van') for (const s of [-1, 1]) sideDecal(parts, sh, -0.42 * L, 0.06 * L, 1.15, 1.75, D.dVan, s, 10);
-  if (type === 'supercar') for (const s of [-1, 1]) sideDecal(parts, sh, sh.axR + sh.ra + 0.05, sh.axF - sh.ra - 0.05, 0.3, 0.42, D.dSuper, s);
-  if (st.bus) for (const s of [-1, 1]) sideDecal(parts, sh, -0.1 * L, 0.3 * L, 0.92, 1.18, D.dBus, s, 10);
+  if (type === 'taxi') { const [zb, za] = dz(0, 1); for (const s of [-1, 1]) carSideDecal(parts, sh, za + 0.08, zb - 0.06, sh.at(0).belt - 0.4, sh.at(0).belt - 0.25, D.dTaxi, s); }
+  if (type === 'van') for (const s of [-1, 1]) carSideDecal(parts, sh, -0.42 * L, 0.06 * L, 1.15, 1.75, D.dVan, s, 10);
+  if (type === 'supercar') for (const s of [-1, 1]) carSideDecal(parts, sh, sh.axR + sh.ra + 0.05, sh.axF - sh.ra - 0.05, 0.3, 0.42, D.dSuper, s);
+  if (st.bus) for (const s of [-1, 1]) carSideDecal(parts, sh, -0.1 * L, 0.3 * L, 0.92, 1.18, D.dBus, s, 10);
   return parts;
 }
 // extras with their own materials: police light bar lenses, taxi sign
-function buildExtras(type, sh) {
+function carBuildExtras(type, sh) {
   const out = {}, S = sh.S, L = sh.L, zc = (S.g[1] + S.g[2]) / 2 * L, s0 = sh.at(zc), y = s0.yt + s0.crown;
   if (type === 'police') {
-    const lens = (x) => { const g = new THREE.ExtrudeGeometry(roundRectShape(0.58, 0.11, 0.04), { depth: 0.24, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, curveSegments: 6 }); g.translate(x, y + 0.11, zc - 0.12); return g; };
+    const lens = (x) => { const g = new THREE.ExtrudeGeometry(carRoundRect(0.58, 0.11, 0.04), { depth: 0.24, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelSegments: 2, curveSegments: 6 }); g.translate(x, y + 0.11, zc - 0.12); return g; };
     out.lbR = lens(0.31); out.lbB = lens(-0.31);
-    const bp = new PartList();
-    bp.add(new THREE.BoxGeometry(1.32, 0.05, 0.3), cmx(0, y + 0.045, zc, 1), DET.R.black);
-    for (const s of [-1, 1]) bp.add(new THREE.BoxGeometry(0.05, 0.05, 0.05), cmx(s * 0.5, y + 0.015, zc, 1), DET.R.black);
+    const bp = new CarParts();
+    bp.add(new THREE.BoxGeometry(1.32, 0.05, 0.3), carMx(0, y + 0.045, zc, 1), CAR_DET.R.black);
+    for (const s of [-1, 1]) bp.add(new THREE.BoxGeometry(0.05, 0.05, 0.05), carMx(s * 0.5, y + 0.015, zc, 1), CAR_DET.R.black);
     out.lbBase = bp;
   }
   if (type === 'taxi') {
@@ -395,16 +395,16 @@ function buildExtras(type, sh) {
 
 // ---------- assemble ----------
 function buildCarGeo(type) {
-  if (!CARSHAPE[type]) prepareCarShapes();
+  if (!CARSHAPE[type]) carPrepareShapes();
   const sh = CARSHAPE[type], T = sh.T, S = sh.S, L = sh.L, deform = carDeform(sh);
   const G = { type, sh };
   G.body = buildCarBody(type, sh, deform);
-  G.detail = buildDetail(type, sh).build(deform);
-  G.heads = buildLamps(sh, true).build(deform);
-  G.tails = buildLamps(sh, false).build(deform);
-  for (const g of [G.detail, G.heads, G.tails]) addDamageMorphs(g, sh, false);
-  G.wheel = buildWheel(sh);
-  const ex = buildExtras(type, sh);
+  G.detail = carBuildDetail(type, sh).build(deform);
+  G.heads = carBuildLamps(sh, true).build(deform);
+  G.tails = carBuildLamps(sh, false).build(deform);
+  for (const g of [G.detail, G.heads, G.tails]) carAddDamageMorphs(g, sh, false);
+  G.wheel = carBuildWheel(sh);
+  const ex = carBuildExtras(type, sh);
   G.lbR = ex.lbR; G.lbB = ex.lbB; G.lbBase = ex.lbBase ? ex.lbBase.build() : null; G.taxi = ex.taxi;
   G.wf = sh.axF; G.wb = sh.axR; G.wx = sh.hw - 0.16 - ((T.tw || 0.25) - 0.25) * 0.5; G.top = T.H;
   const roof = sh.at((S.g[1] + S.g[2]) / 2 * L);
@@ -414,7 +414,7 @@ function buildCarGeo(type) {
   const ez = S.eye ? S.eye[2] : (S.style.bus ? sh.zmax - 1.25 : lerp(S.g[1], S.g[2], type === 'van' || type === 'pickup' ? 0.8 : 0.62) * L);
   const es = sh.at(ez), floor = es.yb + (S.style.bus ? 0.55 : 0.1);
   const seat = floor + (type === 'supercar' ? 0.16 : type === 'coupe' || type === 'muscle' ? 0.22 : type === 'suv' || type === 'pickup' || type === 'van' ? 0.36 : 0.27);
-  const ey = Math.min(seat + 0.72, G.roofY - 0.13);
+  const ey = Math.min(seat + 0.76, G.roofY - 0.12);
   const ex2 = S.style.bus ? sh.hw - 0.62 : Math.min(es.wg * 0.45, 0.42);
   G.eye = [ex2, ey, ez];
   G.seatY = seat; G.floorY = floor;
@@ -423,9 +423,9 @@ function buildCarGeo(type) {
 
 // ---------- interior (first-person) ----------
 const CARINT = {};
-function buildInterior(type, G) {
+function carBuildInterior(type, G) {
   if (CARINT[type]) return CARINT[type];
-  const sh = G.sh, S = sh.S, L = sh.L, D = DET.R, e = G.eye, parts = new PartList(), gp = new PartList(), bus = !!S.style.bus;
+  const sh = G.sh, S = sh.S, L = sh.L, D = CAR_DET.R, e = G.eye, parts = new CarParts(), gp = new CarParts(), bus = !!S.style.bus;
   const cowlZ = bus ? sh.zmax - 0.15 : S.g[3] * L, cs = sh.at(cowlZ - 0.05), wIn = (bus ? sh.hw - 0.08 : cs.wg - 0.03);
   const topY = bus ? 1.25 : cs.belt - 0.03, dashBack = e[2] + (bus ? 0.55 : 0.62);
   const dc = (r) => [lerp(r[0], r[2], 0.5), lerp(r[1], r[3], 0.5)];
@@ -435,28 +435,28 @@ function buildInterior(type, G) {
   prof.quadraticCurveTo(dashBack - 0.04, topY - 0.08, dashBack + 0.02, topY - 0.16); prof.lineTo(dashBack + 0.1, G.floorY + 0.42); prof.lineTo(dashBack - 0.2, G.floorY + 0.12);
   const dg = new THREE.ExtrudeGeometry(prof, { depth: wIn * 2, bevelEnabled: false, curveSegments: 6 });
   dg.rotateY(-Math.PI / 2); dg.translate(wIn, 0, 0);
-  parts.add(dg, cmx(0, 0, 0, 1), dc(D.dash));
+  parts.add(dg, carMx(0, 0, 0, 1), dc(D.dash));
   // binnacle hood over the gauges
   const hb = new THREE.CylinderGeometry(0.2, 0.2, 0.18, 14, 1, true, -Math.PI / 2, Math.PI);
-  parts.add(hb, cmx(e[0], topY + 0.02, dashBack - 0.06, 1, 0.45, 1, Math.PI / 2, 0, 0), dc(D.dash));
+  parts.add(hb, carMx(e[0], topY + 0.02, dashBack - 0.06, 1, 0.45, 1, Math.PI / 2, 0, 0), dc(D.dash));
   // gauges (emissive mesh)
   const gy = topY - 0.015, gz = dashBack - 0.02, tilt = -0.32;
-  const gauge = (x, reg) => gp.add(new THREE.CircleGeometry(0.074, 22), cmx(x, gy, gz, 1, 1, 1, tilt, Math.PI, 0, 'YXZ'), null, (px, py, pz, u, v) => [lerp(reg[0], reg[2], u), lerp(reg[1], reg[3], v)]);
+  const gauge = (x, reg) => gp.add(new THREE.CircleGeometry(0.074, 22), carMx(x, gy, gz, 1, 1, 1, tilt, Math.PI, 0, 'YXZ'), null, (px, py, pz, u, v) => [lerp(reg[0], reg[2], u), lerp(reg[1], reg[3], v)]);
   gauge(e[0] + 0.082, D.gTach); gauge(e[0] - 0.082, D.gSpeed);
   // centre screen, vents, console
   if (!bus) {
-    gp.add(new THREE.PlaneGeometry(0.24, 0.15), cmx(0, topY - 0.06, dashBack + 0.0, 1, 1, 1, -0.2, Math.PI, 0, 'YXZ'), null, (px, py, pz, u, v) => [lerp(D.screen[0], D.screen[2], u), lerp(D.screen[1], D.screen[3], v)]);
-    for (const x of [-0.1, 0.1, wIn - 0.12, -wIn + 0.12]) parts.add(new THREE.PlaneGeometry(0.12, 0.05), cmx(x, topY - 0.17, dashBack + 0.03, 1, 1, 1, 0, Math.PI, 0), D.vent);
-    parts.add(new THREE.BoxGeometry(0.24, 0.2, 0.7), cmx(0, G.floorY + 0.12, dashBack - 0.15, 1, 1, 1, 0.25, 0, 0), dc(D.dash));
-    parts.add(new THREE.BoxGeometry(0.22, 0.12, 0.6), cmx(0, G.seatY - 0.02, e[2] - 0.15, 1), dc(D.gloss));
+    gp.add(new THREE.PlaneGeometry(0.24, 0.15), carMx(0, topY - 0.06, dashBack + 0.0, 1, 1, 1, -0.2, Math.PI, 0, 'YXZ'), null, (px, py, pz, u, v) => [lerp(D.screen[0], D.screen[2], u), lerp(D.screen[1], D.screen[3], v)]);
+    for (const x of [-0.1, 0.1, wIn - 0.12, -wIn + 0.12]) parts.add(new THREE.PlaneGeometry(0.12, 0.05), carMx(x, topY - 0.17, dashBack + 0.03, 1, 1, 1, 0, Math.PI, 0), D.vent);
+    parts.add(new THREE.BoxGeometry(0.24, 0.2, 0.7), carMx(0, G.floorY + 0.12, dashBack - 0.15, 1, 1, 1, 0.25, 0, 0), dc(D.dash));
+    parts.add(new THREE.BoxGeometry(0.22, 0.12, 0.6), carMx(0, G.seatY - 0.02, e[2] - 0.15, 1), dc(D.gloss));
   }
   // seats
   const seat = (x, z, w, bench) => {
-    const cush = new THREE.ExtrudeGeometry(roundRectShape(w, 0.14, 0.05), { depth: 0.5, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2, curveSegments: 4 });
-    parts.add(cush, cmx(x, G.seatY - 0.07, z - 0.2, 1, 1, 1, -0.08, 0, 0), dc(D.leather));
-    const back = new THREE.ExtrudeGeometry(roundRectShape(w, 0.66, 0.08), { depth: 0.12, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 2, curveSegments: 4 });
-    parts.add(back, cmx(x, G.seatY + 0.3, z - 0.32, 1, 1, 1, -0.2, 0, 0), dc(D.leather));
-    if (!bench) parts.add(new THREE.BoxGeometry(0.26, 0.16, 0.1), cmx(x, G.seatY + 0.73, z - 0.43, 1, 1, 1, -0.15, 0, 0), dc(D.leather));
+    const cush = new THREE.ExtrudeGeometry(carRoundRect(w, 0.14, 0.05), { depth: 0.5, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2, curveSegments: 4 });
+    parts.add(cush, carMx(x, G.seatY - 0.07, z - 0.2, 1, 1, 1, -0.08, 0, 0), dc(D.leather));
+    const back = new THREE.ExtrudeGeometry(carRoundRect(w, 0.66, 0.08), { depth: 0.12, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 2, curveSegments: 4 });
+    parts.add(back, carMx(x, G.seatY + 0.3, z - 0.32, 1, 1, 1, -0.2, 0, 0), dc(D.leather));
+    if (!bench) parts.add(new THREE.BoxGeometry(0.26, 0.16, 0.1), carMx(x, G.seatY + 0.73, z - 0.43, 1, 1, 1, -0.15, 0, 0), dc(D.leather));
   };
   if (bus) seat(e[0], e[2], 0.5, false);
   else {
@@ -466,24 +466,24 @@ function buildInterior(type, G) {
   // rear-view mirror, sun visors
   if (!bus) {
     const rz = S.g[2] * L - 0.08, rs = sh.at(rz);
-    parts.add(new THREE.BoxGeometry(0.2, 0.055, 0.025), cmx(0, rs.yt - 0.1, rz - 0.04, 1, 1, 1, 0.1, 0, 0), dc(D.black));
-    parts.add(new THREE.PlaneGeometry(0.18, 0.042), cmx(0, rs.yt - 0.1, rz - 0.054, 1, 1, 1, 0, Math.PI, 0), D.mirror);
-    for (const s of [-1, 1]) parts.add(new THREE.BoxGeometry(0.34, 0.012, 0.16), cmx(s * e[0], rs.yt - 0.035, rz - 0.13, 1, 1, 1, 0.12, 0, 0), dc(D.fabric));
+    parts.add(new THREE.BoxGeometry(0.2, 0.055, 0.025), carMx(0, rs.yt - 0.1, rz - 0.04, 1, 1, 1, 0.1, 0, 0), dc(D.black));
+    parts.add(new THREE.PlaneGeometry(0.18, 0.042), carMx(0, rs.yt - 0.1, rz - 0.054, 1, 1, 1, 0, Math.PI, 0), D.mirror);
+    for (const s of [-1, 1]) parts.add(new THREE.BoxGeometry(0.34, 0.012, 0.16), carMx(s * e[0], rs.yt - 0.035, rz - 0.13, 1, 1, 1, 0.12, 0, 0), dc(D.fabric));
   }
   const I = { dash: parts.build(), gauges: gp.build() };
   // steering wheel: rim + spokes + hub, built around the column axis (+z toward the dash)
-  const wp = new PartList();
-  wp.add(new THREE.TorusGeometry(bus ? 0.23 : 0.175, 0.016, 8, 28), cmx(0, 0, 0, 1), dc(D.wheelgrip));
-  for (const a of [0, Math.PI, -Math.PI / 2]) wp.add(new THREE.BoxGeometry(0.15, 0.035, 0.016), cmx(Math.cos(a) * 0.085, Math.sin(a) * 0.085, 0.01, 1, 1, 1, 0, 0, a), dc(D.black));
-  wp.add(new THREE.CylinderGeometry(0.05, 0.055, 0.05, 14), cmx(0, 0, 0.02, 1, 1, 1, Math.PI / 2, 0, 0), dc(D.gloss));
-  wp.add(new THREE.CylinderGeometry(0.025, 0.03, 0.3, 8), cmx(0, 0, 0.18, 1, 1, 1, Math.PI / 2, 0, 0), dc(D.black));
+  const wp = new CarParts();
+  wp.add(new THREE.TorusGeometry(bus ? 0.23 : 0.175, 0.016, 8, 28), carMx(0, 0, 0, 1), dc(D.wheelgrip));
+  for (const a of [0, Math.PI, -Math.PI / 2]) wp.add(new THREE.BoxGeometry(0.15, 0.035, 0.016), carMx(Math.cos(a) * 0.085, Math.sin(a) * 0.085, 0.01, 1, 1, 1, 0, 0, a), dc(D.black));
+  wp.add(new THREE.CylinderGeometry(0.05, 0.055, 0.05, 14), carMx(0, 0, 0.02, 1, 1, 1, Math.PI / 2, 0, 0), dc(D.gloss));
+  wp.add(new THREE.CylinderGeometry(0.025, 0.03, 0.3, 8), carMx(0, 0, 0.18, 1, 1, 1, Math.PI / 2, 0, 0), dc(D.black));
   I.wheel = wp.build();
   I.wheelPos = [e[0], e[1] - (bus ? 0.44 : 0.42), e[2] + (bus ? 0.48 : 0.4)];
   I.wheelTilt = bus ? 1.05 : 0.36;
   // needle: pivot at the origin, pointing +y
-  const np = new PartList();
-  np.add(new THREE.BoxGeometry(0.005, 0.058, 0.003), cmx(0, 0.026, 0, 1), dc(D.red));
-  np.add(new THREE.CylinderGeometry(0.009, 0.009, 0.006, 10), cmx(0, 0, 0, 1, 1, 1, Math.PI / 2, 0, 0), dc(D.gloss));
+  const np = new CarParts();
+  np.add(new THREE.BoxGeometry(0.005, 0.058, 0.003), carMx(0, 0.026, 0, 1), dc(D.red));
+  np.add(new THREE.CylinderGeometry(0.009, 0.009, 0.006, 10), carMx(0, 0, 0, 1, 1, 1, Math.PI / 2, 0, 0), dc(D.gloss));
   I.needle = np.build();
   I.tach = [e[0] + 0.082, gy, gz - 0.004]; I.speed = [e[0] - 0.082, gy, gz - 0.004]; I.tilt = tilt;
   CARINT[type] = I;
