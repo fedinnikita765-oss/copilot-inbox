@@ -172,8 +172,9 @@ const check = (name, ok, info) => { console.log((ok ? 'ok   ' : 'FAIL ') + name.
   check('attachGun + npcShoot hit the hero', r.gun && r.hits > 0 && (r.hp < r.hp0 || r.dead), r);
   await ev(() => { const P = window.__neon.player; if (P.dead) { P.dead = false; P.health = 100; } });
   // ---------- first-person view model ----------
-  await ev(() => { const n = window.__neon, W = window.__neonW, P = n.player; T.clearArea(); T.place(n.roadC(3) + 10, n.roadC(2) + 4, Math.PI / 2 - 0.4); W.arsSelect('rifle'); P.root.visible = false; n.cam.fp = true; n.cam.pitch = -0.02;
-    n.cam.override = () => { const cp = Math.cos(n.cam.pitch); const c = W.camera; c.position.set(P.x, P.y + 1.62, P.z); c.lookAt(P.x + Math.sin(n.cam.yaw) * cp * 10, P.y + 1.62 - Math.sin(n.cam.pitch) * 10, P.z + Math.cos(n.cam.yaw) * cp * 10); }; });
+  await ev(() => { const n = window.__neon, W = window.__neonW, P = n.player; T.clearArea(); T.place(n.roadC(3) + 10, n.roadC(2) + 4, Math.PI / 2 - 0.4); W.arsSelect('rifle'); n.cam.pitch = -0.02;
+    if (typeof n.cam.setView === 'function') n.cam.setView(true);
+    else { P.root.visible = false; n.cam.fp = true; n.cam.override = () => { const cp = Math.cos(n.cam.pitch); const c = W.camera; c.position.set(P.x, P.y + 1.62, P.z); c.lookAt(P.x + Math.sin(n.cam.yaw) * cp * 10, P.y + 1.62 - Math.sin(n.cam.pitch) * 10, P.z + Math.cos(n.cam.yaw) * cp * 10); }; } });
   await step(25);
   await ev(() => { window.__neonW.p = T.ped(14); }); await pull(2);
   await shot('fp-rifle-hip');
@@ -186,7 +187,7 @@ const check = (name, ok, info) => { console.log((ok ? 'ok   ' : 'FAIL ') + name.
   await shot('fp-shotgun');
   r = await ev(() => { const W = window.__neonW; return { vm: W.VM.root.visible, cur: W.VM.cur, tpGunHidden: !window.__neon.player.H.gun.visible }; });
   check('view model shown in first person', r.vm && r.cur === 'shotgun' && r.tpGunHidden, r);
-  await ev(() => { const n = window.__neon; n.cam.fp = false; n.cam.override = null; n.player.root.visible = true; });
+  await ev(() => { const n = window.__neon; if (typeof n.cam.setView === 'function') n.cam.setView(false); else n.cam.fp = false; n.cam.override = null; n.player.root.visible = true; });
   // ---------- drive-by ----------
   await ev(() => { const n = window.__neon, P = n.player; T.clearArea(); const c = new n.Car('sedan'); c.place(P.x + 2, P.z, P.h); c.persistent = true; P.x = c.x + 1; n.tryEnterExit(); });
   await step(10);
