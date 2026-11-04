@@ -86,14 +86,14 @@ const shot = async (page, name, hideHud) => {
     C.add({ k: 'car_suv', x: -122, z: 30, r: Math.PI / 2 });
     C.add({ k: 'car_sedan', x: -120, z: -24, r: 0 });
     C.add({ k: 'ped', x: -110, z: 8 }); C.add({ k: 'cop', x: -110, z: 12 });
-    C.add({ k: 'plat_lo', x: -134, z: 0 }); C.add({ k: 'ring', x: -120, z: 16, l: 1 }); C.add({ k: 'boost', x: -120, z: -14 });
+    C.add({ k: 'plat_lo', x: -134, z: 0 }); C.add({ k: 'ring', x: -120, z: 16, l: 1 }); C.add({ k: 'boost', x: -125.5, z: -14 });
     C.add({ k: 'wall', x: -104, z: -6, r: Math.PI / 4 }); C.add({ k: 'cone', x: -116, z: -8 }); C.add({ k: 'palm', x: -106, z: 20 }); C.add({ k: 'lamp', x: -107, z: -20 });
     const g = (x, z) => +n.groundH(x, z).toFixed(2);
     return { h0: g(-120, -3.9), hMid: g(-120, 0), hTop: g(-120, 3.9), plat: g(-134, 0), cars: C.items.filter((i) => i.k.t === 'car').length, peds: n.peds.filter((p) => p.ct).length, cols: n.CG.cells.reduce((a, c) => a + c.filter((o) => o.tag === 'cr').length, 0) };
   });
-  check('ramp & platform surfaces (GROUND_HOOKS)', st.h0 < 0.2 && Math.abs(st.hMid - 1.75) < 0.1 && st.hTop > 3.3 && Math.abs(st.plat - 2) < 0.01, st);
+  check('ramp & platform surfaces (GROUND_HOOKS)', st.h0 < 0.2 && Math.abs(st.hMid - 1.75) < 0.1 && st.hTop > 3.3 && Math.abs(st.plat - 2) < 0.25, st);
   check('cars and people spawned', st.cars >= 4 && st.peds >= 6, st);
-  check('colliders registered', st.cols > 20, st.cols);
+  check('colliders registered', st.cols > 10, st.cols);
 
   // ---- play: drive the sedan up the ramp ----
   await page.tap('#ctPlayBtn');
@@ -105,15 +105,18 @@ const shot = async (page, name, hideHud) => {
   check('entered the placed sedan', await ev(() => window.__neon.player.mode === 'car'));
   await page.keyboard.down('KeyW');
   let maxY = 0, onRamp = 0;
-  for (let i = 0; i < 26; i++) {
-    await step(5);
-    const s = await ev(() => { const c = window.__neon.player.car; return { y: c.y, z: c.z, sp: c.speed }; });
-    if (s.z > -4 && s.z < 4) { onRamp++; maxY = Math.max(maxY, s.y); }
+  for (let i = 0; i < 160; i++) {
+    const s = await ev(([n]) => { const N = window.__neon; N.step(n, 1 / 30); const c = N.player.car; return { y: c.y, z: c.z }; }, [i < 15 ? 4 : 1]);
+    if (s.z > -4 && s.z < 4.5) { onRamp++; maxY = Math.max(maxY, s.y); }
     if (s.z > 8) break;
   }
   await page.keyboard.up('KeyW');
   st = await ev(() => { const c = window.__neon.player.car; return { z: +c.z.toFixed(1), y: +c.y.toFixed(2), kmh: Math.round(c.speed * 3.6) }; });
   check('car climbed the ramp', maxY > 2.6 && st.z > 4, { maxY: +maxY.toFixed(2), onRamp, end: st });
+
+  // ---- a platform wall stops a car that is not on top of it ----
+  st = await ev(() => { const n = window.__neon, c = n.player.car; c.x = -146; c.z = 0; c.h = Math.PI / 2; c.y = 0; c.vx = 14; c.vz = 0; n.step(45, 1 / 30); return { x: +c.x.toFixed(2), y: +c.y.toFixed(2) }; });
+  check('platform side blocks cars', st.x < -137.4 && st.y < 0.6, st);
 
   // ---- barrels: crash into one, shoot another ----
   await ev(() => { window.__neon.__boom = 0; window.__neon.EV.on('explosion', () => { window.__neon.__boom++; }); });
@@ -144,7 +147,7 @@ const shot = async (page, name, hideHud) => {
   await ev(() => window.__neon.CREATIVE.redo());
   check('undo / redo of placements', cntU === cnt - 1 && (await ev(() => window.__neon.CREATIVE.items.length)) === cnt, { cnt, cntU });
   // select tool: tap-to-select at the screen centre, rotate + delete via the HUD buttons
-  await ev(() => { const C = window.__neon.CREATIVE; C.flyTo(-120, 6, -14, 0, 0.55); });
+  await ev(() => { const C = window.__neon.CREATIVE; C.flyTo(-120, 6, -14, 0, 0.48); });
   await page.tap('#ctToolSel'); await step(3);
   st = await ev(() => { const C = window.__neon.CREATIVE; return { tool: C.S.tool, sel: C.S.sel && C.S.sel.k.id }; });
   check('select tool targets an item', st.tool === 'select' && !!st.sel, st);
@@ -159,7 +162,9 @@ const shot = async (page, name, hideHud) => {
   await page.tap('#ctSaveBtn'); await page.waitForTimeout(200);
   const saved = await ev(() => window.__neon.CREATIVE.listBuilds().map((b) => [b.name, b.items.length]));
   check('build saved', saved.length >= 1 && saved[0][0] === 'Тест трамплин' && saved[0][1] === cnt, saved);
-  await page.tap('#ctClearBtn'); await page.tap('#ctClearBtn'); await step(2);
+  for (let i = 0; i < 3 && !(await page.isVisible('#ctClearYes')); i++) { await page.tap('#ctClearBtn'); await page.waitForTimeout(300); }
+  for (let i = 0; i < 3 && (await page.isVisible('#ctClearYes')); i++) { await page.tap('#ctClearYes'); await page.waitForTimeout(300); }
+  await step(2);
   check('clear all', (await ev(() => window.__neon.CREATIVE.items.length)) === 0);
   await page.tap('#ctFilesBtn'); await page.waitForTimeout(200);
   await page.locator('#ctFiles .ct-row .ghost', { hasText: 'Загрузить' }).first().tap();

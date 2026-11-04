@@ -1078,8 +1078,8 @@ EXT.glow.push((layer) => {
   REFL.aCol.updateRange.offset = 0; REFL.aCol.updateRange.count = n * 3; REFL.aCol.needsUpdate = true;
 });
 REFL.extra = []; // [[x, z], ...] extra lamp feet (creative street lamps)
-// brighter lamp pools on wet nights (08_main sets the base opacity every frame before EXT.visual)
-EXT.visual.push(() => { if (typeof MATS !== 'undefined' && MATS.pool && ATMO.wet > 0.01) MATS.pool.opacity *= 1 + ATMO.wet * 0.7; });
+// on wet asphalt the specular streaks take over from the diffuse lamp pools (08_main sets the base opacity before EXT.visual)
+EXT.visual.push(() => { if (typeof MATS !== 'undefined' && MATS.pool && ATMO.wet > 0.01) MATS.pool.opacity *= 1 - ATMO.wet * 0.45; });
 const _lr = new V3(), _lu = new V3(), _sc = new V3();
 function placeShadow(cx, cy, cz) {
   const ld = DAY.lightDir || DAY.sunDir;

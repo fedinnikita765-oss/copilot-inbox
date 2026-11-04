@@ -239,15 +239,15 @@ const CREATIVE = (() => {
   // ---------- kinds (palette) ----------
   const CATS = [['ramps', 'Рампы'], ['blocks', 'Блоки'], ['obst', 'Препятствия'], ['stunt', 'Трюки'], ['cars', 'Машины'], ['people', 'Люди'], ['decor', 'Декор']];
   const KINDS = [
-    { id: 'ramp_s', cat: 'ramps', name: 'Рампа 15°', t: 'ramp', W: 4, L: 8, H: 2, prof: 0 },
-    { id: 'ramp_m', cat: 'ramps', name: 'Рампа 25°', t: 'ramp', W: 4, L: 8, H: 3.5, prof: 0 },
-    { id: 'ramp_l', cat: 'ramps', name: 'Крутая рампа', t: 'ramp', W: 4, L: 5, H: 3.5, prof: 0 },
-    { id: 'ramp_w', cat: 'ramps', name: 'Широкая рампа', t: 'ramp', W: 8, L: 8, H: 2, prof: 0 },
-    { id: 'ramp_long', cat: 'ramps', name: 'Длинный въезд', t: 'ramp', W: 6, L: 16, H: 3.5, prof: 0 },
-    { id: 'kicker', cat: 'ramps', name: 'Трамплин', t: 'ramp', W: 4, L: 5, H: 2, prof: 1.7 },
-    { id: 'plat_lo', cat: 'blocks', name: 'Платформа 2 м', t: 'block', W: 8, L: 8, H: 2, top: true },
-    { id: 'plat_hi', cat: 'blocks', name: 'Платформа 3,5 м', t: 'block', W: 8, L: 8, H: 3.5, top: true },
-    { id: 'block', cat: 'blocks', name: 'Бетонный куб', t: 'block', W: 2, L: 2, H: 2 },
+    { id: 'ramp_s', cat: 'ramps', name: 'Рампа 15°', t: 'ramp', W: 4, L: 8, H: 2, prof: 0, drive: true },
+    { id: 'ramp_m', cat: 'ramps', name: 'Рампа 25°', t: 'ramp', W: 4, L: 8, H: 3.5, prof: 0, drive: true },
+    { id: 'ramp_l', cat: 'ramps', name: 'Крутая рампа', t: 'ramp', W: 4, L: 5, H: 3.5, prof: 0, drive: true },
+    { id: 'ramp_w', cat: 'ramps', name: 'Широкая рампа', t: 'ramp', W: 8, L: 8, H: 2, prof: 0, drive: true },
+    { id: 'ramp_long', cat: 'ramps', name: 'Длинный въезд', t: 'ramp', W: 6, L: 16, H: 3.5, prof: 0, drive: true },
+    { id: 'kicker', cat: 'ramps', name: 'Трамплин', t: 'ramp', W: 4, L: 5, H: 2, prof: 1.7, drive: true },
+    { id: 'plat_lo', cat: 'blocks', name: 'Платформа 2 м', t: 'block', W: 8, L: 8, H: 2, top: true, drive: true },
+    { id: 'plat_hi', cat: 'blocks', name: 'Платформа 3,5 м', t: 'block', W: 8, L: 8, H: 3.5, top: true, drive: true },
+    { id: 'block', cat: 'blocks', name: 'Бетонный куб', t: 'block', W: 2, L: 2, H: 2, drive: true },
     { id: 'container', cat: 'blocks', name: 'Контейнер', t: 'block', W: 2.5, L: 6, H: 2.6, look: 'ribs' },
     { id: 'wall', cat: 'blocks', name: 'Стена', t: 'block', W: 6, L: 0.5, H: 3, look: 'wall' },
     { id: 'barrier', cat: 'obst', name: 'Отбойник', t: 'block', W: 3, L: 0.6, H: 0.9, look: 'jersey' },
@@ -525,7 +525,7 @@ const CREATIVE = (() => {
     // static footprint (surface for ramps/blocks, blocker for everything static)
     if (k.t !== 'prop' && k.t !== 'car' && k.t !== 'ped') {
       const dm = k.dims;
-      it.blk = { it, x: it.x, z: it.z, c: it.c, s: it.sn, hw: dm[0], hl: dm[2], y: it.y, H: k.H || 0, ramp: k.t === 'ramp', prof: k.prof || 0, surf: k.t === 'ramp' || k.t === 'block', noBlock: k.t === 'boost', cells: [] };
+      it.blk = { it, x: it.x, z: it.z, c: it.c, s: it.sn, hw: dm[0], hl: dm[2], y: it.y, H: k.H || 0, ramp: k.t === 'ramp', prof: k.prof || 0, surf: k.t === 'ramp' || k.t === 'block', noBlock: k.t === 'boost', drive: !!k.drive, st: 0, cells: [] };
       sgAdd(it.blk);
     }
     // instanced parts
@@ -651,6 +651,12 @@ const CREATIVE = (() => {
     const s = SCORCH.list[SCORCH.i++ % SCORCH.list.length];
     s.position.set(x, groundH(x, z) + 0.03, z); s.scale.set(5.5, 1, 5.5); s.rotation.y = Math.random() * TAU; s.visible = true;
   }
+  function propBounce(p, hit) {
+    if (!hit.hit) return;
+    const vn = p.vx * hit.nx + p.vz * hit.nz;
+    if (vn < 0) { p.vx -= 1.5 * vn * hit.nx; p.vz -= 1.5 * vn * hit.nz; }
+    p.x = hit.x; p.z = hit.z;
+  }
   function updateProps(dt) {
     const P = player;
     for (const it of S.props) {
@@ -686,8 +692,8 @@ const CREATIVE = (() => {
       if (!p.awake) continue;
       p.vy -= 18 * dt;
       p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
-      const hit = collideCircle(p.x, p.z, k.rad, p.y - k.hh + 0.2);
-      if (hit.hit) { const vn = p.vx * hit.nx + p.vz * hit.nz; if (vn < 0) { p.vx -= 1.5 * vn * hit.nx; p.vz -= 1.5 * vn * hit.nz; } p.x = hit.x; p.z = hit.z; }
+      propBounce(p, collideCircle(p.x, p.z, k.rad, p.y - k.hh + 0.2));
+      propBounce(p, solveCircle(p.x, p.z, k.rad, p.y - k.hh));
       if (p.tipping) { p.tl = Math.min(Math.PI / 2, p.tl + dt * 7); if (p.tl >= Math.PI / 2) p.tipping = false; }
       const hc = k.hh * Math.cos(p.tl) + k.lie * Math.sin(p.tl);
       const g = groundH(p.x, p.z) + hc;
@@ -1418,7 +1424,12 @@ body.ct-on #money{display:none}
     const r2w = el('div', 'row', '', fp);
     const ex = el('button', 'ghost', 'Пример: трюк-парк', r2w); ex.id = 'ctExampleBtn'; tap(ex, () => { loadItems(exampleBuild(), 'Загружен пример: трюк-парк'); closeSheet(); flyTo(22, 17, -42, 0.5, 0.32); });
     U.clear = el('button', 'ghost', 'Очистить всё', r2w); U.clear.id = 'ctClearBtn';
-    tap(U.clear, () => { if (U.clear.dataset.arm) { delete U.clear.dataset.arm; U.clear.textContent = 'Очистить всё'; clearAll(); closeSheet(); } else { U.clear.dataset.arm = '1'; U.clear.textContent = 'Точно очистить?'; setTimeout(() => { delete U.clear.dataset.arm; U.clear.textContent = 'Очистить всё'; }, 3000); } });
+    U.clearAsk = el('div', 'confirm off', 'Убрать все объекты? Это можно отменить кнопкой ↶.', fp);
+    const yes = el('button', 'ghost', 'Да, очистить', U.clearAsk); yes.id = 'ctClearYes';
+    const no = el('button', 'ghost', 'Отмена', U.clearAsk);
+    tap(U.clear, () => U.clearAsk.classList.remove('off'));
+    tap(yes, () => { U.clearAsk.classList.add('off'); clearAll(); closeSheet(); });
+    tap(no, () => U.clearAsk.classList.add('off'));
     U.note = el('div', 'keys', '', fp);
   }
   function renderCatalog() {
@@ -1453,7 +1464,7 @@ body.ct-on #money{display:none}
     const sh = $(map[id]); if (!sh) return;
     S.sheet = id; sh.classList.remove('off');
     if (id === 'catalog') { if (S.kind) S.ui.cat = S.kind.cat; renderCatalog(); }
-    if (id === 'files') { renderFiles(); S.ui.name.value = ''; }
+    if (id === 'files') { renderFiles(); S.ui.name.value = ''; S.ui.clearAsk.classList.add('off'); }
     if (id === 'world') syncWorld();
     S.fly.up = S.fly.down = false;
   }
@@ -1596,6 +1607,7 @@ body.ct-on #money{display:none}
       updateStunts(dt);
     }
     updateProps(dt);
+    solveBodies();
     updateTrafficBlocks();
     for (const it of S.ents) if (it.k.t === 'ped' && it.ent && !it.ent.removed && it.ent.state === 'walk' && it.ent.idleT <= 0 && Math.random() < dt * 0.15) it.ent.idleT = rr(2, 6);
     if (S.saveT > 0) { S.saveT -= dt; if (S.saveT <= 0) autosave(); }
