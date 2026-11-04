@@ -1,7 +1,8 @@
 // ============================================================
 //  Boot, menus and the main loop
 // ============================================================
-const IDLE_IN = { throttle: 0, brake: 0.3, steer: 0, hand: false, nitro: false };
+// driverless cars: handbrake on (brake at standstill would engage reverse in the gearbox)
+const IDLE_IN = { throttle: 0, brake: 0, steer: 0, hand: true, nitro: false };
 const START_SPOT = { x: 293.5, z: -17.5 };
 let menuAngle = 0.6;
 

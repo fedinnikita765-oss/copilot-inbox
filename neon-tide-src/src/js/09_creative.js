@@ -406,6 +406,22 @@ const CREATIVE = (() => {
     }
     return best;
   }
+  // Ray test against driveable pieces (ramps, platforms, cubes): the camera and bullets stop at their surfaces.
+  function creativeRay(ox, oy, oz, dx, dy, dz, maxT) {
+    if (SG.surf === 0) return Infinity;
+    const step = 0.4, n = Math.min(400, Math.ceil(maxT / step));
+    let prev = 0;
+    for (let i = 1; i <= n; i++) {
+      const t = Math.min(maxT, i * step), h = creativeGround(ox + dx * t, oz + dz * t);
+      if (h > -Infinity && oy + dy * t < h) {
+        let a = prev, b = t;
+        for (let k = 0; k < 6; k++) { const m = (a + b) / 2, hm = creativeGround(ox + dx * m, oz + dz * m); if (hm > -Infinity && oy + dy * m < hm) b = m; else a = m; }
+        return b;
+      }
+      prev = t;
+    }
+    return Infinity;
+  }
   // is (x, z) inside a static item footprint grown by pad? (traffic blocking)
   function blockedAt(x, z, pad) {
     const l = SG.map.get(sgKey(Math.floor(x / 8), Math.floor(z / 8)));
@@ -1639,6 +1655,7 @@ body.ct-on #money{display:none}
   function boot() {
     makeAssets(); makeHelpers(); buildUI(); initInput();
     GROUND_HOOKS.push(creativeGround);
+    if (typeof RAY_HOOKS !== 'undefined') RAY_HOOKS.push(creativeRay);
     S.kind = KIND.ramp_m;
   }
   function start(d) {

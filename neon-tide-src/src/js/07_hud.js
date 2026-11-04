@@ -144,7 +144,16 @@ const HUD = (() => {
     for (const pk of pickups) if (pk.kind === 'cash') { const p = toMap(pk.x, pk.z, false); if (p) blip(g, p[0], p[1], 4, '#8dff7a'); }
     for (const m of MS.markers) if (m.kind === 'bag' && m.g.visible) { const p = toMap(m.x, m.z, true); if (p) blip(g, p[0], p[1], 7, C_BAG, true); }
     const fl = Math.floor(GAME.time * 6) % 2;
-    for (const pa of police) { if (pa.mode === 'leave') continue; const p = toMap(pa.car.x, pa.car.z, false); if (p) blip(g, p[0], p[1], 6, fl ? '#ff4d5e' : '#4d8dff', true); }
+    const polBlip = (x, z, kind) => {
+      const p = toMap(x, z, kind === 'heli'); if (!p) return;
+      const col = fl ? '#ff4d5e' : '#4d8dff';
+      if (kind === 'cop') blip(g, p[0], p[1], 3.5, col, true);
+      else if (kind === 'block') { g.fillStyle = col; g.fillRect(p[0] - 6, p[1] - 3, 12, 6); g.lineWidth = 2; g.strokeStyle = 'rgba(0,0,0,0.6)'; g.strokeRect(p[0] - 6, p[1] - 3, 12, 6); }
+      else if (kind === 'heli') { g.beginPath(); g.moveTo(p[0], p[1] - 8); g.lineTo(p[0] + 8, p[1]); g.lineTo(p[0], p[1] + 8); g.lineTo(p[0] - 8, p[1]); g.closePath(); g.fillStyle = col; g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(0,0,0,0.6)'; g.stroke(); }
+      else blip(g, p[0], p[1], 6, col, true);
+    };
+    if (typeof policeBlips === 'function') policeBlips(polBlip);
+    else for (const pa of police) { if (pa.mode !== 'leave') polBlip(pa.car.x, pa.car.z, 'car'); }
     if (MS.target) {
       const p = toMap(MS.target.x, MS.target.z, true);
       if (p) {
