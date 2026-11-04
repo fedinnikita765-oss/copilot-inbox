@@ -535,7 +535,7 @@ const CREATIVE = (() => {
     if (k.t === 'ring' || (k.look && it.color)) { _col.set(it.color); for (const p of it.parts) if (p.pool.o.color) p.pool.color(p.i, _col); }
     makeColliders(it);
     if (k.t === 'prop') { it.p = { x: it.x, y: it.y + k.hh, z: it.z, vx: 0, vy: 0, vz: 0, ry: it.r, tl: 0, ta: 0, wy: 0, awake: false, gone: false, fuse: -1, rest: 0 }; S.props.push(it); writeProp(it); }
-    if (k.t === 'ring') { it.ringT = 0; it.passT = -9; S.rings.push(it); }
+    if (k.t === 'ring') { it.ringT = 0; it.passT = -9; it.col = new THREE.Color(it.color); S.rings.push(it); }
     if (k.t === 'boost') S.boosts.push(it);
     if (k.t === 'lamp') { it.foot = [it.x + 2 * it.sn, it.z + 2 * it.c]; S.lamps.push(it); REFL.extra.push(it.foot); }
     if (k.t === 'car' || k.t === 'ped') { spawnEnt(it); S.ents.push(it); }
@@ -843,7 +843,7 @@ const CREATIVE = (() => {
     _ndc.set(sx / window.innerWidth * 2 - 1, -(sy / window.innerHeight) * 2 + 1, 0.5).unproject(camera);
     _ro.copy(camera.position); _rd.copy(_ndc).sub(_ro).normalize();
   }
-  function aimRay() { if (hover.on && !isTouch) screenRay(hover.x, hover.y); else screenRay(window.innerWidth / 2, window.innerHeight / 2); }
+  function aimRay() { if (hover.on && !isTouch && !document.pointerLockElement) screenRay(hover.x, hover.y); else screenRay(window.innerWidth / 2, window.innerHeight / 2); }
   function rayGround(maxT) {
     const ox = _ro.x, oy = _ro.y, oz = _ro.z, dx = _rd.x, dy = _rd.y, dz = _rd.z;
     const tb = typeof rayBoxes === 'function' ? rayBoxes(ox, oy, oz, dx, dy, dz, maxT) : maxT;
@@ -948,8 +948,7 @@ void main(){ vec2 g = abs(fract(vP.xz + 0.5) - 0.5) / fwidth(vP.xz); float l = 1
   }
   function validSpot(k, x, z, r) {
     if (S.items.length >= MAX_ITEMS) return false;
-    if (k.t === 'car' && S.ents.filter((e) => e.k.t === 'car').length >= MAX_CARS) return false;
-    if (k.t === 'ped' && S.ents.filter((e) => e.k.t === 'ped').length >= MAX_PEDS) return false;
+    if (k.t === 'car' || k.t === 'ped') { let n = 0; for (const e of S.ents) if (e.k.t === k.t) n++; if (n >= (k.t === 'car' ? MAX_CARS : MAX_PEDS)) return false; }
     const inside = (px, pz) => (px > -298 && px < 304 && pz > -298 && pz < 298) || (typeof onPier === 'function' && onPier(px, pz));
     const dm = k.dims, c = Math.cos(r), s = Math.sin(r);
     const pts = [[0, 0], [dm[0], dm[2]], [-dm[0], dm[2]], [dm[0], -dm[2]], [-dm[0], -dm[2]]];
@@ -1619,7 +1618,7 @@ body.ct-on #money{display:none}
     if (!S.on) return;
     if (T.boost) T.boost.offset.y = (T.boost.offset.y - dt * 1.6) % 1;
     for (const it of S.rings) {
-      if (it.ringT > 0) { it.ringT -= dt; _ringCol.set(it.color).lerp(_white, Math.max(0, it.ringT / 0.8)); it.parts[0].pool.color(it.parts[0].i, _ringCol); if (it.ringT <= 0) { _ringCol.set(it.color); it.parts[0].pool.color(it.parts[0].i, _ringCol); } }
+      if (it.ringT > 0) { it.ringT -= dt; _ringCol.copy(it.col).lerp(_white, Math.max(0, it.ringT / 0.8)); it.parts[0].pool.color(it.parts[0].i, _ringCol); if (it.ringT <= 0) it.parts[0].pool.color(it.parts[0].i, it.col); }
     }
     if (M.lampPool) M.lampPool.mesh.visible = M.lampPool.n > 0 && Q.pools && DAY.night > 0.01;
   }
@@ -1628,7 +1627,7 @@ body.ct-on #money{display:none}
     const cx = camera.position.x, cz = camera.position.z, n = DAY.night;
     for (const it of S.rings) {
       if (Math.abs(it.x - cx) > 160 || Math.abs(it.z - cz) > 160) continue;
-      _ringCol.set(it.color); const k = 0.35 + n * 0.9 + (it.ringT > 0 ? it.ringT : 0), R = it.k.R, cy = it.y + R + 0.9;
+      _ringCol.copy(it.col); const k = 0.35 + n * 0.9 + (it.ringT > 0 ? it.ringT : 0), R = it.k.R, cy = it.y + R + 0.9;
       for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + GAME.time * 0.6; layer.add(it.x + Math.cos(a) * R * it.c, cy + Math.sin(a) * R, it.z - Math.cos(a) * R * it.sn, _ringCol.r * k, _ringCol.g * k, _ringCol.b * k, 1.6); }
     }
     for (const it of S.boosts) { if (Math.abs(it.x - cx) > 120 || Math.abs(it.z - cz) > 120) continue; const k = 0.3 + n * 0.8; layer.add(it.x, it.y + 0.3, it.z, 0.25 * k, 0.9 * k, 1.0 * k, 3.4); }

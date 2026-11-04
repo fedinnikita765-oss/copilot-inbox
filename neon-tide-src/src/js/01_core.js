@@ -768,12 +768,12 @@ const ATMO = {
     return 'clear';
   },
 };
-const _cHaze = new THREE.Color(), _cFlash = new THREE.Color(0.75, 0.82, 1.0);
+const _atmoHaze = new THREE.Color(), _atmoFlash = new THREE.Color(0.75, 0.82, 1.0);
 const RAIN_DAY = new THREE.Color(0.66, 0.71, 0.78), RAIN_NIGHT = new THREE.Color(0.5, 0.54, 0.66);
 function weatherTint(c, dark, haze) {
   const l = c.r * 0.299 + c.g * 0.587 + c.b * 0.114, k = dark * 0.72, m = 1 - dark * 0.42;
   c.setRGB(lerp(c.r, l * 0.92, k) * m, lerp(c.g, l * 0.97, k) * m, lerp(c.b, l * 1.05, k) * m);
-  if (haze > 0) c.lerp(_cHaze, haze);
+  if (haze > 0) c.lerp(_atmoHaze, haze);
 }
 function strikeLightning() {
   const a = Math.random() * TAU, d = rr(240, 720);
@@ -829,7 +829,7 @@ function updateWeather(dt, playing) {
     u.uCam.value.copy(camera.position); u.uT.value = A.t;
     u.uWind.value.set(Math.sin(A.t * 0.13) * 2 + 3, 2.2).multiplyScalar(c.wind * 0.9);
     u.uLen.value = 0.95 + c.storm * 0.55; u.uA.value = 0.42 + 0.25 * c.storm;
-    u.uCol.value.copy(RAIN_DAY).lerp(RAIN_NIGHT, DAY.night).lerp(_cFlash, A.flash * 0.8);
+    u.uCol.value.copy(RAIN_DAY).lerp(RAIN_NIGHT, DAY.night).lerp(_atmoFlash, A.flash * 0.8);
     rainMesh.geometry.setDrawRange(0, Math.floor(Math.min(RAIN_MAX, Q.rain) * Math.min(1, rain)) * 2);
     let n = rain * dt * 70 * Q.splash, cx = camera.position.x, cz = camera.position.z;
     while (n > 0) {
@@ -883,22 +883,22 @@ function updateDay(dt, playing) {
   DAY.night = night;
   // haze colour: a grey of the horizon's brightness, keeping some of its tint (warm in the morning, deep blue at night)
   const hl = _cHor.r * 0.299 + _cHor.g * 0.587 + _cHor.b * 0.114;
-  _cHaze.setRGB(hl * 0.97, hl, hl * 1.04).lerp(_cHor, 0.4).multiplyScalar(lerp(1.15, 1.6, night) * (1 - dark * 0.5));
+  _atmoHaze.setRGB(hl * 0.97, hl, hl * 1.04).lerp(_cHor, 0.4).multiplyScalar(lerp(1.15, 1.6, night) * (1 - dark * 0.5));
   const su = skyMat.uniforms;
   su.uTop.value.copy(_cTop); su.uHor.value.copy(_cHor); su.uGnd.value.copy(_cGnd); su.uSunCol.value.copy(_cSun);
   su.uSunDir.value.copy(DAY.sunDir); su.uMoonDir.value.copy(DAY.moonDir); su.uNight.value = night; su.uCloudCol.value.copy(_cCloud);
-  su.uCover.value = W.cover; su.uDark.value = dark; su.uHaze.value = W.haze; su.uHazeCol.value.copy(_cHaze); su.uFlash.value = flash;
+  su.uCover.value = W.cover; su.uDark.value = dark; su.uHaze.value = W.haze; su.uHazeCol.value.copy(_atmoHaze); su.uFlash.value = flash;
   // from here on the palette is the weather-tinted one (fog, ambient light, water reflections)
   weatherTint(_cTop, dark, W.haze * 0.6); weatherTint(_cHor, dark, W.haze * 0.75);
   const sunI = sstep(-0.03, 0.14, e) * 2.7 * W.sun;
   const moonI = sstep(-0.03, -0.18, e) * 0.8 * lerp(1, 0.35, Math.min(1, W.cover * 1.2 - 0.2));
   if (e > -0.05) { sun.color.copy(_cSun); sun.intensity = sunI; DAY.lightDir = DAY.sunDir; }
   else { sun.color.copy(MOONCOL); sun.intensity = moonI; DAY.lightDir = DAY.moonDir; }
-  hemi.color.copy(_cTop).lerp(_cHor, 0.45).lerp(NIGHT_AMB, night * 0.55).lerp(_cFlash, Math.min(1, flash));
+  hemi.color.copy(_cTop).lerp(_cHor, 0.45).lerp(NIGHT_AMB, night * 0.55).lerp(_atmoFlash, Math.min(1, flash));
   hemi.groundColor.copy(HEMI_GND).multiplyScalar(lerp(1, 0.25, night));
   hemi.intensity = lerp(0.62, 0.55, night) + (1 - W.sun) * 0.38 * (1 - night) + flash * 2.4;
   renderer.toneMappingExposure = lerp(1.0, 1.32, night) * (1 - dark * 0.08);
-  scene.fog.color.copy(_cHor).lerp(_cTop, 0.15).lerp(_cHaze, W.haze * 0.6);
+  scene.fog.color.copy(_cHor).lerp(_cTop, 0.15).lerp(_atmoHaze, W.haze * 0.6);
   const fogK = sstep(0.55, 0.15, W.fog); // 0 in clear air, 1 in thick fog
   scene.fog.far = Q.fog * lerp(1, 0.82, night) * W.fog; scene.fog.near = scene.fog.far * lerp(0.16, 0.01, fogK);
   glowMats.forEach((m) => { m.uniforms.uFogNear.value = scene.fog.near; m.uniforms.uFogFar.value = scene.fog.far; });
@@ -916,21 +916,21 @@ function updateDay(dt, playing) {
     DAY.envT = 0; DAY.lastEnvDir.copy(DAY.sunDir); ATMO.envDark = envW; updateEnv();
   }
 }
-const _gp = new V3();
+const _atmoGlareP = new V3();
 function updateGlare(e, night, W) {
   if (!glareSun) return;
   const open = 1 - sstep(0.5, 0.95, W.cover), d = 2400;
   const ks = sstep(-0.06, 0.08, e) * open * (0.32 + 0.25 * sstep(0.35, 0.05, e)) * (1 - W.haze * 0.7);
   glareSun.visible = ks > 0.005;
   if (glareSun.visible) {
-    _gp.copy(DAY.sunDir).multiplyScalar(d).add(camera.position); glareSun.position.copy(_gp);
+    _atmoGlareP.copy(DAY.sunDir).multiplyScalar(d).add(camera.position); glareSun.position.copy(_atmoGlareP);
     glareSun.scale.setScalar(d * lerp(0.42, 0.62, sstep(0.3, 0.0, e)));
     glareSun.material.color.copy(_cSun).multiplyScalar(ks);
   }
   const km = night * open * 0.2 * sstep(-0.1, 0.1, DAY.moonDir.y);
   glareMoon.visible = km > 0.005;
   if (glareMoon.visible) {
-    _gp.copy(DAY.moonDir).multiplyScalar(d).add(camera.position); glareMoon.position.copy(_gp);
+    _atmoGlareP.copy(DAY.moonDir).multiplyScalar(d).add(camera.position); glareMoon.position.copy(_atmoGlareP);
     glareMoon.scale.setScalar(d * 0.16); glareMoon.material.color.setRGB(0.6 * km, 0.7 * km, km);
   }
 }

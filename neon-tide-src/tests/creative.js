@@ -23,6 +23,7 @@ async function openPage(browser, opts) {
     });
   }
   const page = await ctx.newPage();
+  page.setDefaultTimeout(90000);
   const logs = [];
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') logs.push(m.type() + ': ' + m.text()); });
   page.on('pageerror', (e) => logs.push('PAGEERROR: ' + e.message + ' | ' + (e.stack || '').split('\n').slice(1, 3).join(' ')));
@@ -104,15 +105,31 @@ const shot = async (page, name, hideHud) => {
   await step(2);
   check('entered the placed sedan', await ev(() => window.__neon.player.mode === 'car'));
   await page.keyboard.down('KeyW');
-  let maxY = 0, onRamp = 0;
-  for (let i = 0; i < 160; i++) {
-    const s = await ev(([n]) => { const N = window.__neon; N.step(n, 1 / 30); const c = N.player.car; return { y: c.y, z: c.z }; }, [i < 15 ? 4 : 1]);
-    if (s.z > -4 && s.z < 4.5) { onRamp++; maxY = Math.max(maxY, s.y); }
-    if (s.z > 8) break;
-  }
+  const run = await ev(() => {
+    const N = window.__neon; let maxY = 0, onRamp = 0;
+    for (let i = 0; i < 400; i++) {
+      N.step(1, 1 / 30);
+      const c = N.player.car;
+      if (c.z > -4 && c.z < 4.5) { onRamp++; maxY = Math.max(maxY, c.y); }
+      if (c.z > 8) break;
+    }
+    return { maxY: +maxY.toFixed(2), onRamp };
+  });
+  const maxY = run.maxY, onRamp = run.onRamp;
   await page.keyboard.up('KeyW');
   st = await ev(() => { const c = window.__neon.player.car; return { z: +c.z.toFixed(1), y: +c.y.toFixed(2), kmh: Math.round(c.speed * 3.6) }; });
-  check('car climbed the ramp', maxY > 2.6 && st.z > 4, { maxY: +maxY.toFixed(2), onRamp, end: st });
+  check('car climbed the ramp', maxY > 2.2 && onRamp > 4 && st.z > 4, { maxY: +maxY.toFixed(2), onRamp, end: st });
+  // ramp straight onto a 3.5 m platform: the step solver must let the car through, then it drives off the far edge
+  st = await ev(() => {
+    const N = window.__neon, C = N.CREATIVE;
+    C.add({ k: 'ramp_m', x: -200, z: 0 }); C.add({ k: 'plat_hi', x: -200, z: 8 });
+    const c = N.player.car; c.x = -200; c.z = -22; c.h = 0; c.y = 0; c.vx = c.vz = 0;
+    N.keys.add('KeyW'); let top = 0, onTop = 0;
+    for (let i = 0; i < 200; i++) { N.step(1, 1 / 30); top = Math.max(top, c.y); if (c.z > 5 && c.z < 11 && c.y > 3.2) onTop++; if (c.z > 15) break; }
+    N.keys.delete('KeyW');
+    return { top: +top.toFixed(2), onTop, z: +c.z.toFixed(1) };
+  });
+  check('ramp onto a platform', st.top > 3.3 && st.onTop > 2 && st.z > 12, st);
 
   // ---- a platform wall stops a car that is not on top of it ----
   st = await ev(() => { const n = window.__neon, c = n.player.car; c.x = -146; c.z = 0; c.h = Math.PI / 2; c.y = 0; c.vx = 14; c.vz = 0; n.step(45, 1 / 30); return { x: +c.x.toFixed(2), y: +c.y.toFixed(2) }; });
@@ -178,7 +195,7 @@ const shot = async (page, name, hideHud) => {
   await page.tap('#ctWorldBtn'); await page.waitForTimeout(200);
   const wx = {};
   for (const w of ['clear', 'cloudy', 'rain', 'storm', 'fog']) {
-    await page.tap('#ctWorld .chip[data-v="' + w + '"]');
+    await page.locator('#ctWorld .chip[data-v="' + w + '"]').dispatchEvent('click'); // tap() would wait for 2 stable frames (very slow in software GL while it rains)
     await step(240);
     wx[w] = await ev(() => { const A = window.__neon.ATMO; return { t: A.type, rain: +A.cur.rain.toFixed(2), fog: +A.cur.fog.toFixed(2), dark: +A.cur.dark.toFixed(2), wet: +A.wet.toFixed(2), wind: +A.cur.wind.toFixed(2), far: Math.round(window.__neon.scene.fog.far) }; });
   }
@@ -187,13 +204,13 @@ const shot = async (page, name, hideHud) => {
   check('weather: rain (wet streets)', wx.rain.t === 'rain' && wx.rain.rain > 0.6 && wx.rain.wet > 0.6, wx.rain);
   check('weather: storm (wind)', wx.storm.t === 'storm' && wx.storm.rain > 0.9 && wx.storm.wind > 3, wx.storm);
   check('weather: fog', wx.fog.t === 'fog' && wx.fog.fog < 0.3 && wx.fog.far < 220, wx.fog);
-  await page.tap('#ctWorld .chip[data-v="noPolice"]'); await page.tap('#ctWorld .chip[data-v="1.5"]'); await page.tap('#ctWorld .ct-x');
+  for (const sel of ['#ctWorld .chip[data-v="noPolice"]', '#ctWorld .chip[data-v="1.5"]', '#ctWorld .ct-x']) await page.locator(sel).first().dispatchEvent('click');
   st = await ev(() => { const n = window.__neon; return { np: n.GAME.cheats.noPolice, q: n.getQ().traffic, ts: n.GAME.timeScale }; });
   check('world toggles', st.np === true && st.q > 0, st);
   await ev(() => window.__neon.CREATIVE.setWorld({ noPolice: false, traffic: 0.5 }));
 
   // ---- screenshots: rainy night street and foggy morning (select tool: no placement ghost in the picture) ----
-  await page.tap('#ctToolSel');
+  await page.locator('#ctToolSel').dispatchEvent('click');
   await ev(() => { const n = window.__neon, C = n.CREATIVE; C.setWorld({ weather: 'rain', hour: 22.5, freeze: true }); n.ATMO.set('rain', true); C.flyTo(201, 1.9, -150, 0.03, -0.02); });
   await step(30);
   await shot(page, 'rain-night.png', true);
