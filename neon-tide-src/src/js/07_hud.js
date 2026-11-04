@@ -5,7 +5,7 @@ const $ = (id) => document.getElementById(id);
 const HUD = (() => {
   const el = {};
   ['hud', 'money', 'clock', 'stars', 'objective', 'objText', 'objMeta', 'sms', 'smsText', 'smsFrom', 'smsAva', 'banner', 'bannerSub', 'bannerTitle',
-    'toasts', 'speedo', 'spdVal', 'carHp', 'radio', 'hpFg', 'minimap', 'dead', 'deadText', 'fade', 'hurt', 'stick', 'knob'].forEach((k) => { el[k] = $(k); });
+    'toasts', 'speedo', 'spdVal', 'gearVal', 'tach', 'carHp', 'radio', 'hpFg', 'minimap', 'dead', 'deadText', 'fade', 'hurt', 'stick', 'knob'].forEach((k) => { el[k] = $(k); });
   const CIRC = 2 * Math.PI * 48;
   el.hpFg.style.strokeDasharray = CIRC.toFixed(1);
   const starEls = [];
@@ -16,7 +16,7 @@ const HUD = (() => {
     p.setAttribute('d', 'M12 2.2l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.3l-6 3.3 1.3-6.7-5-4.7 6.8-.8z');
     s.appendChild(p); el.stars.appendChild(s); starEls.push(s);
   }
-  let last = { obj: null, money: -1, clock: '', stars: -1, flash: null, spd: -1, hp: -1, meta: '', carHp: -1, radio: null };
+  let last = { obj: null, money: -1, clock: '', stars: -1, flash: null, spd: -1, hp: -1, meta: '', carHp: -1, radio: null, gear: null, rpm: -1 };
   let smsT = 0, bannerT = 0, mapT = 0;
   const FOOT_BTNS = ['bPunch', 'bJump', 'bSprint'], CAR_BTNS = ['bGas', 'bBrake', 'bHand', 'bExit', 'bHorn', 'bNitro'];
   // Dynamic buttons for feature modules: HUD.addButton({ id, label, icon (svg markup), modes: ['foot','car','creative',...],
@@ -97,6 +97,10 @@ const HUD = (() => {
     if (player.mode === 'car' && player.car) {
       const s = Math.round(player.car.speed * 3.6);
       if (s !== last.spd) { last.spd = s; el.spdVal.textContent = s; }
+      const c = player.car, g = c.gear === undefined ? '' : c.gear < 0 ? 'R' : c.gear === 0 ? 'N' : String(c.gear);
+      if (g !== last.gear) { last.gear = g; el.gearVal.textContent = g; el.gearVal.style.display = g ? '' : 'none'; }
+      const rp = c.rpm && c.T.rl ? Math.round(clamp(c.rpm / c.T.rl, 0, 1) * 100) : 0;
+      if (rp !== last.rpm) { last.rpm = rp; el.tach.firstElementChild.style.width = rp + '%'; }
       const ch = Math.round(player.car.health);
       if (ch !== last.carHp) { last.carHp = ch; el.carHp.firstElementChild.style.width = clamp(ch, 0, 100) + '%'; }
       const rt = save.music && save.sound ? 'РАДИО НЕОН · 101.7' : 'РАДИО ВЫКЛ';

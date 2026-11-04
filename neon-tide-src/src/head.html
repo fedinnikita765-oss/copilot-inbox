@@ -82,6 +82,10 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 #speedo{position:absolute;left:50%;bottom:calc(12px + var(--sb));transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
 #spdVal{font:900 clamp(26px,7vmin,46px)/1 var(--display);font-variant-numeric:tabular-nums;color:var(--fg);text-shadow:0 0 22px rgba(63,229,239,.5),0 3px 0 rgba(0,0,0,.5)}
 #speedo small{font:700 10px/1 var(--body);letter-spacing:.3em;color:var(--fg-dim)}
+#spdRow{display:flex;align-items:flex-end;gap:8px}
+#gearVal{font:800 clamp(14px,3.4vmin,20px)/1 var(--display);color:var(--gold);min-width:1.2em;padding:3px 5px;border:1px solid var(--line);border-radius:6px;background:var(--glass)}
+#tach{width:110px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden}
+#tach i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan) 0%,var(--cyan) 70%,var(--gold) 82%,var(--red) 100%);background-size:110px 100%}
 #carHp{width:110px;height:5px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
 #carHp i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--red),var(--gold),var(--lime));background-size:110px 100%;transition:width .3s}
 #radio{font:700 10px/1 var(--body);letter-spacing:.2em;color:var(--pink);text-transform:uppercase;opacity:.9}

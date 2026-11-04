@@ -48,7 +48,7 @@ GAMEHOOK.explosion = (x, z, car) => {
 
 function spawnParked() {
   const types = ['sedan', 'coupe', 'suv', 'muscle', 'sedan', 'coupe'];
-  SPOT.parking.forEach((s) => { if (Math.random() < 0.6) { const c = new Car(rpick(types)); c.place(s.x, s.z, s.h); c.persistent = true; } });
+  SPOT.parking.forEach((s) => { if (Math.random() < 0.6) { const c = new Car(typeof pickCarType === 'function' ? pickCarType() : rpick(types)); c.place(s.x, s.z, s.h); c.persistent = true; } });
 }
 function populate(px, pz) {
   for (let i = 0; i < Q.traffic; i++) spawnTraffic(px, pz, true);
@@ -156,9 +156,9 @@ function updateGlows() {
     if (lit) {
       for (let s = -1; s <= 1; s += 2) {
         const ox = rx * s * (T.W / 2 - 0.37), oz = rz * s * (T.W / 2 - 0.37);
-        if (n > 0.05) glowDyn.add(c.x + fx * (T.L / 2 + 0.2) + ox, hy, c.z + fz * (T.L / 2 + 0.2) + oz, n, 0.93 * n, 0.78 * n, 1.6);
+        if (n > 0.05 && !(c.dmg && c.dmg.f > 26)) glowDyn.add(c.x + fx * (T.L / 2 + 0.2) + ox, hy, c.z + fz * (T.L / 2 + 0.2) + oz, n, 0.93 * n, 0.78 * n, 1.6);
         const br = c.braking ? 1.4 : 0.55 * n;
-        glowDyn.add(c.x - fx * (T.L / 2 + 0.15) + ox * 1.05, hy + 0.03, c.z - fz * (T.L / 2 + 0.15) + oz * 1.05, br, 0.06 * br, 0.06 * br, c.braking ? 1.1 : 0.8);
+        if (!c.tailsBroken) glowDyn.add(c.x - fx * (T.L / 2 + 0.15) + ox * 1.05, hy + 0.03, c.z - fz * (T.L / 2 + 0.15) + oz * 1.05, br, 0.06 * br, 0.06 * br, c.braking ? 1.1 : 0.8);
       }
     }
     const chasing = T.police && ((c.ai && c.ai.mode === 'chase' && wanted.stars > 0) || (c === player.car && input.horn));
