@@ -118,7 +118,7 @@ class FleeAI {
   release() { }
   update(dt) {
     const c = this.car;
-    if (c.wrecked) { c.physics({ throttle: 0, brake: 1, steer: 0 }, dt); return; }
+    if (c.wrecked) { c.physics({ throttle: 0, brake: c.vf > 0.6 ? 1 : 0, steer: 0, hand: true }, dt); return; }
     this.repath -= dt;
     if (this.repath <= 0 || !this.path.length) {
       this.repath = this.panic ? 2.5 : 6;
